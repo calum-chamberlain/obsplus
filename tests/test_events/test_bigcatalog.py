@@ -1,14 +1,15 @@
 """
 Tests for the big catalog.
 """
+import obspy
 import pandas as pd
 import pytest
+import obspy.core.event as ev
+from obspy.core.event import ResourceIdentifier
 
-import obspy
-from obspy.core.event import ResourceIdentifier, Catalog
 
-from obsplus.utils import yield_obj_parent_attr
 from obsplus.events.bigcatalog import BigCatalog, _LazyList
+from obsplus.utils import yield_obj_parent_attr
 
 
 @pytest.fixture(scope="class")
@@ -23,6 +24,8 @@ class TestLazyList:
         cat = obspy.read_events()
         out = {}
         for obj, parent, attr in yield_obj_parent_attr(cat, ResourceIdentifier):
+            if attr != "resource_id":
+                continue
             out[str(obj)] = parent
         return out
 
@@ -36,11 +39,35 @@ class TestLazyList:
         """ init a lazy list. """
         return _LazyList(rid_list)
 
-    def test_get_item(self, rid_dict):
-        lazy_list = list(rid_dict)
-        ll = _LazyList(list(rid_dict))
-        breakpoint()
-        print("hey")
+    def test_get_item(self, rid_dict, rid_list, lazy_list):
+        """ Ensure that get item returns the loaded object. """
+        # iterate the lazy list and ensure each item was loaded
+        for item, rid in zip(lazy_list, rid_list):
+            assert hasattr(item, "resource_id")
+            assert str(rid) == str(item.resource_id)
+
+    def test_append_object(self, lazy_list):
+        """ A non-resource id bearing object should be appendable """
+        lazy_list.append("hey")
+        assert lazy_list[-1] == "hey"
+
+    def test_insert_resource_id(self, lazy_list):
+        """ Appending a resource ID should work to cache object. """
+        obj = ev.Event()
+        rid = obj.resource_id
+        lazy_list.insert(0, rid)
+        assert lazy_list[0] is obj
+
+    def test_is_loaded(self, lazy_list):
+        """ Ensure list can tell which items are loaded. """
+        # this test may be too tightly coupled to implementation...
+        assert not any(lazy_list._isloaded)
+        _ = lazy_list[0]
+        assert lazy_list._isloaded[0]
+        assert not any(lazy_list._isloaded[1:])
+        for _ in lazy_list:
+            pass
+        assert all(lazy_list._isloaded)
 
 
 class TestBasics:
