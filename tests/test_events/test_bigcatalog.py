@@ -11,14 +11,13 @@ from obsplus.utils import yield_obj_parent_attr
 from obsplus.events.bigcatalog import BigCatalog, _LazyList
 
 
-@pytest.fixture(scope='class')
+@pytest.fixture(scope="class")
 def big_bingham(bingham_dataset):
     return BigCatalog(bingham_dataset.event_client)
 
 
 class TestLazyList:
-
-    @pytest.fixture(scope='class')
+    @pytest.fixture(scope="class")
     def rid_dict(self):
         """ A dict of resource IDs and their referred objects. """
         cat = obspy.read_events()
@@ -41,7 +40,7 @@ class TestLazyList:
         lazy_list = list(rid_dict)
         ll = _LazyList(list(rid_dict))
         breakpoint()
-        print('hey')
+        print("hey")
 
 
 class TestBasics:
@@ -54,13 +53,9 @@ class TestBasics:
     def test_resource_ids_correct(self, big_bingham):
         """ ensure the resource IDs point to the correct obj """
         for obj, parent, attr in yield_obj_parent_attr(big_bingham):
-            if hasattr(obj, 'resource_id'):
+            if hasattr(obj, "resource_id"):
                 if isinstance(obj, ResourceIdentifier):
                     continue
                 rid = obj.resource_id
                 referred_obj = rid.get_referred_object()
                 assert obj is referred_obj
-
-
-
-

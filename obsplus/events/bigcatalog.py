@@ -22,12 +22,12 @@ def _get_resource_id_default(name: str) -> object:
     return ResourceIdentifier(name).get_referred_object()
 
 
-
 class _LazyList(UserList):
     """
     A lazy list that stores resource IDs. When each element is accessed the
     referred object is loaded.
     """
+
     def __init__(self, *args, object_fetcher=None, **kwargs):
         super().__init__(*args, **kwargs)
         self._obj_fetcher = object_fetcher or _get_resource_id_default
@@ -47,15 +47,10 @@ class _LazyList(UserList):
         return out
 
 
-
 class BigCatalog(Catalog):
     """
     A big lazy catalog.
     """
-
-
-
-
 
 
 def to_big_catalog(events: EventClient) -> BigCatalog:
