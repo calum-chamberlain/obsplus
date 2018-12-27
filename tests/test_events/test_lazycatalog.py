@@ -1,20 +1,23 @@
 """
 Tests for the big catalog.
 """
+
 import obspy
+import obspy.core.event as ev
 import pandas as pd
 import pytest
-import obspy.core.event as ev
 from obspy.core.event import ResourceIdentifier
 
-
-from obsplus.events.bigcatalog import BigCatalog, _LazyList
+from obsplus.events.lazycatalog import LazyCatalog, _LazyList
 from obsplus.utils import yield_obj_parent_attr
 
 
 @pytest.fixture(scope="class")
-def big_bingham(bingham_dataset):
-    return BigCatalog(bingham_dataset.event_client)
+def lazy_cat(bingham_dataset):
+    """ Lazify the bingham catalog and flush, run gc, return result. """
+    lazy = LazyCatalog(bingham_dataset.event_client)
+    lazy.flush(clear=True)
+    return lazy
 
 
 class TestLazyList:
@@ -71,15 +74,15 @@ class TestLazyList:
 
 
 class TestBasics:
-    def test_to_df(self, big_bingham):
-        """ ensure the catalog can return the df summary. """
-        df = big_bingham.to_df()
+    def test_to_df(self, lazy_cat):
+        """ ensure the catalog can return the df summary """
+        df = lazy_cat.to_df()
         assert isinstance(df, pd.DataFrame)
         assert not df.empty
 
-    def test_resource_ids_correct(self, big_bingham):
+    def test_resource_ids_correct(self, lazy_cat):
         """ ensure the resource IDs point to the correct obj """
-        for obj, parent, attr in yield_obj_parent_attr(big_bingham):
+        for obj, parent, attr in yield_obj_parent_attr(lazy_cat):
             if hasattr(obj, "resource_id"):
                 if isinstance(obj, ResourceIdentifier):
                     continue

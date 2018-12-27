@@ -8,8 +8,8 @@ from typing import Union
 import obspy
 from obspy.core.event import ResourceIdentifier, QuantityError
 
-from obsplus.events.utils import obj_to_dict, make_class_map
 from obsplus.constants import JSON_KEYS_TO_POP
+from obsplus.events.utils import obj_to_dict, make_class_map
 
 JSON_SERIALIZER_VERSION = "0.0.0"  # increment when serialization changes
 
@@ -32,11 +32,11 @@ def cat_to_dict(obj):
     Parameters
     ----------
     obj :
-        An object that will be recursed (obspy cat_name to start)
+        An object that will be recursed
     """
     if isinstance(obj, obspy.Catalog):
         obj.json_serializer_version = JSON_SERIALIZER_VERSION
-    # if this is a non-recursible type (ie a leaf) return it
+    # if this is a non-recursible type (a leaf) return it
     if isinstance(obj, (int, float, str)) or obj is None:
         return obj
     elif isinstance(obj, (list, tuple)):

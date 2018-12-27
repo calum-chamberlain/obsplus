@@ -4,8 +4,6 @@ ObsPlus: A Pandas-Centric ObsPy Expansion Pack
 
 # -------------------- pull key objects to package level
 
-name = "example_pkg"
-
 # turn off chained assignment warnings (consider not doing this)
 import pandas as pd
 
@@ -25,9 +23,6 @@ from obsplus.bank.wavebank import WaveBank
 from obsplus.bank.eventbank import EventBank
 from obsplus.bank.stationbank import StationBank
 
-# Sbank is depreciated, but better to not break codes
-Sbank = WaveBank
-
 # misc functions
 from obsplus.utils import get_preferred, get_reference_time
 from obsplus.structures.dfextractor import DataFrameExtractor
@@ -39,7 +34,6 @@ from obsplus.structures.fetcher import Fetcher
 # load datasets function
 from obsplus.datasets.dataloader import load_dataset, copy_dataset
 
-
 # import xarray stuff
 from obsplus.waveforms.xarray.convert import (
     obspy_to_array_dict,
@@ -48,15 +42,10 @@ from obsplus.waveforms.xarray.convert import (
 )
 
 
-# legacy code names, consider emitting a depreciation warning
-waveform2data_array = obspy_to_array
-waveform2data_array_dict = obspy_to_array_dict
-
 # ensure all obspy objects are monkeypatched with added methods
 from .events.get_events import get_events
 from .stations.get_stations import get_stations
 from .waveforms.get_waveforms import get_waveforms
-
 
 # get the get_client methods into obsplus namespace
 from obsplus.waveforms.utils import get_waveform_client
@@ -65,3 +54,11 @@ from obsplus.stations.utils import get_station_client
 
 # mute pandas chained_assignment (think about not doing this...)
 pd.options.mode.chained_assignment = None
+
+# Sbank is depreciated, but better to not break codes
+Sbank = WaveBank
+
+# legacy code names, consider emitting a depreciation warning
+waveform2data_array = obspy_to_array
+waveform2data_array_dict = obspy_to_array_dict
+

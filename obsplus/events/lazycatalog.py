@@ -1,14 +1,16 @@
 """
-A catalog based on SQLlite backend.
+A lazy catalog based on SQLite backend.
 """
-import sqlite3
-from typing import List
 from collections import UserList
+from typing import List
 
-import pandas as pd
 from obspy import Catalog
 from obspy.core.event import ResourceIdentifier
+
+from obsplus.events.utils import make_class_map
 from obsplus.interfaces import EventClient
+
+class_map = make_class_map()
 
 
 def _get_resource_id_default(name: str) -> object:
@@ -66,13 +68,24 @@ class _LazyList(UserList):
         ]
 
 
-class BigCatalog(Catalog):
+class LazyCatalog(Catalog):
     """
-    A big lazy catalog.
+    A lazy catalog.
     """
 
+    def flush(self, clear: bool = False):
+        """
+        Flush the events in memory to backend engine.
 
-def to_big_catalog(events: EventClient) -> BigCatalog:
+        Parameters
+        ----------
+        clear
+            If True delete all catalog components currently in memory after
+            saving to engine.
+        """
+
+
+def to_lazy_catalog(events: EventClient) -> LazyCatalog:
     """
     Convert an event client into a big catalog.
 
@@ -82,4 +95,4 @@ def to_big_catalog(events: EventClient) -> BigCatalog:
         Any event source.
     """
 
-    return BigCatalog(events)
+    return LazyCatalog(events)
