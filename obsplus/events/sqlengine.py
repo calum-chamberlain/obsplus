@@ -52,7 +52,7 @@ class SQLEngine:
         catalog = event_like.get_events()
 
     @compose_docstring(get_events_params=get_events_parameters)
-    def to_df(self, *args, level='summary', **kwargs) -> pd.DataFrame:
+    def to_df(self, *args, level="summary", **kwargs) -> pd.DataFrame:
         """
         Dump contents of database to a dataframe, optionally filtering.
 

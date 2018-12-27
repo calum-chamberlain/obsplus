@@ -61,4 +61,3 @@ Sbank = WaveBank
 # legacy code names, consider emitting a depreciation warning
 waveform2data_array = obspy_to_array
 waveform2data_array_dict = obspy_to_array_dict
-
