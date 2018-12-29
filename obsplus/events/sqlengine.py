@@ -3,24 +3,22 @@ A module for storing the catalog contents in a SQL database using a
 SQLite engine. I suspect only SQLite and postgres will be supported because
 a variable string column is needed.
 """
+from typing import Sequence, Union
 
 import pandas as pd
 import sqlalchemy
 
+import obsplus
 from obsplus.constants import get_events_parameters
 from obsplus.interfaces import EventClient
 from obsplus.utils import compose_docstring
-
-
-def _events_to_table(events) -> pd.DataFrame:
-    """
-    Decompose the events into storage table required by SQLEngine.
-    """
+from obsplus.events.lazycatalog import _events_to_raw_table
+import obspy.core.event as ev
 
 
 class SQLEngine:
     """
-    A SQL engine for storing info. in the big catalog.
+    A SQL engine for storing info. in the lazy catalog.
 
     Acts as the interface to a sql backend where events are stored in a table
     as json blobs.
@@ -34,22 +32,27 @@ class SQLEngine:
     resource identifiers are then separated and stored in a different column.
     The columns of this table are:
 
-    | resource_id | event_id | class_name | object |
+    | resource_id | event_id | class_name | parent_id | object |
     """
 
-    def __init__(self, engine_args, **kwargs):
+    def __init__(self, *, engine_args="sqlite://", events=None, **kwargs):
         self._engine = sqlalchemy.create_engine(engine_args, **kwargs)
+        if events is not None:
+            self.dump_events(events)
 
-    def dump_events(self, event_like: EventClient):
+    def dump_events(self, event_like: Union[EventClient, Sequence[ev.Event]]):
         """
         Dump events into the database.
 
         Parameters
         ----------
         event_like
-            Anything with a `get_events` method.
+            A sequence of Events or anything with a `get_events` method.
         """
-        catalog = event_like.get_events()
+        if isinstance(event_like, EventClient):
+            events = event_like.get_events()
+        self._raw_table = _events_to_raw_table(events)
+        self._summary_table = obsplus.events_to_df(event_like)
 
     @compose_docstring(get_events_params=get_events_parameters)
     def to_df(self, *args, level="summary", **kwargs) -> pd.DataFrame:
@@ -61,3 +64,7 @@ class SQLEngine:
         level
             Sets the level. Only summary supported for now.
         """
+        if level == "summary":
+            return self._summary_table
+        elif level == "raw":
+            return self._raw_table

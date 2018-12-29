@@ -6,12 +6,14 @@ import copy
 import logging
 import os
 import re
+from collections import deque
 from functools import lru_cache, singledispatch
 from pathlib import Path
 from typing import Union, Optional, Callable
 
 import obspy
 import obspy.core.event as ev
+import pandas as pd
 from obspy.core.event import Catalog, Event, ResourceIdentifier
 from obspy.core.event.base import QuantityError
 from obspy.core.util.obspy_types import Enum
@@ -345,7 +347,7 @@ def _catalog_to_client(path):
         return get_event_client(obspy.read_events(str(path)))
 
 
-def obj_to_dict(obj):
+def obj_to_dict(obj) -> dict:
     """
     Return the dict representation of an obspy object.
 
