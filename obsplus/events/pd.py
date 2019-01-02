@@ -311,12 +311,12 @@ def _pick_extractor(pick):
 
 
 def event_to_dataframe(cat_or_event):
-    """ Given a events or event, return a Dataframe summary. """
+    """ Given an event (or catalog), return a Dataframe summary. """
     return events_to_df(cat_or_event)
 
 
 def picks_to_dataframe(cat_or_event):
-    """ Given a events or event return a dataframe of picks """
+    """ Given an event (or catalog) return a dataframe of picks. """
     return picks_to_df(cat_or_event)
 
 

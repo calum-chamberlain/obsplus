@@ -8,7 +8,7 @@ import re
 import sqlite3
 import warnings
 from os.path import join
-from typing import Optional, Sequence
+from typing import Optional
 
 import obspy
 import obspy.core.event as ev
@@ -24,15 +24,11 @@ from obsplus.constants import (
 from obsplus.utils import _get_event_origin_time, READ_DICT
 from .mseed import summarize_mseed
 
-# --- sensible defaults
 
 # extensions
 WAVEFORM_EXT = ".mseed"
 EVENT_EXT = ".xml"
 STATION_EXT = ".xml"
-
-
-# name structures
 
 
 def _get_time_values(time1, time2=None):
@@ -265,102 +261,6 @@ def get_kernel_query(starttime: float, endtime: float, buffer: float):
         f"(starttime<{t1:f} & endtime>{t2:f}))"
     )
     return con
-
-
-# --- SQL stuff
-
-
-def _make_wheres(queries):
-    """ Create the where queries, join with AND clauses """
-    kwargs = dict(queries)
-    out = []
-
-    if "eventid" in kwargs:
-        kwargs["event_id"] = kwargs["eventid"]
-        kwargs.pop("eventid")
-    if "event_id" in kwargs:  # ensure event_id is a str
-        val = kwargs.pop("event_id")
-        if isinstance(val, (Sequence, set)) and not isinstance(val, str):
-            kwargs["event_id"] = [str(x) for x in val]
-        else:
-            kwargs["event_id"] = str(val)
-    if "endtime" in kwargs:
-        kwargs["maxtime"] = kwargs["endtime"]
-        kwargs.pop("endtime")
-    if "starttime" in kwargs:
-        kwargs["mintime"] = kwargs["starttime"]
-        kwargs.pop("starttime")
-    if "mintime" in kwargs:
-        kwargs["mintime"] = obspy.UTCDateTime(kwargs["mintime"]).timestamp
-    if "maxtime" in kwargs:
-        kwargs["maxtime"] = obspy.UTCDateTime(kwargs["maxtime"]).timestamp
-
-    for key, val in kwargs.items():
-        # deal with simple min/max
-        if key.startswith("min"):
-            out.append(f"{key.replace('min', '')} > {val}")
-        elif key.startswith("max"):
-            out.append(f"{key.replace('max', '')} < {val}")
-        # deal with equals or ins
-        elif isinstance(val, Sequence):
-            if isinstance(val, str):
-                val = [val]
-            tup = str(tuple(val)).replace(",)", ")")  # no trailing coma
-            out.append(f"{key} IN {tup}")
-        else:
-            out.append(f"{key} = {val}")
-    return " AND ".join(out).replace("'", '"')
-
-
-def _make_sql_command(cmd, table_name, columns=None, **kwargs) -> str:
-    """ build a sql command """
-    # get columns
-    if columns:
-        col = [columns] if isinstance(columns, str) else columns
-        col += ["event_id"]  # event_id is used as index
-        columns = ", ".join(col)
-    elif cmd.upper() == "DELETE":
-        columns = ""
-    else:
-        columns = "*"
-    limit = kwargs.pop("limit", None)
-    wheres = _make_wheres(kwargs)
-    sql = f'{cmd.upper()} {columns} FROM "{table_name}"'
-    if wheres:
-        sql += f" WHERE {wheres}"
-    if limit:
-        sql += f" LIMIT {limit}"
-    return sql + ";"
-
-
-def _read_table(table_name, con, columns=None, **kwargs) -> pd.DataFrame:
-    """
-    Read a SQLite table.
-
-    Parameters
-    ----------
-    table_name
-    con
-    columns
-
-    Returns
-    -------
-
-    """
-    sql = _make_sql_command("select", table_name, columns=columns, **kwargs)
-    return pd.read_sql(sql, con)
-
-
-def _get_tables(con):
-    """ Return a list of table in sqlite database """
-    out = con.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    return set(out)
-
-
-def _drop_rows(table_name, con, columns=None, **kwargs):
-    """ Drop indicies in table """
-    sql = _make_sql_command("delete", table_name, columns=columns, **kwargs)
-    con.execute(sql)
 
 
 def _try_read_stream(stream_path, format=None, **kwargs):

@@ -67,7 +67,7 @@ def _events_to_raw_table(events) -> pd.DataFrame:
         if hasattr(obj, "resource_id"):
             extras["resource_id"] = str(obj.resource_id)
             if isinstance(obj, ev.Event):
-                extras["event_id"] = extras["resource_id"]
+                extras["event_id"] = str(extras["resource_id"])
 
         odict = obj_to_dict(obj)
         # determine which types of containers this object has
@@ -86,7 +86,7 @@ def _events_to_raw_table(events) -> pd.DataFrame:
         item, kwargs = deq.pop()
         func(item, extras=kwargs)
 
-    return pd.DataFrame(resource_dicts)
+    return pd.DataFrame(resource_dicts, dtype=str)
 
 
 def _get_resource_id_default(name: str) -> object:
@@ -171,4 +171,4 @@ def to_lazy_catalog(events: EventClient) -> LazyCatalog:
         Any event source.
     """
 
-    return LazyCatalog(events)
+    return LazyCatalog(events=events)

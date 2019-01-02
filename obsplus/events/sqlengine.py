@@ -11,7 +11,7 @@ import sqlalchemy
 import obsplus
 from obsplus.constants import get_events_parameters
 from obsplus.interfaces import EventClient
-from obsplus.utils import compose_docstring
+from obsplus.utils import compose_docstring, _read_table
 from obsplus.events.lazycatalog import _events_to_raw_table
 import obspy.core.event as ev
 
@@ -47,12 +47,15 @@ class SQLEngine:
         Parameters
         ----------
         event_like
-            A sequence of Events or anything with a `get_events` method.
+            A sequence of Events or an object with a `get_events` method.
         """
         if isinstance(event_like, EventClient):
             events = event_like.get_events()
-        self._raw_table = _events_to_raw_table(events)
-        self._summary_table = obsplus.events_to_df(event_like)
+        data_table = _events_to_raw_table(events)
+        summary_table = obsplus.events_to_df(event_like)
+
+        data_table.to_sql("data", self._engine, if_exists="append", index=False)
+        summary_table.to_sql("summary", self._engine, if_exists="append", index=False)
 
     @compose_docstring(get_events_params=get_events_parameters)
     def to_df(self, *args, level="summary", **kwargs) -> pd.DataFrame:
@@ -65,6 +68,6 @@ class SQLEngine:
             Sets the level. Only summary supported for now.
         """
         if level == "summary":
-            return self._summary_table
-        elif level == "raw":
-            return self._raw_table
+            return _read_table("summary", self._engine)
+        elif level == "data":
+            return _read_table("data", self._engine)

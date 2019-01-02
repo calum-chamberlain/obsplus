@@ -258,6 +258,7 @@ client_type = Union[str, concurrent.futures.Executor]
 TIME_PRECISION = obspy.UTCDateTime.DEFAULT_PRECISION
 AGG_LEVEL_MAP = dict(network=1, station=2, location=3, channel=4, all=5)
 
+
 # ------------- Docstring chunks
 
 # the get_waveforms ordered params.

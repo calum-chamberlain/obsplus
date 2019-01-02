@@ -17,14 +17,7 @@ import pandas as pd
 import obsplus
 import obsplus.events.pd
 from obsplus.bank.core import _Bank
-from obsplus.bank.utils import (
-    _IndexCache,
-    _summarize_event,
-    sql_connection,
-    _read_table,
-    _get_tables,
-    _drop_rows,
-)
+from obsplus.bank.utils import _IndexCache, _summarize_event, sql_connection
 from obsplus.constants import (
     EVENT_PATH_STRUCTURE,
     EVENT_NAME_STRUCTURE,
@@ -36,6 +29,9 @@ from obsplus.utils import (
     get_progressbar,
     thread_lock_function,
     compose_docstring,
+    _read_table,
+    _get_tables,
+    _drop_rows,
 )
 
 # --- define static types
