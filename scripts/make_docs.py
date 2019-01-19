@@ -16,7 +16,7 @@ def main():
     # clean out all the old docs
     clean_docs()
     # execute all the notebooks
-    cmd = "jupyter nbconvert --to notebook --execute"
+    cmd = "jupyter nbconvert --to notebook --execute --inplace"
     for note_book_path in doc_path.rglob("*.ipynb"):
         result = run(cmd + f" {note_book_path}", shell=True)
         if result.returncode != 0:
