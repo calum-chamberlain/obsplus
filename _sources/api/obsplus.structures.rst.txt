@@ -1,0 +1,38 @@
+obsplus.structures package
+==========================
+
+Submodules
+----------
+
+obsplus.structures.dfextractor module
+-------------------------------------
+
+.. automodule:: obsplus.structures.dfextractor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.structures.fetcher module
+---------------------------------
+
+.. automodule:: obsplus.structures.fetcher
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.structures.grid module
+------------------------------
+
+.. automodule:: obsplus.structures.grid
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: obsplus.structures
+    :members:
+    :undoc-members:
+    :show-inheritance:

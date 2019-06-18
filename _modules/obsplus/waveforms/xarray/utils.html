@@ -1,0 +1,542 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>obsplus.waveforms.xarray.utils &#8212; ObsPlus 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">ObsPlus</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/obsplus_panda.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for obsplus.waveforms.xarray.utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities for working with xarray data structures.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">fnmatch</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+
+<span class="kn">from</span> <span class="nn">obsplus.constants</span> <span class="k">import</span> <span class="n">DIMS</span><span class="p">,</span> <span class="n">AGG_LEVEL_MAP</span><span class="p">,</span> <span class="n">TIME_PRECISION</span><span class="p">,</span> <span class="n">NSLC</span><span class="p">,</span> <span class="n">xr_type</span>
+<span class="kn">from</span> <span class="nn">obsplus.waveforms.xarray</span> <span class="k">import</span> <span class="n">ops_method</span>
+
+
+<div class="viewcode-block" id="keep_attrs"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.utils.keep_attrs">[docs]</a><span class="k">def</span> <span class="nf">keep_attrs</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">xr_type</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    decorator to copy attrs from one xr object (first input) to output</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">new_func</span><span class="p">(</span><span class="n">xr_object</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">xr_object</span><span class="p">,</span> <span class="p">(</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">))</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="n">xr_object</span><span class="o">.</span><span class="n">attrs</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">xr_object</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="p">(</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)):</span>
+            <span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="n">attrs</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="k">return</span> <span class="n">new_func</span></div>
+
+
+<div class="viewcode-block" id="trim_waveform_array"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.utils.trim_waveform_array">[docs]</a><span class="nd">@ops_method</span><span class="p">(</span><span class="s2">&quot;trim&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">trim_waveform_array</span><span class="p">(</span>
+    <span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">trim</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">is_timestamp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">remove_nan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">aggregate_by</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">aggregate_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Trim or extend the waveform array either independently for each waveform</span>
+<span class="sd">    or  holding relative times between any waveforms constant.</span>
+
+<span class="sd">    Can use the name of an existing coordinate (eg &#39;p_times&#39;, &#39;origin_time&#39;),</span>
+<span class="sd">    a data array that shares some dimensions with the dar, or number which</span>
+<span class="sd">    can refer to a time stamp or a time relative to the start of the array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dar</span>
+<span class="sd">        The Data Array with waveform vectors</span>
+<span class="sd">    trim</span>
+<span class="sd">        The name of a coordinate (all float values) for trimming, a single</span>
+<span class="sd">        float, or another data array (which shares some dims with dar)</span>
+<span class="sd">        that contains either timestamps or relative trim times.</span>
+<span class="sd">    is_timestamp</span>
+<span class="sd">        If True, the values given by trim are timestamps</span>
+<span class="sd">        (ie seconds from 1970). If False they are relative to the traces</span>
+<span class="sd">        start time.</span>
+<span class="sd">    remove_nan</span>
+<span class="sd">        If True remove the NaN values from the end of the arrays</span>
+<span class="sd">    aggregate_by</span>
+<span class="sd">        If not None, must be the name of a coord in dar (eg &quot;group&quot;) or a value</span>
+<span class="sd">        supported by the function obsplus.waveforms.xarray.ggregate.</span>
+<span class="sd">    aggregate_func</span>
+<span class="sd">        Any function that takes a numpy array and returns a single value.</span>
+<span class="sd">        Since NaNs are possible it is wise to use functions that account</span>
+<span class="sd">        for them.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.DataArray</span>
+<span class="sd">        The trimmed data array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ensure the expected dimensions are there and the trim coord exists</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">DIMS</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">),</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{DIMS}</span><span class="s2"> must be in coords&quot;</span>
+    <span class="k">assert</span> <span class="s2">&quot;starttime&quot;</span> <span class="ow">in</span> <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="s2">&quot;data array must have a starttime coord&quot;</span>
+    <span class="n">trim_array</span> <span class="o">=</span> <span class="n">_get_trim_data_array</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">trim</span><span class="p">,</span> <span class="n">is_timestamp</span><span class="p">)</span>
+    <span class="c1"># temporarily attach trim_array to dar</span>
+    <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;_trim&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trim_array</span>
+    <span class="c1"># apply aggregations if needed on trim times</span>
+    <span class="k">if</span> <span class="n">aggregate_by</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">aggregate_by</span> <span class="ow">in</span> <span class="n">AGG_LEVEL_MAP</span><span class="p">:</span>
+            <span class="n">dar</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_add_level</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">aggregate_by</span><span class="p">)</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">_overwrite_group_values</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">aggregate_func</span><span class="p">)</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;_trim&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">aggregate_by</span><span class="p">)</span>
+        <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;_trim&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="c1"># stack and group by dims in the _trim coord</span>
+    <span class="n">stacked</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;_trim&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+    <span class="n">gr</span> <span class="o">=</span> <span class="n">stacked</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">)</span>
+    <span class="c1"># apply function to each group and unstack</span>
+    <span class="n">out_stacked</span> <span class="o">=</span> <span class="n">gr</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_trim_array</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>  <span class="c1"># fails to unstack when stacked on one dimension</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">out_stacked</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># see xarray issue # 1431</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">out_stacked</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;_trim&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,)})</span>
+    <span class="k">del</span> <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;_trim&quot;</span><span class="p">]</span>  <span class="c1"># drop temporary coord from original array</span>
+    <span class="k">return</span> <span class="n">_prepare_trim_output</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">remove_nan</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_prepare_trim_output</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">remove_nan</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; prepare the output of trim function by adjusting starttimes, deleting</span>
+<span class="sd">    temporary coord, and removing nan output &quot;&quot;&quot;</span>
+    <span class="c1"># TODO remove this when xarray issue # 1428 gets resolved</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">starttime</span> <span class="o">==</span> <span class="n">out</span><span class="o">.</span><span class="n">starttime</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>  <span class="c1"># starttimes didnt update</span>
+        <span class="n">fill_values</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;_trim&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;starttime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;starttime&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">fill_values</span>
+    <span class="k">del</span> <span class="n">out</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;_trim&quot;</span><span class="p">]</span>  <span class="c1"># remove temporary coord</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">DIMS</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">remove_nan</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span> <span class="nf">_overwrite_group_values</span><span class="p">(</span><span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; apply function on a data array, set all values to func output &quot;&quot;&quot;</span>
+    <span class="c1"># a mean of an empty slice can raise a runtime warning here, just ignore</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="n">aggregate</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">dar</span><span class="p">)</span>
+    <span class="n">dar</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">*</span> <span class="n">aggregate</span>
+    <span class="k">return</span> <span class="n">dar</span>
+
+
+<span class="k">def</span> <span class="nf">_get_trim_data_array</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">trim</span><span class="p">,</span> <span class="n">is_timestamp</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; return a data array that shares some dims with dar for trimming.</span>
+<span class="sd">    Values in data array will be referenced from the start of each waveform</span>
+<span class="sd">    rather than a timestamp&quot;&quot;&quot;</span>
+    <span class="c1"># figure out what trim is turn it into a data array</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trim</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># trim is a coord in dar</span>
+        <span class="k">assert</span> <span class="n">trim</span> <span class="ow">in</span> <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{trim}</span><span class="s2"> must be in coords&quot;</span>
+        <span class="n">trim</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">trim</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trim</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>  <span class="c1"># make homogeneous data array</span>
+        <span class="n">trim</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">starttime</span><span class="p">)</span> <span class="o">*</span> <span class="n">trim</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trim</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>  <span class="c1"># must contain common dims</span>
+        <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">trim</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_timestamp</span><span class="p">:</span>  <span class="c1"># get absolute time into relative time</span>
+        <span class="n">trim</span> <span class="o">=</span> <span class="n">trim</span> <span class="o">-</span> <span class="n">dar</span><span class="o">.</span><span class="n">starttime</span>
+    <span class="k">return</span> <span class="n">trim</span>
+
+
+<span class="k">def</span> <span class="nf">_trim_array</span><span class="p">(</span><span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>  <span class="c1"># , trim_coord: str,</span>
+    <span class="c1"># reference_starttime: bool, conglomerate_func=None):</span>
+    <span class="sd">&quot;&quot;&quot; apply the trim function to array &quot;&quot;&quot;</span>
+    <span class="n">trim_value</span> <span class="o">=</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;_trim&quot;</span><span class="p">])</span>  <span class="c1"># reverse sign for pad_zero func</span>
+    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">trim_value</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">trim_value</span><span class="p">:</span>  <span class="c1"># skip nan and 0s (no effect)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">dar</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">pad_time</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">time_before</span><span class="o">=</span><span class="n">trim_value</span><span class="p">,</span> <span class="n">start_at_zero</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># eliminate roundoff error on time vector</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">TIME_PRECISION</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<div class="viewcode-block" id="get_nslc_df"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.utils.get_nslc_df">[docs]</a><span class="k">def</span> <span class="nf">get_nslc_df</span><span class="p">(</span><span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; return a dataframe with network station location channel</span>
+<span class="sd">    from seed_id on a detex data array&quot;&quot;&quot;</span>
+    <span class="n">ser</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">seed_id</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="k">else</span> <span class="n">dar</span>
+    <span class="n">ser_ind</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ser</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">ser</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">ser_ind</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">NSLC</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="stack_seed"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.utils.stack_seed">[docs]</a><span class="nd">@ops_method</span><span class="p">(</span><span class="s2">&quot;stack_seed&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">stack_seed</span><span class="p">(</span><span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stack the DataArray on a defined level.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dar</span>
+<span class="sd">        An obsplus data array</span>
+<span class="sd">    level</span>
+<span class="sd">        The seed-level (network, station, location or channel).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dar</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># changes some things in place, make a copy</span>
+    <span class="n">dim</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># get last dimension (eg time or frequency)</span>
+    <span class="c1"># This is super ugly, and much harder than it should be.</span>
+    <span class="c1"># get dataframe of seed levels</span>
+    <span class="k">assert</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">NSLC</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">get_nslc_df</span><span class="p">(</span><span class="n">dar</span><span class="p">)</span>
+    <span class="c1"># create multi-index and swap out old seed_id for multi-level</span>
+    <span class="n">ind</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">),</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="s2">&quot;sid&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">dar</span><span class="o">.</span><span class="n">seed_id</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">ind</span>
+    <span class="c1"># unstack, drop nans, then stack ids together</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="s2">&quot;seed_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;sid&quot;</span><span class="p">:</span> <span class="s2">&quot;seed_id&quot;</span><span class="p">})</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;seed_id&quot;</span><span class="p">,</span> <span class="s2">&quot;stream_id&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;ids&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">&quot;ids&quot;</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="unstack_seed"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.utils.unstack_seed">[docs]</a><span class="nd">@ops_method</span><span class="p">(</span><span class="s2">&quot;unstack_seed&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">unstack_seed</span><span class="p">(</span><span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unstack the DataArray stacked on a seed level.</span>
+
+<span class="sd">    The DataArray should have been created with the functon:</span>
+<span class="sd">    `~:func:obsplus.waveforms.xarray.utils.stack_seed`</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dar</span>
+<span class="sd">        An obsplus data array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># This is also super ugly, and much harder than it should be.</span>
+    <span class="c1"># find level that should be squished</span>
+    <span class="n">level</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">NSLC</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">level</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;could not determine how to unstack data array based on seed level&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">level</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">level</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># stack seed_id with level, remove multi-index</span>
+    <span class="n">stack</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;seed_id&quot;</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+    <span class="n">dar1</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">unstack</span><span class="p">()</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">sid</span><span class="o">=</span><span class="n">stack</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;sid&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+    <span class="n">dar1</span><span class="o">.</span><span class="n">sid</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dar1</span><span class="o">.</span><span class="n">sid</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+    <span class="c1"># determine dims to use for transpose</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">DIMS</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="p">[</span><span class="n">dar</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">dar1</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;sid&quot;</span><span class="p">:</span> <span class="s2">&quot;seed_id&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">dims</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="sel_sid"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.utils.sel_sid">[docs]</a><span class="nd">@ops_method</span><span class="p">(</span><span class="s2">&quot;sel_sid&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">sel_sid</span><span class="p">(</span><span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">seed_id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Slice a detex Data Array based on a seed_id.</span>
+
+<span class="sd">    Seed id normally has the form: network.station.locaton.channel and</span>
+<span class="sd">    allows for unix style search strings. Lower level ids can be excluded</span>
+<span class="sd">    for implicit wildcards.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dar</span>
+<span class="sd">        Data array, generated by :function: ~detex.utils.waveform2array</span>
+<span class="sd">    seed_id</span>
+<span class="sd">        The str specifying the seed id. Allows truncations and wildcards.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    --------</span>
+<span class="sd">    the following are all valid values for seed_id:</span>
+<span class="sd">        BW - select all data with BW as network</span>
+<span class="sd">        BW.RJOB - select all data from station RJOB on network BW</span>
+<span class="sd">        BW.RJOB..EHZ - select only data from this channel</span>
+<span class="sd">        BW.R* - select all station in BW that start with an R</span>
+<span class="sd">        BW.???B - select all station in BW with 4 chars that end with B</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.DataArray</span>
+<span class="sd">        A DataArray containing the desired seed_ids</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="s2">&quot;seed_id&quot;</span> <span class="ow">in</span> <span class="n">dar</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="s2">&quot;data array must have seed_id in dims&quot;</span>
+    <span class="c1"># convert seed_id to pandas objects for matching</span>
+    <span class="n">ser</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">seed_id</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+    <span class="n">bool_ms</span> <span class="o">=</span> <span class="n">seed_sel_from_series</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="n">seed_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dar</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">seed_id</span><span class="o">=</span><span class="n">ser</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">bool_ms</span><span class="p">))</span><span class="o">.</span><span class="n">values</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="seed_sel_from_series"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.utils.seed_sel_from_series">[docs]</a><span class="k">def</span> <span class="nf">seed_sel_from_series</span><span class="p">(</span><span class="n">ser</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">xr_type</span><span class="p">],</span> <span class="n">seed_id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a series with keys as seed ids, return a view of of the series</span>
+<span class="sd">    where the seed_ids match seed_str.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ser</span>
+<span class="sd">        pd.Series</span>
+<span class="sd">    seed_str</span>
+<span class="sd">        String for matching seeds</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    A view of the series</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ms</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="n">item</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">NSLC</span><span class="p">,</span> <span class="n">seed_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">))})</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">get_nslc_df</span><span class="p">(</span><span class="n">ser</span><span class="p">)</span>
+    <span class="c1"># iter the match series and filter data array</span>
+    <span class="n">bool_ms</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">ms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># get a bool array if values match regex</span>
+        <span class="k">if</span> <span class="n">ms</span><span class="p">[</span><span class="n">ind</span><span class="p">]:</span>  <span class="c1"># for non empty str</span>
+            <span class="n">new</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">fnmatch</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">ms</span><span class="p">[</span><span class="n">ind</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># for empty strings explicit equal must be done</span>
+            <span class="n">new</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">==</span> <span class="n">ms</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+        <span class="n">bool_ms</span> <span class="o">=</span> <span class="n">bool_ms</span> <span class="o">&amp;</span> <span class="n">new</span>
+    <span class="k">return</span> <span class="n">ser</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">bool_ms</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="iter_seed"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.utils.iter_seed">[docs]</a><span class="nd">@ops_method</span><span class="p">(</span><span class="s2">&quot;iter_seed&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">iter_seed</span><span class="p">(</span><span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Iterate over a data array by seed_id.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dar</span>
+<span class="sd">        A DataArray with waveform information</span>
+<span class="sd">    level</span>
+<span class="sd">        The level over which chunks should be returned. Valid options are:</span>
+<span class="sd">            &#39;network&#39;, &#39;station&#39;, &#39;location&#39;, &#39;channel&#39;</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.DataArray</span>
+<span class="sd">        Slices of dar divided along the seed_id dim according to the level</span>
+<span class="sd">        argument</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">NSLC</span><span class="p">,</span> <span class="n">f</span><span class="s2">&quot;level argument not valid must be in </span><span class="si">{NSLC}</span><span class="s2">&quot;</span>
+    <span class="k">assert</span> <span class="s2">&quot;seed_id&quot;</span> <span class="ow">in</span> <span class="n">dar</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="s2">&quot;data array must have seed_id in dims&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">get_nslc_df</span><span class="p">(</span><span class="n">dar</span><span class="p">)</span>
+    <span class="n">uniques</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">unique</span> <span class="ow">in</span> <span class="n">uniques</span><span class="p">:</span>
+        <span class="n">bool_ser</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">level</span><span class="p">]</span> <span class="o">==</span> <span class="n">unique</span>
+        <span class="k">yield</span> <span class="n">dar</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">seed_id</span><span class="o">=</span><span class="n">bool_ser</span><span class="o">.</span><span class="n">values</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="pad_time"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.utils.pad_time">[docs]</a><span class="nd">@ops_method</span><span class="p">(</span><span class="s2">&quot;pad&quot;</span><span class="p">)</span>
+<span class="nd">@keep_attrs</span>
+<span class="k">def</span> <span class="nf">pad_time</span><span class="p">(</span>
+    <span class="n">ar1</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">time_after</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">time_before</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">total_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fill_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">start_at_zero</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Pad a DataArray along the time dimension</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ar1 : xr.DataArray</span>
+<span class="sd">        The Data Array which will have zeros appended in the time dimension.</span>
+<span class="sd">    time_after : float, optional</span>
+<span class="sd">        The total time after the current end of the trace the array should</span>
+<span class="sd">        be padded.</span>
+<span class="sd">    time_before : float, optional</span>
+<span class="sd">        The time (in seconds) to pad the array before the current start</span>
+<span class="sd">        time. The starttime coord will be updated if not None. Can be</span>
+<span class="sd">        negative in order to trim the array.</span>
+<span class="sd">    total_time : float, optional</span>
+<span class="sd">        The total time the array should be. If shorter than current length</span>
+<span class="sd">        the array will be trimmed. Note: if total_time is not None then</span>
+<span class="sd">        time_after and time before must be None.</span>
+<span class="sd">    fill_value : float</span>
+<span class="sd">        The value with which to pad the array.</span>
+<span class="sd">    start_at_zero : bool</span>
+<span class="sd">        If True, set the start time to zero regardless of the time before</span>
+<span class="sd">        parameter. If the coord starttime is in the array it will be adjusted</span>
+<span class="sd">        to reflect the change.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.DataArray</span>
+<span class="sd">        The new data array padded with zeros</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># perform parameter checks</span>
+    <span class="k">assert</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">ar1</span><span class="o">.</span><span class="n">dims</span>
+    <span class="k">assert</span> <span class="n">time_before</span> <span class="ow">or</span> <span class="n">time_after</span> <span class="ow">or</span> <span class="n">total_time</span>
+    <span class="k">assert</span> <span class="nb">bool</span><span class="p">(</span><span class="n">time_before</span> <span class="ow">or</span> <span class="n">time_after</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">total_time</span><span class="p">)</span>
+    <span class="c1"># get sampling rate from attrs, or infer (assuming evenly spaced)</span>
+    <span class="n">sr</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">ar1</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sampling_rate&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ar1</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ar1</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">ar1</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">if</span> <span class="n">total_time</span><span class="p">:</span>  <span class="c1"># re-sample to total time</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">t1</span> <span class="o">+</span> <span class="n">total_time</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># get nearest time divisible by sample rate</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">((</span><span class="n">time_before</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">sr</span><span class="p">)</span> <span class="o">*</span> <span class="n">sr</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">((</span><span class="n">time_after</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">sr</span><span class="p">)</span> <span class="o">*</span> <span class="n">sr</span> <span class="o">+</span> <span class="n">time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">new_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span> <span class="o">+</span> <span class="n">sr</span><span class="p">,</span> <span class="n">sr</span><span class="p">)</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">new_time</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="n">TIME_PRECISION</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">ar1</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">fill_value</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>  <span class="c1"># bottleneck segfaults without this</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">values</span><span class="p">)),</span> <span class="s2">&quot;re-sampling failed&quot;</span>
+    <span class="k">if</span> <span class="n">start_at_zero</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">reset_time</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="reset_time"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.utils.reset_time">[docs]</a><span class="k">def</span> <span class="nf">reset_time</span><span class="p">(</span><span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reset the time coord of a DataArray to start at zero.</span>
+
+<span class="sd">    Also update starttime coord.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dar</span>
+<span class="sd">        The data array with a time coord</span>
+<span class="sd">    inplace</span>
+<span class="sd">        If True modify the data array in place</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.DataArray</span>
+<span class="sd">        The data array with an adjusted time vector</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="s2">&quot;dar must have a time coordinate&quot;</span>
+    <span class="n">dar</span> <span class="o">=</span> <span class="n">dar</span> <span class="k">if</span> <span class="n">inplace</span> <span class="k">else</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">dar</span><span class="p">)</span>  <span class="c1"># copy if not inplace</span>
+    <span class="n">min_time</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="n">dar</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span> <span class="o">-=</span> <span class="n">min_time</span>
+    <span class="k">if</span> <span class="s2">&quot;starttime&quot;</span> <span class="ow">in</span> <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+        <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;starttime&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">min_time</span>
+    <span class="c1"># eliminate roundoff error on time vector</span>
+    <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">TIME_PRECISION</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dar</span></div>
+
+
+<span class="k">def</span> <span class="nf">_add_level</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;seed_id&quot;</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; given a data array, add the level the aggregation is to occur on</span>
+<span class="sd">     to the coord &quot;&quot;&quot;</span>
+    <span class="n">new_coord</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">assert</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">AGG_LEVEL_MAP</span>
+    <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>  <span class="c1"># set all the seed_ids to 1</span>
+        <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">level</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">dim</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">dar</span><span class="p">,</span> <span class="n">new_coord</span>
+    <span class="n">ser</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()[</span><span class="n">dim</span><span class="p">]</span>
+    <span class="n">new</span> <span class="o">=</span> <span class="n">ser</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[:</span> <span class="n">AGG_LEVEL_MAP</span><span class="p">[</span><span class="n">level</span><span class="p">]]))</span>
+    <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">level</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">new</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">coord</span><span class="p">:</span>  <span class="c1"># get the new group that will be used as a coord later on</span>
+        <span class="n">new_coord</span> <span class="o">=</span> <span class="n">_adjust_coord</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">coord</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dar</span><span class="p">,</span> <span class="n">new_coord</span>
+
+
+<span class="k">def</span> <span class="nf">_adjust_coord</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">coord</span><span class="p">,</span> <span class="n">coord_map</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">dim</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; create new dataframe that will be joined back to aggregated data</span>
+<span class="sd">    array &quot;&quot;&quot;</span>
+    <span class="c1"># TODO this is ugly and probably not efficient, clean up</span>
+    <span class="k">assert</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{coord}</span><span class="s2"> is not found in coord of </span><span class="si">{dar}</span><span class="s2">&quot;</span>
+    <span class="c1"># convert to dataframe and replace any full seed str with substr</span>
+    <span class="n">oval</span> <span class="o">=</span> <span class="n">dar</span><span class="p">[</span><span class="n">coord</span><span class="p">]</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">oval</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+        <span class="n">oval</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">oval</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">coord_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">oval</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">oval</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">oval</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="c1"># reshape into new shape of aggregated dataarray</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">oval</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">dim</span><span class="p">:</span>
+        <span class="n">oval</span> <span class="o">=</span> <span class="n">oval</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">oval</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">level</span><span class="p">]</span>
+    <span class="n">oval</span> <span class="o">=</span> <span class="n">oval</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">oval</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">oval</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">oval</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">ObsPlus</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Derrick Chambers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

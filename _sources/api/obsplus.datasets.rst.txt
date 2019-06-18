@@ -1,0 +1,54 @@
+obsplus.datasets package
+========================
+
+Submodules
+----------
+
+obsplus.datasets.bingham module
+-------------------------------
+
+.. automodule:: obsplus.datasets.bingham
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.datasets.crandall module
+--------------------------------
+
+.. automodule:: obsplus.datasets.crandall
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.datasets.dataloader module
+----------------------------------
+
+.. automodule:: obsplus.datasets.dataloader
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.datasets.kemmerer module
+--------------------------------
+
+.. automodule:: obsplus.datasets.kemmerer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.datasets.ta module
+--------------------------
+
+.. automodule:: obsplus.datasets.ta
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: obsplus.datasets
+    :members:
+    :undoc-members:
+    :show-inheritance:

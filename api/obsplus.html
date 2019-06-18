@@ -1,0 +1,1008 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>obsplus package &#8212; ObsPlus 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/obsplus_panda.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">obsplus package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-obsplus.constants">obsplus.constants module</a></li>
+<li><a class="reference internal" href="#module-obsplus.conversions">obsplus.conversions module</a></li>
+<li><a class="reference internal" href="#module-obsplus.exceptions">obsplus.exceptions module</a></li>
+<li><a class="reference internal" href="#module-obsplus.interfaces">obsplus.interfaces module</a></li>
+<li><a class="reference internal" href="#module-obsplus.utils">obsplus.utils module</a></li>
+<li><a class="reference internal" href="#module-obsplus.version">obsplus.version module</a></li>
+<li><a class="reference internal" href="#module-obsplus">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/obsplus.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="obsplus-package">
+<h1>obsplus package<a class="headerlink" href="#obsplus-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="obsplus.bank.html">obsplus.bank package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.bank.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.bank.html#module-obsplus.bank.core">obsplus.bank.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.bank.html#module-obsplus.bank.eventbank">obsplus.bank.eventbank module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.bank.html#module-obsplus.bank.mseed">obsplus.bank.mseed module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.bank.html#module-obsplus.bank.stationbank">obsplus.bank.stationbank module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.bank.html#module-obsplus.bank.utils">obsplus.bank.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.bank.html#module-obsplus.bank.wavebank">obsplus.bank.wavebank module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.bank.html#module-obsplus.bank">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obsplus.datasets.html">obsplus.datasets package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.datasets.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.datasets.html#module-obsplus.datasets.bingham">obsplus.datasets.bingham module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.datasets.html#module-obsplus.datasets.crandall">obsplus.datasets.crandall module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.datasets.html#module-obsplus.datasets.dataloader">obsplus.datasets.dataloader module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.datasets.html#module-obsplus.datasets.kemmerer">obsplus.datasets.kemmerer module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.datasets.html#module-obsplus.datasets.ta">obsplus.datasets.ta module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.datasets.html#module-obsplus.datasets">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obsplus.events.html">obsplus.events package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.events.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.events.html#module-obsplus.events.get_events">obsplus.events.get_events module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.events.html#module-obsplus.events.json">obsplus.events.json module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.events.html#module-obsplus.events.merge">obsplus.events.merge module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.events.html#module-obsplus.events.pd">obsplus.events.pd module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.events.html#module-obsplus.events.utils">obsplus.events.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.events.html#module-obsplus.events.validate">obsplus.events.validate module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.events.html#module-obsplus.events">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obsplus.stations.html">obsplus.stations package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.stations.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.stations.html#module-obsplus.stations.get_stations">obsplus.stations.get_stations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.stations.html#module-obsplus.stations.pd">obsplus.stations.pd module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.stations.html#module-obsplus.stations.utils">obsplus.stations.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.stations.html#module-obsplus.stations">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obsplus.structures.html">obsplus.structures package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.structures.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.structures.html#module-obsplus.structures.dfextractor">obsplus.structures.dfextractor module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.structures.html#module-obsplus.structures.fetcher">obsplus.structures.fetcher module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.structures.html#module-obsplus.structures.grid">obsplus.structures.grid module</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.structures.html#module-obsplus.structures">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="obsplus.waveforms.html">obsplus.waveforms package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.waveforms.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="obsplus.waveforms.xarray.html">obsplus.waveforms.xarray package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="obsplus.waveforms.xarray.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obsplus.waveforms.xarray.html#module-obsplus.waveforms.xarray.accessor">obsplus.waveforms.xarray.accessor module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obsplus.waveforms.xarray.html#module-obsplus.waveforms.xarray.aggregate">obsplus.waveforms.xarray.aggregate module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obsplus.waveforms.xarray.html#module-obsplus.waveforms.xarray.convert">obsplus.waveforms.xarray.convert module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obsplus.waveforms.xarray.html#module-obsplus.waveforms.xarray.io">obsplus.waveforms.xarray.io module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obsplus.waveforms.xarray.html#module-obsplus.waveforms.xarray.signal">obsplus.waveforms.xarray.signal module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obsplus.waveforms.xarray.html#module-obsplus.waveforms.xarray.utils">obsplus.waveforms.xarray.utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="obsplus.waveforms.xarray.html#module-obsplus.waveforms.xarray">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.waveforms.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.waveforms.html#module-obsplus.waveforms.get_waveforms">obsplus.waveforms.get_waveforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.waveforms.html#module-obsplus.waveforms.utils">obsplus.waveforms.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obsplus.waveforms.html#module-obsplus.waveforms">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-obsplus.constants">
+<span id="obsplus-constants-module"></span><h2>obsplus.constants module<a class="headerlink" href="#module-obsplus.constants" title="Permalink to this headline">¶</a></h2>
+<p>Constants used throughout obsplus</p>
+</div>
+<div class="section" id="module-obsplus.conversions">
+<span id="obsplus-conversions-module"></span><h2>obsplus.conversions module<a class="headerlink" href="#module-obsplus.conversions" title="Permalink to this headline">¶</a></h2>
+<p>This module contains an experimental functions for converting coordinate systems. The interfaces for these functions
+likely will not change, but the functions may be moved.</p>
+<dl class="function">
+<dt id="obsplus.conversions.convert_coords">
+<code class="descclassname">obsplus.conversions.</code><code class="descname">convert_coords</code><span class="sig-paren">(</span><em>points</em>, <em>conversion</em>, <em>conversion_kwargs=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/conversions.html#convert_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.conversions.convert_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts coordinates from one system to another</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>points</strong> (<em>Array-like</em>) – List of points to be converted. Can take a variety of formats, including tuples, lists, pandas DataFrames,
+and numpy arrays as long as they can be arranged into a numpy array with three columns for the X, Y, and Z
+coordinates.</li>
+<li><strong>conversion</strong> (<em>list-like</em><em> or </em><em>callable</em>) – A set of instructions or callable for the coordinate conversion. If instructions are provided, they should
+be arrange in a two-dimensional list-like structure of key-value pairs (i.e., [[“scale_x”, 0.3048], [“scale_y”,
+0.3048]]). See notes for acceptable keywords. If a callable is provided, it should take a three-column numpy
+array as input and output.</li>
+<li><strong>conversion_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Used if conversion is a callable. kwargs to be passed to the callable.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>x_in</strong> (<em>str, optional</em>) – Name of the input x-coordinate column (default=”x”)</li>
+<li><strong>y_in</strong> (<em>str, optional</em>) – Name of the input y-coordinate column (default=”y”)</li>
+<li><strong>z_in</strong> (<em>str, optional</em>) – Name of the input z-coordinate column (default=”z”)</li>
+<li><strong>x_out</strong> (<em>str, optional</em>) – Name of the output x-coordinate column (default=”x_conv”)</li>
+<li><strong>y_out</strong> (<em>str, optional</em>) – Name of the output y-coordinate column (default=”y_conv”)</li>
+<li><strong>z_out</strong> (<em>str, optional</em>) – Name of the output z-coordinate column (default=”z_conv”)</li>
+<li><strong>inplace</strong> (<em>bool, optional</em>) – Indicates whether the coordinate conversion should be done on the DataFrame in place or a new DataFrame should
+be returned. (Only when a DataFrame is provided as input.) (default=False)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The following describes the values to be provided with the keywords:</p>
+<dl class="docutils">
+<dt>scale_x <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Scale factor to apply to the x-coordinates</dd>
+<dt>scale_y <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Scale factor to apply to the x-coordinates</dd>
+<dt>scale_z <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Scale factor to apply to the x-coordinates</dd>
+<dt>translate_x <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Amount to move the coordinates in the x-direction</dd>
+<dt>translate_y <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Amount to move the coordinates in the y-direction</dd>
+<dt>translate_z <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Amount to move the coordinates in the z-direction</dd>
+<dt>rotate_xy <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Angle (in radians) to rotate the coordinates in the xy plane.
+Positive is CCW.</dd>
+<dt>rotate_xz <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Angle (in radians) to rotate the coordinates in the xz plane.
+Positive is CCW.</dd>
+<dt>rotate_yz <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Angle (in radians) to rotate the coordinates in the yz plane.
+Positive is CCW.</dd>
+<dt>project <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>Strings for the pyproj.Proj class projection, or a pyproj.Proj object (ex: “+init=EPSG:32611”). Keys in the
+dictionary should be “from” and “to”</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>points</strong> – Array-like object with the converted coordinates. If a DataFrame, list, or tuple were provided as input, then
+the same type will be returned. For all other formats, a numpy array will be returned.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Sequence</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.conversions.project">
+<code class="descclassname">obsplus.conversions.</code><code class="descname">project</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>fro</em>, <em>to</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/conversions.html#project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.conversions.project" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="obsplus.conversions.rotate_points">
+<code class="descclassname">obsplus.conversions.</code><code class="descname">rotate_points</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>ang</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/conversions.html#rotate_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.conversions.rotate_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate a point about the origin
+:type x: <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]
+:param x: X-coordinate(s)
+:type x: float or list of floats (required)
+:type y: <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]
+:param y: Y-coordinate(s)
+:type y: float or list of floats (required)
+:type ang: <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>
+:param ang: Rotation angle (radians)
+:type ang: float (required)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]], <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.exceptions">
+<span id="obsplus-exceptions-module"></span><h2>obsplus.exceptions module<a class="headerlink" href="#module-obsplus.exceptions" title="Permalink to this headline">¶</a></h2>
+<p>A collection of Obsplus Exceptions.</p>
+<dl class="exception">
+<dt id="obsplus.exceptions.BankDoesNotExistError">
+<em class="property">exception </em><code class="descclassname">obsplus.exceptions.</code><code class="descname">BankDoesNotExistError</code><a class="reference internal" href="../_modules/obsplus/exceptions.html#BankDoesNotExistError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.exceptions.BankDoesNotExistError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">FileNotFoundError</span></code></p>
+<p>Exception raised when the user tries to read data from a bank but the
+bank directory does not exist.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="obsplus.exceptions.BankIndexLockError">
+<em class="property">exception </em><code class="descclassname">obsplus.exceptions.</code><code class="descname">BankIndexLockError</code><a class="reference internal" href="../_modules/obsplus/exceptions.html#BankIndexLockError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.exceptions.BankIndexLockError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">OSError</span></code></p>
+<p>Raised when a bank tries to read an index but the lock file is not deleted.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="obsplus.exceptions.FileHashChangedError">
+<em class="property">exception </em><code class="descclassname">obsplus.exceptions.</code><code class="descname">FileHashChangedError</code><a class="reference internal" href="../_modules/obsplus/exceptions.html#FileHashChangedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.exceptions.FileHashChangedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Raised when the expected md5 hash of a file has changed.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="obsplus.exceptions.MissingDataFileError">
+<em class="property">exception </em><code class="descclassname">obsplus.exceptions.</code><code class="descname">MissingDataFileError</code><a class="reference internal" href="../_modules/obsplus/exceptions.html#MissingDataFileError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.exceptions.MissingDataFileError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">FileNotFoundError</span></code></p>
+<p>Raised when the expected md5 hash of a file has changed.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.interfaces">
+<span id="obsplus-interfaces-module"></span><h2>obsplus.interfaces module<a class="headerlink" href="#module-obsplus.interfaces" title="Permalink to this headline">¶</a></h2>
+<p>Some common interfaces for event/client types.</p>
+<p>Note: These are used instead of the ones in obspy.clients.base so the subclass
+hooks can be used.</p>
+<dl class="class">
+<dt id="obsplus.interfaces.BankType">
+<em class="property">class </em><code class="descclassname">obsplus.interfaces.</code><code class="descname">BankType</code><a class="reference internal" href="../_modules/obsplus/interfaces.html#BankType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.interfaces.BankType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">obsplus.interfaces._MethodChecker</span></code></p>
+<p>an object that looks like a bank</p>
+<dl class="attribute">
+<dt id="obsplus.interfaces.BankType.required_methods">
+<code class="descname">required_methods</code><em class="property"> = {'read_index'}</em><a class="headerlink" href="#obsplus.interfaces.BankType.required_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="obsplus.interfaces.EventClient">
+<em class="property">class </em><code class="descclassname">obsplus.interfaces.</code><code class="descname">EventClient</code><a class="reference internal" href="../_modules/obsplus/interfaces.html#EventClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.interfaces.EventClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">obsplus.interfaces._MethodChecker</span></code></p>
+<p>The event client interface</p>
+<dl class="attribute">
+<dt id="obsplus.interfaces.EventClient.required_methods">
+<code class="descname">required_methods</code><em class="property"> = {'get_events'}</em><a class="headerlink" href="#obsplus.interfaces.EventClient.required_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="obsplus.interfaces.StationClient">
+<em class="property">class </em><code class="descclassname">obsplus.interfaces.</code><code class="descname">StationClient</code><a class="reference internal" href="../_modules/obsplus/interfaces.html#StationClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.interfaces.StationClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">obsplus.interfaces._MethodChecker</span></code></p>
+<p>The station client interface</p>
+<dl class="attribute">
+<dt id="obsplus.interfaces.StationClient.required_methods">
+<code class="descname">required_methods</code><em class="property"> = {'get_stations'}</em><a class="headerlink" href="#obsplus.interfaces.StationClient.required_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="obsplus.interfaces.WaveformClient">
+<em class="property">class </em><code class="descclassname">obsplus.interfaces.</code><code class="descname">WaveformClient</code><a class="reference internal" href="../_modules/obsplus/interfaces.html#WaveformClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.interfaces.WaveformClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">obsplus.interfaces._MethodChecker</span></code></p>
+<p>The waveform client interface</p>
+<dl class="attribute">
+<dt id="obsplus.interfaces.WaveformClient.required_methods">
+<code class="descname">required_methods</code><em class="property"> = {'get_waveforms'}</em><a class="headerlink" href="#obsplus.interfaces.WaveformClient.required_methods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.interfaces.add_func_name">
+<code class="descclassname">obsplus.interfaces.</code><code class="descname">add_func_name</code><span class="sig-paren">(</span><em>my_set</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/interfaces.html#add_func_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.interfaces.add_func_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>add the name of a function to a set</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.utils">
+<span id="obsplus-utils-module"></span><h2>obsplus.utils module<a class="headerlink" href="#module-obsplus.utils" title="Permalink to this headline">¶</a></h2>
+<p>General utilities for obsplus.</p>
+<dl class="class">
+<dt id="obsplus.utils.DummyFile">
+<em class="property">class </em><code class="descclassname">obsplus.utils.</code><code class="descname">DummyFile</code><a class="reference internal" href="../_modules/obsplus/utils.html#DummyFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.DummyFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Dummy class to mock std out interface but go nowhere.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.utils.DummyFile.flush" title="obsplus.utils.DummyFile.flush"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flush</span></code></a>()</td>
+<td>do nothing</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.utils.DummyFile.write" title="obsplus.utils.DummyFile.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(x)</td>
+<td>do nothing</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="obsplus.utils.DummyFile.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#DummyFile.flush"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.DummyFile.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>do nothing</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.utils.DummyFile.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#DummyFile.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.DummyFile.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>do nothing</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.apply_to_files_or_skip">
+<code class="descclassname">obsplus.utils.</code><code class="descname">apply_to_files_or_skip</code><span class="sig-paren">(</span><em>func</em>, <em>directory</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#apply_to_files_or_skip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.apply_to_files_or_skip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator for applying func to all files in directory.</p>
+<p>Skip any files that raise an exception.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>) – Any callable that takes a file path as the only input.</li>
+<li><strong>directory</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]) – A directory that exists.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last"><em>outputs of func</em></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.compose_docstring">
+<code class="descclassname">obsplus.utils.</code><code class="descname">compose_docstring</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#compose_docstring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.compose_docstring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for composing docstrings.</p>
+<p>Provided values found in curly brackets un wrapped functions docstring
+will be appropriately indented and included in wrapped function’s
+__docs__.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.filter_df">
+<code class="descclassname">obsplus.utils.</code><code class="descname">filter_df</code><span class="sig-paren">(</span><em>df</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#filter_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.filter_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if each row of the index meets some filter requirements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – The input dataframe.</li>
+<li><strong>kwargs</strong> – Any condition to check against columns of df. Can be a single value
+or a collection of values (to check isin on columns). Str arguments
+can also use unix style matching.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">&lt;built-in function array&gt;</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>A boolean array of the same len as df indicating if each row meets the</em></li>
+<li><em>requirements.</em></li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.filter_index">
+<code class="descclassname">obsplus.utils.</code><code class="descname">filter_index</code><span class="sig-paren">(</span><em>index</em>, <em>network=None</em>, <em>station=None</em>, <em>location=None</em>, <em>channel=None</em>, <em>starttime=None</em>, <em>endtime=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#filter_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.filter_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter a waveform index dataframe based on nslc codes and start/end times.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>index</strong> – A dataframe to filter which should have the corresponding columns
+to any non-None parameters used in filter.</li>
+<li><strong>network</strong> – A network code as defined by seed standards.</li>
+<li><strong>station</strong> – A station code as defined by seed standards.</li>
+<li><strong>location</strong> – A location code as defined by seed standards.</li>
+<li><strong>channel</strong> – A channel code as defined by seed standards.</li>
+<li><strong>starttime</strong> – The starttime of interest.</li>
+<li><strong>endtime</strong> – The endtime of interest.</li>
+<li><strong>kwargs are used as filters.</strong> (<em>Additional</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>A numpy array of boolean values indicating if each row met the filter</em></li>
+<li><em>requirements.</em></li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.filter_index_bulk">
+<code class="descclassname">obsplus.utils.</code><code class="descname">filter_index_bulk</code><span class="sig-paren">(</span><em>self</em>, <em>bulk</em>, <em>index=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#filter_index_bulk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.filter_index_bulk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a large number of waveforms with a bulk request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>bulk</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – A list of any number of lists containing the following:
+(network, station, location, channel, starttime, endtime).</li>
+<li><strong>index</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]) – A dataframe returned by read_index. Enables calling code to only
+read the index from disk once for repetitive calls.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.get_distance_df">
+<code class="descclassname">obsplus.utils.</code><code class="descname">get_distance_df</code><span class="sig-paren">(</span><em>entity_1</em>, <em>entity_2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#get_distance_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.get_distance_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a dataframe of distances and azimuths from events to stations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>entity_1</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Inventory</span></code>]) – An object from which latitude, longitude and depth are
+extractable.</li>
+<li><strong>entity_2</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Inventory</span></code>]) – An object from which latitude, longitude and depth are
+extractable.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Simply uses obspy.geodetics.gps2dist_azimuth under the hood. The index
+of the dataframe is a multi-index where the first level corresponds to ids
+from entity_1 (either an event_id or seed_id str) and the second level
+corresponds to ids from entity_2.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><em>A dataframe with distance, horizontal_distance, and depth distances,</em></li>
+<li><em>as well as azimuth, for each entity pair.</em></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.get_instances">
+<code class="descclassname">obsplus.utils.</code><code class="descname">get_instances</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#get_instances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.get_instances" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.get_nslc_series">
+<code class="descclassname">obsplus.utils.</code><code class="descname">get_nslc_series</code><span class="sig-paren">(</span><em>df</em>, <em>null_codes=(None</em>, <em>'--'</em>, <em>'None'</em>, <em>'nan'</em>, <em>'null'</em>, <em>nan)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#get_nslc_series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.get_nslc_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a series of seed_ids from a dataframe with nslc columns.</p>
+<p>Any “nullish” values (defined by the parameter null_codes) will be
+replaced with an empty string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – <dl class="docutils">
+<dt>Any Dataframe that has str columns named:</dt>
+<dd>network, station, location, channel</dd>
+</dl>
+</li>
+<li><strong>null_codes</strong> – Codes which should be replaced with a blank string.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">A series of concatenated nslc codes.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.get_progressbar">
+<code class="descclassname">obsplus.utils.</code><code class="descname">get_progressbar</code><span class="sig-paren">(</span><em>max_value</em>, <em>min_value=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#get_progressbar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.get_progressbar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a progress bar object using the ProgressBar2 library.</p>
+<p>Fails gracefully if bar cannot be displayed (eg if no std out).
+Args and kwargs are passed to ProgressBar constructor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>max_value</strong> – The highest number expected</li>
+<li><strong>min_value</strong> – The minimum number of updates required to show the bar</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ProgressBar</span></code>]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.get_reference_time">
+<code class="descclassname">obsplus.utils.</code><code class="descname">get_reference_time</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#get_reference_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.get_reference_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a reference time inferred from an object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>obj</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code>]) – <p>The argument that will indicate a start time. Types and corresponding
+behavior are as follows:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>float:</dt>
+<dd><p class="first last">Convert to UTCDateTime object, interpret as a timestamp.</p>
+</dd>
+<dt>UTCDateTime:</dt>
+<dd><p class="first last">Return a new UTCDateTime as a copy.</p>
+</dd>
+<dt>catalog:</dt>
+<dd><p class="first last">Return the earliest reference time of all events.</p>
+</dd>
+<dt>event:</dt>
+<dd><p class="first last">First check for a preferred origin, if found return its origin
+time. If not found, iterate through the events picks and
+return the earliest pick time. If None are found raise a
+ValueError.</p>
+</dd>
+<dt>stream:</dt>
+<dd><p class="first last">Return the earliest reference time of all traces.</p>
+</dd>
+<dt>trace:</dt>
+<dd><p class="first last">Return the starttime in the stats object.</p>
+</dd>
+</dl>
+</div></blockquote>
+</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first simple">
+<li>TypeError if the type is not supported.</li>
+<li>ValueError if the type is supported but no reference time could be determined.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">obspy.UTCDateTime</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.utils.get_regex">
+<code class="descclassname">obsplus.utils.</code><code class="descname">get_regex</code><a class="reference internal" href="../_modules/obsplus/utils.html#get_regex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.get_regex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile, and cache regex for str queries.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.getattrs">
+<code class="descclassname">obsplus.utils.</code><code class="descname">getattrs</code><span class="sig-paren">(</span><em>obsject</em>, <em>col_set</em>, <em>default_value=nan</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#getattrs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.getattrs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse an object for a list of attrs, return a dict of values or None</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.iter_files">
+<code class="descclassname">obsplus.utils.</code><code class="descname">iter_files</code><span class="sig-paren">(</span><em>path</em>, <em>ext=None</em>, <em>mtime=None</em>, <em>skip_hidden=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#iter_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.iter_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>use os.scan dir to iter files, optionally only for those with given
+extension (ext) or modified times after mtime</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>str</em>) – The path to the base directory to traverse.</li>
+<li><strong>ext</strong> (<em>str</em><em> or </em><em>None</em>) – The extensions to map.</li>
+<li><strong>mtime</strong> (<em>int</em><em> or </em><em>float</em>) – Time stamp indicating the minimum mtime.</li>
+<li><strong>skip_hidden</strong> (<em>bool</em>) – If True skip files that begin with a ‘.’</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.iterate">
+<code class="descclassname">obsplus.utils.</code><code class="descname">iterate</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#iterate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.iterate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterable from any object.</p>
+<p>If string, do not iterate characters, return str in tuple .</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.make_time_chunks">
+<code class="descclassname">obsplus.utils.</code><code class="descname">make_time_chunks</code><span class="sig-paren">(</span><em>utc1</em>, <em>utc2</em>, <em>duration</em>, <em>overlap=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#make_time_chunks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.make_time_chunks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yield time intervals fitting in given datetime range.</p>
+<p>Function to take two utc date time objects and create a generator to
+yield all time in between by intervals of duration. Overlap is number
+of seconds at end of file
+:param utc1: The start time of the entire interval
+:type utc1: obspy.UTCDateTime compatible object
+:param utc2: The end time of the entire interval
+:type utc2: obspy.UTCDateTime compatible object
+:param duration: The duration of each chunk
+:type duration: float
+:param overlap: The overlap each chunk should have (added at end)
+:type overlap: float</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Yields:</th><td class="field-body"><em>(time1, time2)</em></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t1</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="s1">&#39;2016-01-01&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t2</span> <span class="o">=</span> <span class="n">t1</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">3600</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">make_time_chunks</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="mi">3600</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">out</span> <span class="o">==</span> <span class="p">[</span><span class="n">t1</span><span class="p">,</span> <span class="n">t1</span> <span class="o">+</span> <span class="mi">3600</span><span class="p">,</span> <span class="n">t2</span><span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>], <code class="docutils literal notranslate"><span class="pre">None</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.md5">
+<code class="descclassname">obsplus.utils.</code><code class="descname">md5</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#md5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.md5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the md5 hash of a file.</p>
+<p>Reads the file in chunks to allow using large files. Taken from this stack
+overflow answer: <a class="reference external" href="http://bit.ly/2Jqb1Jr">http://bit.ly/2Jqb1Jr</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]) – The path to the file to read.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">A str of hex for file hash</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.md5_directory">
+<code class="descclassname">obsplus.utils.</code><code class="descname">md5_directory</code><span class="sig-paren">(</span><em>path</em>, <em>match='*'</em>, <em>exclude=None</em>, <em>hidden=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#md5_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.md5_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the md5 hash of all files in a directory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>path</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The path to the directory</li>
+<li><strong>match</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – A unix-style matching string</li>
+<li><strong>exclude</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Collection</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – A list of unix style strings to exclude</li>
+<li><strong>hidden</strong> – If True skip all files starting with a .</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">A dict containing paths and md5 hashes.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.no_std_out">
+<code class="descclassname">obsplus.utils.</code><code class="descname">no_std_out</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#no_std_out"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.no_std_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Silence std out.
+Taken from here: goo.gl/eVx6oj</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.order_columns">
+<code class="descclassname">obsplus.utils.</code><code class="descname">order_columns</code><span class="sig-paren">(</span><em>df</em>, <em>required_columns</em>, <em>dtype=None</em>, <em>replace=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#order_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.order_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a dataframe, assert that required columns are in the df, then
+order the columns of df the same as required columns with extra columns
+attached at the end.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – A dataframe</li>
+<li><strong>required_columns</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[+T_co]) – A sequence that contains the column names</li>
+<li><strong>dtype</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code>]]) – A dictionary of dtypes</li>
+<li><strong>replace</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – Input passed to DataFrame.Replace</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pd.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.read_file">
+<code class="descclassname">obsplus.utils.</code><code class="descname">read_file</code><span class="sig-paren">(</span><em>file_path</em>, <em>funcs=(&lt;function _make_parser_function.&lt;locals&gt;.parser_f&gt;</em>, <em>)</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#read_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.read_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a given file_path, try reading it with each function in funcs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file_path</strong> – The path to the file to read</li>
+<li><strong>funcs</strong> – A tuple of functions to try to read the file (starting with firsts)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.register_func">
+<code class="descclassname">obsplus.utils.</code><code class="descname">register_func</code><span class="sig-paren">(</span><em>dict</em>, <em>key=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#register_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.register_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>decorator to register a function in a list or dict</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.replace_null_nlsc_codes">
+<code class="descclassname">obsplus.utils.</code><code class="descname">replace_null_nlsc_codes</code><span class="sig-paren">(</span><em>obspy_object</em>, <em>null_codes=(None</em>, <em>'--'</em>, <em>'None'</em>, <em>'nan'</em>, <em>'null'</em>, <em>nan)</em>, <em>replacement_value=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#replace_null_nlsc_codes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.replace_null_nlsc_codes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate an obspy object and replace nullish nslc codes with some value.</p>
+<p>Operates in place, but also returns the original object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>obspy_object</strong> (<em>~any_type</em>) – An obspy catalog, event, (or any sub element), stream, trace,
+inventory, etc.</li>
+<li><strong>null_codes</strong> – The codes that are considered null values and should be replaced.</li>
+<li><strong>replacement_value</strong> – The value with which to replace the null_codes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">~any_type</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.thread_lock_function">
+<code class="descclassname">obsplus.utils.</code><code class="descname">thread_lock_function</code><span class="sig-paren">(</span><em>lock=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#thread_lock_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.thread_lock_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>A decorator for locking a function that should never be run by more than
+one thread.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lock</strong> – An RLock or Lock object from the threading module, or an object that
+has the same interface.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.to_timestamp">
+<code class="descclassname">obsplus.utils.</code><code class="descname">to_timestamp</code><span class="sig-paren">(</span><em>obj</em>, <em>on_none</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#to_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.to_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert object to UTC object then get the time stamp.</p>
+<p>If obj is None return on_none value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.try_read_catalog">
+<code class="descclassname">obsplus.utils.</code><code class="descname">try_read_catalog</code><span class="sig-paren">(</span><em>catalog_path</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#try_read_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.try_read_catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to read a events from file, if it raises return None</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.utils.yield_obj_parent_attr">
+<code class="descclassname">obsplus.utils.</code><code class="descname">yield_obj_parent_attr</code><span class="sig-paren">(</span><em>obj</em>, <em>cls=None</em>, <em>is_attr=None</em>, <em>has_attr=None</em>, <em>basic_types=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/utils.html#yield_obj_parent_attr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.utils.yield_obj_parent_attr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recurse an object, yield a tuple of object, parent, attr.</p>
+<p>Can be used, for example, to yield all ResourceIdentifier instances
+contained in any obspy.core.event class instances and attached instances,
+as well as the objects they are attached to (parents) and the attribute
+name in which they are stored (attr).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>obj</strong> – The object to recurse through attributes of lists, tuples, and other
+instances.</li>
+<li><strong>cls</strong> – Only return instances of cls if not None, else return all instances.</li>
+<li><strong>is_attr</strong> – Only return objects stored as attr_name, if None return all.</li>
+<li><strong>has_attr</strong> – Only return objects that have attribute has_attr, if None return all.</li>
+<li><strong>basic_types</strong> – If True, yield non-sequence basic types (int, float, str, bool).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="docutils literal notranslate"><span class="pre">None</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.version">
+<span id="obsplus-version-module"></span><h2>obsplus.version module<a class="headerlink" href="#module-obsplus.version" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-obsplus">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-obsplus" title="Permalink to this headline">¶</a></h2>
+<p>ObsPlus: A Pandas-Centric ObsPy Expansion Pack</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Derrick Chambers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1043 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Waveforms to Xarray &#8212; ObsPlus 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/obsplus_panda.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Waveforms to Xarray</a><ul>
+<li><a class="reference internal" href="#Creating-data-arrays">Creating data arrays</a></li>
+<li><a class="reference internal" href="#Advantages-of-the-DataArray">Advantages of the DataArray</a><ul>
+<li><a class="reference internal" href="#Efficiency">Efficiency</a></li>
+<li><a class="reference internal" href="#Organization">Organization</a></li>
+<li><a class="reference internal" href="#Obsplus-Accessor-methods">Obsplus Accessor methods</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/notebooks/datastructures/xarray.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
+div.nboutput,
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 7ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput div.input_area,
+div.nboutput div.output_area {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Waveforms-to-Xarray">
+<h1>Waveforms to Xarray<a class="headerlink" href="#Waveforms-to-Xarray" title="Permalink to this headline">¶</a></h1>
+<div class="admonition warning">
+<strong>Warning</strong>: This part of obsplus is still very experimental and subject to rapid changes, proceed with caution.</div>
+<p>The <a class="reference external" href="http://xarray.pydata.org/en/stable/">xarray library</a> offers pandas-like data structures that are not limited to 2 dimensions (rows and columns). We have found working with seismic waveform data in such a way can be useful, but certainly is not as general as <a class="reference external" href="https://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html">obspy streams</a>. Particularly, Xarray data structures don’t work well with gappy data or data with non-uniform sampling rates.</p>
+<p>Before attempting to use these features in obsplus we highly recommend you read through the <a class="reference external" href="http://xarray.pydata.org/en/stable/">xarray documentation</a> as the API may take a bit of time to learn.</p>
+<div class="section" id="Creating-data-arrays">
+<h2>Creating data arrays<a class="headerlink" href="#Creating-data-arrays" title="Permalink to this headline">¶</a></h2>
+<p>Creating DataArrays from ObsPy objects is straight-forward. A single <code class="docutils literal notranslate"><span class="pre">Trace</span></code>, <code class="docutils literal notranslate"><span class="pre">Stream</span></code>, or collection (list-like) of either, or a mapping (dict-like) of either are all valid inputs. If a mapping is used, they keys will often correspond to an event id.</p>
+<p>Conceptually the DataArray looks like this:</p>
+<p>Each <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> instance created by ObsPlus has three dimensions:</p>
+<ol class="arabic simple">
+<li><strong>stream_id</strong>: The keys used in the dictionary or an integer starting at 0.</li>
+<li><strong>seed_id</strong>: The seed id (ie network.station.location.channel) of each trace.</li>
+<li><strong>time</strong>: Floating point values beginning at zero and incrementing by the sampling period.</li>
+</ol>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">obspy</span>
+<span class="kn">import</span> <span class="nn">obsplus</span>
+<span class="kn">from</span> <span class="nn">obsplus</span> <span class="kn">import</span> <span class="n">obspy_to_array</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/isti_ew/anaconda3/lib/python3.7/site-packages/dask/config.py:168: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  data = yaml.load(f.read()) or {}
+/home/isti_ew/anaconda3/lib/python3.7/site-packages/distributed/config.py:20: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  defaults = yaml.load(f)
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">st</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="c1"># create data array from a trace</span>
+<span class="n">from_trace</span> <span class="o">=</span> <span class="n">obsplus</span><span class="o">.</span><span class="n">obspy_to_array</span><span class="p">(</span><span class="n">st</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="c1"># create data array from stream</span>
+<span class="n">from_stream</span> <span class="o">=</span> <span class="n">obsplus</span><span class="o">.</span><span class="n">obspy_to_array</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+<span class="c1"># create a data array from a list of streams</span>
+<span class="n">st_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">st</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+<span class="n">from_list</span> <span class="o">=</span> <span class="n">obsplus</span><span class="o">.</span><span class="n">obspy_to_array</span><span class="p">(</span><span class="n">st_list</span><span class="p">)</span>
+<span class="c1"># create data array from a dict of streams</span>
+<span class="n">st_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="s1">&#39;event{x}&#39;</span><span class="p">:</span> <span class="n">st</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)}</span>
+<span class="n">from_dict</span> <span class="o">=</span> <span class="n">obsplus</span><span class="o">.</span><span class="n">obspy_to_array</span><span class="p">(</span><span class="n">st_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">print</span><span class="p">(</span><span class="n">from_trace</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(&#39;stream_id&#39;, &#39;seed_id&#39;, &#39;time&#39;)
+</pre></div></div>
+</div>
+<p>The data array created from a single trace will only have a size of one in the stream_id and seed_id columns, and the time dimension will be as long as the trace.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">print</span><span class="p">(</span><span class="n">from_trace</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(1, 1, 3000)
+</pre></div></div>
+</div>
+<p>The dataarray created from a dict of streams, however, will be larger:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">print</span><span class="p">(</span><span class="n">from_dict</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(3, 3, 3000)
+</pre></div></div>
+</div>
+<p>The xarray <code class="docutils literal notranslate"><span class="pre">str</span></code> representation is fairly large, but very descriptive:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># print value for the seed_id dimension</span>
+<span class="k">print</span><span class="p">(</span><span class="n">from_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;xarray.DataArray (stream_id: 3, seed_id: 3, time: 3000)&gt;
+array([[[ 0.      , -0.014434, ...,  0.435445,  0.197664],
+        [ 0.      ,  0.006044, ...,  0.492601,  0.254383],
+        [ 0.      ,  0.006946, ...,  0.981962,  0.441969]],
+
+       [[ 0.      , -0.014434, ...,  0.435445,  0.197664],
+        [ 0.      ,  0.006044, ...,  0.492601,  0.254383],
+        [ 0.      ,  0.006946, ...,  0.981962,  0.441969]],
+
+       [[ 0.      , -0.014434, ...,  0.435445,  0.197664],
+        [ 0.      ,  0.006044, ...,  0.492601,  0.254383],
+        [ 0.      ,  0.006946, ...,  0.981962,  0.441969]]])
+Coordinates:
+  * time       (time) float64 0.0 0.01 0.02 0.03 ... 29.96 29.97 29.98 29.99
+  * seed_id    (seed_id) object &#39;BW.RJOB..EHE&#39; &#39;BW.RJOB..EHN&#39; &#39;BW.RJOB..EHZ&#39;
+  * stream_id  (stream_id) object &#39;event0&#39; &#39;event1&#39; &#39;event2&#39;
+    starttime  (seed_id, stream_id) float64 1.251e+09 1.251e+09 ... 1.251e+09
+Attributes:
+    sampling_rate:  100.0
+    stats:          {&#39;event0&#39;: {&#39;BW.RJOB..EHE&#39;: Stats({&#39;sampling_rate&#39;: 100.0...
+</pre></div></div>
+</div>
+<p>DataArrays can also be converted back to dictionaries of <code class="docutils literal notranslate"><span class="pre">Stream</span></code> objects. The transformation <em>should</em> be lossless:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">print</span><span class="p">(</span><span class="n">from_dict</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">to_stream</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;event0&#39;: &lt;obspy.core.stream.Stream object at 0x7f3086e0a278&gt;, &#39;event1&#39;: &lt;obspy.core.stream.Stream object at 0x7f3086dabd30&gt;, &#39;event2&#39;: &lt;obspy.core.stream.Stream object at 0x7f3086d3c208&gt;}
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Advantages-of-the-DataArray">
+<h2>Advantages of the DataArray<a class="headerlink" href="#Advantages-of-the-DataArray" title="Permalink to this headline">¶</a></h2>
+<p>The DataArray has two potential advantages over the Stream representation:</p>
+<ol class="arabic simple">
+<li>Efficiency</li>
+<li>Organization</li>
+</ol>
+<div class="section" id="Efficiency">
+<h3>Efficiency<a class="headerlink" href="#Efficiency" title="Permalink to this headline">¶</a></h3>
+<p>There have been many efforts to improve efficiency of numpy/scipy functionality. Some of these, such as <a class="reference external" href="https://software.intel.com/en-us/mkl">Intel’s MKL</a> ship with scientific python distributions, like <a class="reference external" href="https://www.anaconda.com/">Anaconda</a>. These optimizations are great because you don’t need to change anything about your code; it just runs faster.</p>
+<p>Some of these optimizations involve making better use of modern hardware, particularly processors with many cores. It is much better to let the well-tested low-level libraries handle parallelism rather than implementing messy multiprocessing/multithreading python code when possible. For example, let’s compare the time required to calculating FFTs for each <code class="docutils literal notranslate"><span class="pre">Trace</span></code> in a large <code class="docutils literal notranslate"><span class="pre">Stream</span></code> vs doing it all at once on a <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> created with ObsPlus, both of which should return the same result.
+The latter will be more efficient because it allows numpy to better plan optimization strategies, as well as avoids python loops.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="kn">as</span> <span class="nn">xr</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;numpy version: {np.__version__}&#39;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;xarray version: {xr.__version__}&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+numpy version: 1.16.2
+xarray version: 0.12.1
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># create test streams with random data</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">obspy</span>
+
+
+<span class="n">num_stations</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">sr</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">data_length</span> <span class="o">=</span> <span class="n">sr</span> <span class="o">*</span> <span class="mi">60</span>
+
+<span class="n">traces</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;{x:03d}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_stations</span><span class="p">)):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">data_length</span><span class="p">)</span>
+    <span class="n">stats</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="s1">&#39;OP&#39;</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s1">&#39;HHZ&#39;</span><span class="p">,</span>
+                 <span class="n">sampling_rate</span><span class="o">=</span><span class="n">sr</span><span class="p">)</span>
+    <span class="n">traces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obspy</span><span class="o">.</span><span class="n">Trace</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">stats</span><span class="p">))</span>
+
+<span class="n">st</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">Stream</span><span class="p">(</span><span class="n">traces</span><span class="o">=</span><span class="n">traces</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+200 Trace(s) in Stream:
+
+OP.000..HHZ | 1970-01-01T00:00:00.000000Z - 1970-01-01T00:00:59.990000Z | 100.0 Hz, 6000 samples
+...
+(198 other traces)
+...
+OP.199..HHZ | 1970-01-01T00:00:00.000000Z - 1970-01-01T00:00:59.990000Z | 100.0 Hz, 6000 samples
+
+[Use &#34;print(Stream.__str__(extended=True))&#34; to print all Traces]
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># convert to data array</span>
+<span class="n">dar</span> <span class="o">=</span> <span class="n">obspy_to_array</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%%time</span>
+<span class="c1"># Time looping through traces and performing fft</span>
+<span class="n">out1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">st</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+CPU times: user 408 ms, sys: 28 ms, total: 436 ms
+Wall time: 21.7 ms
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%%time</span>
+<span class="c1"># Time performing fft in one-go on large numpy block</span>
+<span class="n">out2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+CPU times: user 8 ms, sys: 24 ms, total: 32 ms
+Wall time: 1.6 ms
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># after flattening one dimension in out2, the results should be (nearly) the same</span>
+<span class="n">out1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">st</span><span class="p">])</span>
+<span class="n">out2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">out1</span><span class="p">,</span> <span class="n">out2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>The xarray version is usually between 2 and 20 times faster, depending on the number of cores in your CPU and the python distribution you are using. However, this notebook may not show much of a difference if it was executed on the ReadTheDocs server. The best way to assess performance gains is to download and run this notebook yourself.</p>
+<p>Moreover xarray provides ways of easily working with dask for distributed computing. This would be a bit more difficult using <code class="docutils literal notranslate"><span class="pre">Stream</span></code>s. See <a class="reference external" href="http://xarray.pydata.org/en/stable/dask.html">this</a> for more details.</p>
+</div>
+<div class="section" id="Organization">
+<h3>Organization<a class="headerlink" href="#Organization" title="Permalink to this headline">¶</a></h3>
+<p>With the data organized in a 3D cube of sorts, it becomes fairly natural to slice and manipulate the data because xarray, like pandas, has intuitive and efficient indexing and sensible broadcasting. Here are a few examples of what you can do:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># get middle 10 seconds of data</span>
+<span class="n">time_mean</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">dar</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="n">dar</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">time_mean</span> <span class="o">-</span> <span class="mi">5</span><span class="p">,</span> <span class="n">time_mean</span> <span class="o">+</span> <span class="mi">5</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>&lt;xarray.DataArray (stream_id: 1, seed_id: 200, time: 1000)&gt;
+array([[[ 0.727655,  0.105375, ...,  0.526661,  0.195702],
+        [ 0.821371,  0.935991, ...,  0.541077,  0.829434],
+        ...,
+        [ 0.629091,  0.651582, ...,  0.476686,  0.169022],
+        [ 0.652107,  0.957319, ...,  0.357763,  0.380872]]])
+Coordinates:
+  * time       (time) float64 25.0 25.01 25.02 25.03 ... 34.96 34.97 34.98 34.99
+  * seed_id    (seed_id) object &#39;OP.000..HHZ&#39; &#39;OP.001..HHZ&#39; ... &#39;OP.199..HHZ&#39;
+  * stream_id  (stream_id) int64 0
+    starttime  (seed_id, stream_id) float64 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0
+Attributes:
+    sampling_rate:  100.0
+    stats:          {0: {&#39;OP.000..HHZ&#39;: Stats({&#39;sampling_rate&#39;: 100.0, &#39;delta...
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Trim seed_id (channels) to only include data from every 13th station</span>
+<span class="n">stations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="s1">&#39;OP.{x:03d}..HHZ&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">data_length</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+<span class="n">dar</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">seed_id</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">stations</span><span class="p">),</span> <span class="n">drop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>&lt;xarray.DataArray (stream_id: 1, seed_id: 16, time: 6000)&gt;
+array([[[ 0.651023,  0.313035, ...,  0.627967,  0.6179  ],
+        [ 0.623388,  0.571949, ...,  0.385792,  0.942906],
+        ...,
+        [ 0.247548,  0.307858, ...,  0.524457,  0.508647],
+        [ 0.979012,  0.038161, ...,  0.417889,  0.552287]]])
+Coordinates:
+  * time       (time) float64 0.0 0.01 0.02 0.03 ... 59.96 59.97 59.98 59.99
+  * seed_id    (seed_id) object &#39;OP.000..HHZ&#39; &#39;OP.013..HHZ&#39; ... &#39;OP.195..HHZ&#39;
+  * stream_id  (stream_id) int64 0
+    starttime  (seed_id, stream_id) float64 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0
+Attributes:
+    sampling_rate:  100.0
+    stats:          {0: {&#39;OP.000..HHZ&#39;: Stats({&#39;sampling_rate&#39;: 100.0, &#39;delta...
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># simple detrend using mean</span>
+<span class="n">dar</span> <span class="o">-</span> <span class="n">dar</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>&lt;xarray.DataArray (stream_id: 1, seed_id: 200, time: 6000)&gt;
+array([[[ 0.158465, -0.179524, ...,  0.135408,  0.125342],
+        [-0.153894, -0.190055, ...,  0.303974, -0.010989],
+        ...,
+        [-0.018814, -0.193618, ..., -0.219439,  0.219565],
+        [ 0.327634,  0.442214, ..., -0.023079, -0.491398]]])
+Coordinates:
+  * time       (time) float64 0.0 0.01 0.02 0.03 ... 59.96 59.97 59.98 59.99
+  * seed_id    (seed_id) object &#39;OP.000..HHZ&#39; &#39;OP.001..HHZ&#39; ... &#39;OP.199..HHZ&#39;
+  * stream_id  (stream_id) int64 0
+    starttime  (seed_id, stream_id) float64 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># calculate rolling sta/lta on each channel</span>
+<span class="n">sta_samples</span> <span class="o">=</span> <span class="mi">25</span>
+<span class="n">lta_samples</span> <span class="o">=</span> <span class="mi">200</span>
+
+<span class="n">sta</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">sta_samples</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">lta</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">lta_samples</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">sta</span> <span class="o">/</span> <span class="n">lta</span>
+<span class="k">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;xarray.DataArray (stream_id: 1, seed_id: 200, time: 5801)&gt;
+array([[[ 1.03006 ,  1.027321, ...,  0.98324 ,  0.973837],
+        [ 0.955314,  0.934984, ...,  0.954917,  0.967918],
+        ...,
+        [ 0.977889,  0.982293, ...,  1.060404,  1.111352],
+        [ 0.770689,  0.815686, ...,  1.02325 ,  1.027898]]])
+Coordinates:
+  * time       (time) float64 1.99 2.0 2.01 2.02 ... 59.96 59.97 59.98 59.99
+  * seed_id    (seed_id) object &#39;OP.000..HHZ&#39; &#39;OP.001..HHZ&#39; ... &#39;OP.199..HHZ&#39;
+  * stream_id  (stream_id) int64 0
+    starttime  (seed_id, stream_id) float64 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Obsplus-Accessor-methods">
+<h3>Obsplus Accessor methods<a class="headerlink" href="#Obsplus-Accessor-methods" title="Permalink to this headline">¶</a></h3>
+<p>Obsplus registers an <a class="reference external" href="http://xarray.pydata.org/en/stable/internals.html#extending-xarray">xarray accessor</a> to add seismic specific functionality. These are accessed via the <code class="docutils literal notranslate"><span class="pre">ops</span></code> attribute which is available as long as obsplus is imported. Here is a brief tour of some of the methods:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># build a data array from the crandall dataset</span>
+<span class="kn">import</span> <span class="nn">obsplus</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">obsplus</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;crandall&#39;</span><span class="p">)</span>
+<span class="c1"># get catalog, inventory and fetcher</span>
+<span class="n">cat</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">event_client</span><span class="o">.</span><span class="n">get_events</span><span class="p">()</span>
+<span class="n">inv</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">station_client</span><span class="o">.</span><span class="n">get_stations</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="s1">&#39;TA&#39;</span><span class="p">)</span>
+<span class="n">fetcher</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_fetcher</span><span class="p">()</span>
+<span class="c1"># init dict of {event_id: stream} and get catalog/inventory</span>
+<span class="n">st_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fetcher</span><span class="o">.</span><span class="n">yield_event_waveforms</span><span class="p">(</span><span class="n">time_before</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">time_after</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span>
+<span class="c1"># create datarray</span>
+<span class="n">dar</span> <span class="o">=</span> <span class="n">obsplus</span><span class="o">.</span><span class="n">obspy_to_array_dict</span><span class="p">(</span><span class="n">st_dict</span><span class="p">)[</span><span class="mi">40</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">print</span><span class="p">(</span><span class="n">cat</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+8 Event(s) in Catalog:
+2007-08-07T02:14:24.080000Z | +39.463, -111.223 | 1.17 ml
+2007-08-07T21:42:51.130000Z | +39.463, -111.220 | 1.88 ml
+2007-08-07T03:44:18.470000Z | +39.462, -111.215 | 1.68 ml
+2007-08-07T02:05:04.490000Z | +39.465, -111.225 | 2.44 ml
+2007-08-07T07:13:05.760000Z | +39.461, -111.224 | 2.55 ml
+2007-08-06T10:47:25.600000Z | +39.462, -111.232 | 1.92 ml
+2007-08-06T08:48:40.010000Z | +39.464, -111.228 | 4.2 mb
+2007-08-06T01:44:48.810000Z | +39.462, -111.238 | 2.32 ml
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># select channels based on seed_ids (wildcards permitted)</span>
+<span class="n">filtered_dar</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">sel_sid</span><span class="p">(</span><span class="s1">&#39;TA.*.*.BHZ&#39;</span><span class="p">)</span>
+
+<span class="c1"># filter check</span>
+<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_dar</span><span class="o">.</span><span class="n">seed_id</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">seed_id</span> <span class="ow">in</span> <span class="n">filtered_dar</span><span class="o">.</span><span class="n">seed_id</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">seed_id</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;BHZ&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">seed_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;TA&#39;</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">filtered_dar</span><span class="o">.</span><span class="n">seed_id</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;xarray.DataArray &#39;seed_id&#39; (seed_id: 12)&gt;
+array([&#39;TA.O15A..BHZ&#39;, &#39;TA.O16A..BHZ&#39;, &#39;TA.O18A..BHZ&#39;, &#39;TA.P15A..BHZ&#39;,
+       &#39;TA.P16A..BHZ&#39;, &#39;TA.P17A..BHZ&#39;, &#39;TA.P18A..BHZ&#39;, &#39;TA.Q15A..BHZ&#39;,
+       &#39;TA.Q16A..BHZ&#39;, &#39;TA.Q18A..BHZ&#39;, &#39;TA.R16A..BHZ&#39;, &#39;TA.R17A..BHZ&#39;], dtype=object)
+Coordinates:
+  * seed_id  (seed_id) object &#39;TA.O15A..BHZ&#39; &#39;TA.O16A..BHZ&#39; ... &#39;TA.R17A..BHZ&#39;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Calcule rffts (note the &quot;time&quot; dimension has changed to &quot;frequency&quot;)</span>
+<span class="n">rfft</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">rfft</span><span class="p">()</span>
+<span class="c1"># print dimensions and corresponding size</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">rfft</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">rfft</span><span class="o">.</span><span class="n">shape</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;stream_id&#39;: 8, &#39;seed_id&#39;: 36, &#39;frequency&#39;: 701}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Calculate irffts</span>
+<span class="n">irfft</span> <span class="o">=</span> <span class="n">rfft</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">irfft</span><span class="p">()</span>
+<span class="c1"># print dimensions and corresponding size</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">irfft</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">irfft</span><span class="o">.</span><span class="n">shape</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;stream_id&#39;: 8, &#39;seed_id&#39;: 36, &#39;time&#39;: 1400}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># convert back into a dict of streams</span>
+<span class="n">st_dict</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">to_stream</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">event_id</span><span class="p">,</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">st_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;event_id: {event_id} stream_size: {len(st)}&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+event_id: smi:local/248883 stream_size: 36
+event_id: smi:local/248925 stream_size: 36
+event_id: smi:local/248887 stream_size: 36
+event_id: smi:local/248882 stream_size: 36
+event_id: smi:local/248891 stream_size: 36
+event_id: smi:local/248843 stream_size: 33
+event_id: smi:local/248839 stream_size: 33
+event_id: smi:local/248828 stream_size: 33
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># attach event information</span>
+<span class="n">dar_with_events</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">attach_events</span><span class="p">(</span><span class="n">cat</span><span class="p">)</span>
+<span class="c1"># note the extra coords that have now been attached</span>
+<span class="k">print</span><span class="p">(</span><span class="n">dar_with_events</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Coordinates:
+  * seed_id      (seed_id) object &#39;TA.O15A..BHE&#39; ... &#39;TA.R17A..BHZ&#39;
+  * time         (time) float64 0.0 0.025 0.05 0.075 ... 34.9 34.92 34.95 34.98
+  * stream_id    (stream_id) object &#39;smi:local/248883&#39; ... &#39;smi:local/248828&#39;
+    starttime    (seed_id, stream_id) float64 1.186e+09 1.187e+09 ... 1.186e+09
+    origin_time  (stream_id) float64 1.186e+09 1.187e+09 ... 1.186e+09 1.186e+09
+    p_time       (stream_id, seed_id) float64 nan nan nan ... nan nan 1.186e+09
+    s_time       (stream_id, seed_id) float64 nan nan nan nan ... nan nan nan
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># trim all waveforms to the mean of the P times picked on the same station</span>
+<span class="c1"># if no such P pick exists the channels will not be trimmed</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">dar_with_events</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="s1">&#39;p_time&#39;</span><span class="p">,</span> <span class="n">aggregate_by</span><span class="o">=</span><span class="s1">&#39;station&#39;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;xarray.DataArray (stream_id: 8, seed_id: 36, time: 0)&gt;
+array([], shape=(8, 36, 0), dtype=float64)
+Coordinates:
+  * time         (time) float64
+    starttime    (stream_id, seed_id) float64 1.186e+09 1.186e+09 ... 1.186e+09
+    origin_time  (stream_id, seed_id) float64 1.186e+09 1.186e+09 ... 1.186e+09
+    p_time       (stream_id, seed_id) float64 nan nan nan ... nan nan 1.186e+09
+    s_time       (stream_id, seed_id) float64 nan nan nan nan ... nan nan nan
+    station      (stream_id, seed_id) object &#39;TA.O15A&#39; &#39;TA.O15A&#39; ... &#39;TA.R17A&#39;
+  * stream_id    (stream_id) object &#39;smi:local/248883&#39; ... &#39;smi:local/248828&#39;
+  * seed_id      (seed_id) object &#39;TA.O15A..BHE&#39; ... &#39;TA.R17A..BHZ&#39;
+Attributes:
+    sampling_rate:  40.0
+    stats:          {&#39;smi:local/248883&#39;: {&#39;TA.O15A..BHE&#39;: Stats({&#39;sampling_ra...
+    events:         8 Event(s) in Catalog:\n2007-08-07T02:14:24.080000Z | +39...
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># iterate over slices of stations</span>
+<span class="k">for</span> <span class="n">seed_dar</span> <span class="ow">in</span> <span class="n">dar</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">iter_seed</span><span class="p">(</span><span class="s1">&#39;station&#39;</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;got channels: {set(seed_dar.seed_id.values)} in yielded data array&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+got channels: {&#39;TA.O15A..BHE&#39;, &#39;TA.O15A..BHZ&#39;, &#39;TA.O15A..BHN&#39;} in yielded data array
+got channels: {&#39;TA.O16A..BHN&#39;, &#39;TA.O16A..BHZ&#39;, &#39;TA.O16A..BHE&#39;} in yielded data array
+got channels: {&#39;TA.O18A..BHZ&#39;, &#39;TA.O18A..BHE&#39;, &#39;TA.O18A..BHN&#39;} in yielded data array
+got channels: {&#39;TA.P15A..BHE&#39;, &#39;TA.P15A..BHZ&#39;, &#39;TA.P15A..BHN&#39;} in yielded data array
+got channels: {&#39;TA.P16A..BHN&#39;, &#39;TA.P16A..BHE&#39;, &#39;TA.P16A..BHZ&#39;} in yielded data array
+got channels: {&#39;TA.P17A..BHZ&#39;, &#39;TA.P17A..BHE&#39;, &#39;TA.P17A..BHN&#39;} in yielded data array
+got channels: {&#39;TA.P18A..BHN&#39;, &#39;TA.P18A..BHZ&#39;, &#39;TA.P18A..BHE&#39;} in yielded data array
+got channels: {&#39;TA.Q15A..BHZ&#39;, &#39;TA.Q15A..BHN&#39;, &#39;TA.Q15A..BHE&#39;} in yielded data array
+got channels: {&#39;TA.Q16A..BHE&#39;, &#39;TA.Q16A..BHN&#39;, &#39;TA.Q16A..BHZ&#39;} in yielded data array
+got channels: {&#39;TA.Q18A..BHZ&#39;, &#39;TA.Q18A..BHN&#39;, &#39;TA.Q18A..BHE&#39;} in yielded data array
+got channels: {&#39;TA.R16A..BHN&#39;, &#39;TA.R16A..BHZ&#39;, &#39;TA.R16A..BHE&#39;} in yielded data array
+got channels: {&#39;TA.R17A..BHZ&#39;, &#39;TA.R17A..BHN&#39;, &#39;TA.R17A..BHE&#39;} in yielded data array
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># calculate the norm of the data recorded at each station</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="n">dar</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s1">&#39;station&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>&lt;xarray.DataArray (stream_id: 8, seed_id: 12, time: 1400)&gt;
+array([[[  1108.874655,   1119.473984, ...,   1069.598523,   1069.361024],
+        [   769.578456,    812.843158, ...,    710.545565,    743.855497],
+        ...,
+        [   300.727451,    284.782373, ...,    282.782602,    285.19993 ],
+        [  1152.751057,   1151.757353, ...,   1094.554247,   1096.695947]],
+
+       [[  1096.374024,   1092.910792, ...,   1129.82034 ,   1125.569189],
+        [   888.015203,    824.355506, ...,    997.170497,    883.946831],
+        ...,
+        [   500.027999,    483.141801, ...,    235.129751,    320.170267],
+        [  1168.363813,   1173.752955, ...,   1094.462882,   1103.527979]],
+
+       ...,
+       [[   860.889656,    880.146011, ...,  20864.24475 ,  22174.801938],
+        [   760.464989,    801.550373, ...,   2880.418199,   5440.460826],
+        ...,
+        [          nan,           nan, ...,           nan,           nan],
+        [  1088.487023,   1090.746992, ...,   6817.83382 ,   7029.331903]],
+
+       [[  1072.754865,   1053.757088, ...,   1154.632409,   1180.935646],
+        [   842.579967,    816.82189 , ...,    750.613749,    769.885706],
+        ...,
+        [          nan,           nan, ...,           nan,           nan],
+        [  1130.455218,   1132.392158, ...,   1136.072181,   1130.280496]]])
+Coordinates:
+  * stream_id  (stream_id) object &#39;smi:local/248883&#39; ... &#39;smi:local/248828&#39;
+  * time       (time) float64 0.0 0.025 0.05 0.075 ... 34.9 34.92 34.95 34.98
+  * seed_id    (seed_id) object &#39;TA.O15A&#39; &#39;TA.O16A&#39; ... &#39;TA.R16A&#39; &#39;TA.R17A&#39;
+Attributes:
+    sampling_rate:  40.0
+    stats:          {&#39;smi:local/248883&#39;: {&#39;TA.O15A..BHE&#39;: Stats({&#39;sampling_ra...
+    events:         8 Event(s) in Catalog:\n2007-08-07T02:14:24.080000Z | +39...
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Derrick Chambers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

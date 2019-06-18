@@ -1,0 +1,458 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>obsplus.waveforms.xarray.convert &#8212; ObsPlus 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">ObsPlus</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/obsplus_panda.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for obsplus.waveforms.xarray.convert</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Conversions functions to and from Xarray objects</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">collections.__init__</span> <span class="k">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Collection</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">obspy</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">obspy</span> <span class="k">import</span> <span class="n">Trace</span><span class="p">,</span> <span class="n">Stream</span>
+
+<span class="kn">from</span> <span class="nn">obsplus.events.pd</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">_default_cat_to_df</span> <span class="k">as</span> <span class="n">events_to_df</span><span class="p">,</span>
+    <span class="n">_default_pick_to_df</span> <span class="k">as</span> <span class="n">picks_to_df</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">obsplus.constants</span> <span class="k">import</span> <span class="n">wave_type</span><span class="p">,</span> <span class="n">stream_proc_type</span><span class="p">,</span> <span class="n">TIME_PRECISION</span><span class="p">,</span> <span class="n">DIMS</span>
+<span class="kn">from</span> <span class="nn">obsplus.waveforms.utils</span> <span class="k">import</span> <span class="n">trim_event_stream</span>
+<span class="kn">from</span> <span class="nn">obsplus.waveforms.xarray</span> <span class="k">import</span> <span class="n">ops_method</span>
+
+
+<div class="viewcode-block" id="obspy_to_array_dict"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.convert.obspy_to_array_dict">[docs]</a><span class="k">def</span> <span class="nf">obspy_to_array_dict</span><span class="p">(</span>
+    <span class="n">waveform</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">wave_type</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">wave_type</span><span class="p">]],</span>
+    <span class="n">trim_stream</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">stream_processor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">stream_proc_type</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a dict of DataArrays from traces with several sampling rates.</span>
+
+<span class="sd">    Loads waveforms that potentially have different sampling_rates into a dict</span>
+<span class="sd">    of DataArrays where the key is the sampling rate and the values are the</span>
+<span class="sd">    DataArrays.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    waveform</span>
+<span class="sd">        Waveform array (either a Stream or dict/sequence of DataArrays)</span>
+<span class="sd">        that contain the waveform data</span>
+<span class="sd">    trim_stream</span>
+<span class="sd">        If True, make sure all streams</span>
+<span class="sd">    stream_processor</span>
+<span class="sd">        A callable for pre-processing the data</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Dict[int, xr.DataArray]</span>
+<span class="sd">        The dictionary of data arrays</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">waveform</span><span class="p">,</span> <span class="p">(</span><span class="n">Trace</span><span class="p">,</span> <span class="n">Stream</span><span class="p">)):</span>  <span class="c1"># a waveforms or trace was passed</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_split_by_sampling_rate</span><span class="p">(</span><span class="n">waveform</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">waveform</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>  <span class="c1"># a dict of waveforms/dict was passed</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_iter_events_assemble</span><span class="p">(</span><span class="n">waveform</span><span class="p">))</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span>
+        <span class="n">obspy_to_array</span><span class="p">,</span> <span class="n">trim_stream</span><span class="o">=</span><span class="n">trim_stream</span><span class="p">,</span> <span class="n">stream_processor</span><span class="o">=</span><span class="n">stream_processor</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">item</span><span class="p">:</span> <span class="n">func</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+
+<span class="k">def</span> <span class="nf">_iter_events_assemble</span><span class="p">(</span><span class="n">waveform</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">Stream</span><span class="p">,</span> <span class="n">Trace</span><span class="p">]]):</span>
+    <span class="sd">&quot;&quot;&quot; given a dict of the form {event_id: waveforms}, create a new dict of</span>
+<span class="sd">    the structure {sampling_rage: {event_id: waveforms}}&quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">obspy</span><span class="o">.</span><span class="n">Stream</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">waveform</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Trace</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">Stream</span><span class="p">(</span><span class="n">traces</span><span class="o">=</span><span class="p">[</span><span class="n">value</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">sr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampling_rate</span><span class="p">))</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">sr</span><span class="p">][</span><span class="n">item</span><span class="p">]</span> <span class="o">+=</span> <span class="n">tr</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_split_by_sampling_rate</span><span class="p">(</span>
+    <span class="n">st</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">obspy</span><span class="o">.</span><span class="n">Stream</span><span class="p">,</span> <span class="n">obspy</span><span class="o">.</span><span class="n">Trace</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">obspy</span><span class="o">.</span><span class="n">Stream</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot; given a waveforms, split the waveforms into dicts with unique sampling</span>
+<span class="sd">    rates &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">obspy</span><span class="o">.</span><span class="n">Trace</span><span class="p">):</span>  <span class="c1"># convert to waveforms if trace passed</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">Stream</span><span class="p">(</span><span class="n">traces</span><span class="o">=</span><span class="p">[</span><span class="n">st</span><span class="p">])</span>
+    <span class="c1"># iterate and separate sampling_rates</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">obspy</span><span class="o">.</span><span class="n">Stream</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">st</span><span class="p">:</span>
+        <span class="n">sr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampling_rate</span><span class="p">))</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">sr</span><span class="p">]</span> <span class="o">+=</span> <span class="n">tr</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="obspy_to_array"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.convert.obspy_to_array">[docs]</a><span class="k">def</span> <span class="nf">obspy_to_array</span><span class="p">(</span>
+    <span class="n">waveform</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">wave_type</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">wave_type</span><span class="p">],</span> <span class="n">Collection</span><span class="p">[</span><span class="n">wave_type</span><span class="p">]],</span>
+    <span class="n">trim_stream</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">stream_processor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">stream_proc_type</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a trace, stream, or dict of traces or streams to a data array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    waveform</span>
+<span class="sd">        The waveform data, can be a waveforms, trace, list of streams/traces</span>
+<span class="sd">        or a dict of the form {str: Union[waveforms, trace]}.</span>
+<span class="sd">    trim_stream</span>
+<span class="sd">        If True trim each waveforms to only include times when all channels have</span>
+<span class="sd">        contiguous data.</span>
+<span class="sd">    stream_processor</span>
+<span class="sd">        A callable that takes a single argument (a stream) and returns a</span>
+<span class="sd">        stream.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># if waveforms is a DataArray already just return it</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">waveform</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">waveform</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span><span class="o">.</span><span class="n">issuperset</span><span class="p">(</span><span class="n">DIMS</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">waveform</span>
+    <span class="c1"># handle converting waveforms</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">waveform</span><span class="p">,</span> <span class="n">Trace</span><span class="p">):</span>  <span class="c1"># if trace convert to waveforms</span>
+        <span class="n">waveform</span> <span class="o">=</span> <span class="n">Stream</span><span class="p">(</span><span class="n">traces</span><span class="o">=</span><span class="p">[</span><span class="n">waveform</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">waveform</span><span class="p">,</span> <span class="n">Stream</span><span class="p">):</span>  <span class="c1"># if waveforms convert to dict</span>
+        <span class="n">waveform</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">waveform</span><span class="p">}</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">waveform</span><span class="p">),</span> <span class="s2">&quot;No data in streams!&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">waveform</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>  <span class="c1"># hope for collection at this point</span>
+        <span class="n">waveform</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">st</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">st</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">waveform</span><span class="p">)}</span>
+    <span class="c1"># at this point waveforms should be a dict</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">waveform</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s2">&quot;input not correctly handled&quot;</span>
+    <span class="c1"># loop and get a list of waveforms data arrays</span>
+    <span class="n">out</span><span class="p">,</span> <span class="n">stats</span><span class="p">,</span> <span class="n">wf_dict</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{},</span> <span class="nb">dict</span><span class="p">(</span><span class="n">waveform</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">waveform</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">Trace</span><span class="p">):</span>
+            <span class="n">st</span> <span class="o">=</span> <span class="n">Stream</span><span class="p">(</span><span class="n">traces</span><span class="o">=</span><span class="p">[</span><span class="n">st</span><span class="p">])</span>
+            <span class="n">wf_dict</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">st</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">_stream_to_data_array</span><span class="p">(</span>
+            <span class="n">st</span><span class="p">,</span> <span class="n">trim_stream</span><span class="o">=</span><span class="n">trim_stream</span><span class="p">,</span> <span class="n">stream_processor</span><span class="o">=</span><span class="n">stream_processor</span>
+        <span class="p">)</span>
+        <span class="n">ar</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">item</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">ar</span>
+        <span class="n">stats</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stats&quot;</span><span class="p">]</span>
+        <span class="n">sampling_rate</span> <span class="o">=</span> <span class="n">st</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampling_rate</span>
+    <span class="c1"># trim times to equal lengths (avoids trim off by one errors)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">join</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span> <span class="n">compat</span><span class="o">=</span><span class="s2">&quot;no_conflicts&quot;</span><span class="p">)</span>
+    <span class="n">dar</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">to_array</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;stream_id&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">trim_stream</span><span class="p">:</span>  <span class="c1"># ensure uniform lengths</span>
+        <span class="n">dar</span> <span class="o">=</span> <span class="n">_trim_data_array</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+    <span class="c1"># set starttimes, sampling rate and stats</span>
+    <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;starttime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_get_starttime_df</span><span class="p">(</span><span class="n">wf_dict</span><span class="p">)</span>
+    <span class="n">dar</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;sampling_rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sampling_rate</span>
+    <span class="n">dar</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stats&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stats</span>
+    <span class="k">return</span> <span class="n">dar</span></div>
+
+
+<span class="k">def</span> <span class="nf">_trim_data_array</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">array_dict</span><span class="p">,</span> <span class="n">required_len</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; trim data array to remove short channels and such &quot;&quot;&quot;</span>
+    <span class="c1"># determine if there are any channels that are not all NaN or all not</span>
+    <span class="n">isvalid</span> <span class="o">=</span> <span class="o">~</span><span class="n">dar</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
+    <span class="n">all_nan</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">isvalid</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="n">no_nan</span> <span class="o">=</span> <span class="n">isvalid</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="n">good</span> <span class="o">=</span> <span class="n">all_nan</span> <span class="o">|</span> <span class="n">no_nan</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">good</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">time_mean</span> <span class="o">=</span> <span class="n">isvalid</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+        <span class="n">st_ids</span> <span class="o">=</span> <span class="n">isvalid</span><span class="o">.</span><span class="n">stream_id</span><span class="p">[</span><span class="n">time_mean</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;seed_id&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">required_len</span><span class="p">]</span>
+        <span class="n">se_ids</span> <span class="o">=</span> <span class="n">isvalid</span><span class="o">.</span><span class="n">seed_id</span><span class="p">[</span><span class="n">time_mean</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;stream_id&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">required_len</span><span class="p">]</span>
+        <span class="n">bad_st_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">stream_id</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">st_ids</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">bad_se_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">seed_id</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">se_ids</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bad_se_ids</span> <span class="ow">or</span> <span class="n">bad_st_ids</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;removing seed_id </span><span class="si">{bad_se_ids}</span><span class="s2"> and stream_ids </span><span class="si">{bad_st_ids}</span><span class="s2">&quot;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">dar</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">st_ids</span><span class="p">,</span> <span class="n">se_ids</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="c1"># pop bad stream_ids out of array_dict</span>
+        <span class="k">for</span> <span class="n">bad_st_id</span> <span class="ow">in</span> <span class="n">bad_st_ids</span><span class="p">:</span>
+            <span class="n">array_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">bad_st_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="c1"># determine if a few samples from the end should be trimmed</span>
+    <span class="n">min_lin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">time</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">array_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+    <span class="k">if</span> <span class="n">min_lin</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">time</span><span class="p">):</span>
+        <span class="n">dar</span> <span class="o">=</span> <span class="n">dar</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="n">min_lin</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">dar</span>
+
+
+<span class="k">def</span> <span class="nf">_stream_to_data_array</span><span class="p">(</span>
+    <span class="n">stream</span><span class="p">:</span> <span class="n">Stream</span><span class="p">,</span>
+    <span class="n">trim_stream</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">stream_processor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">stream_proc_type</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert the waveforms to a data array</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stream: obspy.Stream</span>
+<span class="sd">        The input waveforms to convert</span>
+<span class="sd">    trim_stream : bool</span>
+<span class="sd">        If True trim the waveforms to only times when data are available for</span>
+<span class="sd">        all traces</span>
+<span class="sd">    stream_processor</span>
+<span class="sd">        A function to apply to the waveforms before converting to xarray objects</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    ---------</span>
+<span class="sd">    xr.DataArray:</span>
+<span class="sd">        data array containing waveforms info</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># prepare waveforms</span>
+    <span class="n">stream</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>  <span class="c1"># always sort for consistent order</span>
+    <span class="k">if</span> <span class="n">stream_processor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">stream_processor</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">obspy</span><span class="o">.</span><span class="n">Stream</span><span class="p">),</span> <span class="s2">&quot;function must return waveforms&quot;</span>
+    <span class="k">if</span> <span class="n">trim_stream</span><span class="p">:</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">trim_event_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+    <span class="n">sampling_rates</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampling_rate</span><span class="p">)</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">stream</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">sampling_rates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;channels must have same sampling_rate&quot;</span>
+    <span class="n">out</span><span class="p">,</span> <span class="n">stats</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">tr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stream</span><span class="p">):</span>
+        <span class="n">seedid</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">id</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">_trace_to_datarray</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
+        <span class="n">ar</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">seedid</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ar</span><span class="p">)</span>
+        <span class="n">stats</span><span class="p">[</span><span class="n">seedid</span><span class="p">]</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stats&quot;</span><span class="p">]</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span> <span class="n">compat</span><span class="o">=</span><span class="s2">&quot;no_conflicts&quot;</span><span class="p">)</span>
+    <span class="n">ar</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">to_array</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;seed_id&quot;</span><span class="p">)</span>
+    <span class="n">ar</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stats&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stats</span>
+    <span class="k">return</span> <span class="n">ar</span>
+
+
+<span class="k">def</span> <span class="nf">_trace_to_datarray</span><span class="p">(</span><span class="n">trace</span><span class="p">:</span> <span class="n">obspy</span><span class="o">.</span><span class="n">Trace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; convert an obspy trace to a data array oject &quot;&quot;&quot;</span>
+    <span class="n">sr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampling_rate</span><span class="p">,</span> <span class="n">TIME_PRECISION</span><span class="p">)</span>
+    <span class="n">time_stamps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">trace</span><span class="o">.</span><span class="n">data</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">sr</span><span class="p">)</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">time_stamps</span><span class="p">,</span> <span class="n">TIME_PRECISION</span><span class="p">)}</span>
+    <span class="n">dar</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">trace</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">)</span>
+    <span class="n">dar</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stats&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">stats</span>
+    <span class="k">return</span> <span class="n">dar</span>
+
+
+<span class="k">def</span> <span class="nf">_get_starttime_df</span><span class="p">(</span><span class="n">waveform</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; return a df of starttimes with stream_id as coulmns and seed_id as</span>
+<span class="sd">    index &quot;&quot;&quot;</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="n">stream_id</span><span class="p">,</span> <span class="n">tr</span><span class="o">.</span><span class="n">id</span><span class="p">):</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span><span class="o">.</span><span class="n">timestamp</span>
+        <span class="k">for</span> <span class="n">stream_id</span><span class="p">,</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">waveform</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">st</span>
+    <span class="p">}</span>
+    <span class="n">_time_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+    <span class="n">time_df</span> <span class="o">=</span> <span class="n">_time_df</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;level_0&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s2">&quot;level_1&quot;</span><span class="p">)</span>
+    <span class="n">time_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;stream_id&quot;</span>
+    <span class="n">time_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;seed_id&quot;</span>
+    <span class="k">return</span> <span class="n">time_df</span>
+
+
+<div class="viewcode-block" id="array_to_obspy"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.convert.array_to_obspy">[docs]</a><span class="nd">@ops_method</span><span class="p">(</span><span class="s2">&quot;to_stream&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">array_to_obspy</span><span class="p">(</span><span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">obspy</span><span class="o">.</span><span class="n">Stream</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a data array back to a dict of obspy streams.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dar</span>
+<span class="sd">        An xarray DataArray containing waveform information</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">DIMS</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;time must start at 0, use rest_time&quot;</span>
+    <span class="k">for</span> <span class="n">stream_id</span> <span class="ow">in</span> <span class="n">dar</span><span class="o">.</span><span class="n">stream_id</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">stream_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">_array_to_stream</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">stream_id</span><span class="o">=</span><span class="n">stream_id</span><span class="p">),</span> <span class="n">stream_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<span class="k">def</span> <span class="nf">_array_to_stream</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">sid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; convert the data array to a waveforms &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;seed_id&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+    <span class="n">traces</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">stats</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;stats&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">sub_dar</span> <span class="ow">in</span> <span class="n">dar</span><span class="p">:</span>
+        <span class="n">seed_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub_dar</span><span class="o">.</span><span class="n">seed_id</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>  <span class="c1"># if this stream_id doesnt have this channel</span>
+            <span class="n">stat</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="n">sid</span><span class="p">][</span><span class="n">seed_id</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>  <span class="c1"># update starttimes using starrtime coord</span>
+            <span class="n">starttime</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sub_dar</span><span class="o">.</span><span class="n">starttime</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stat</span><span class="p">[</span><span class="s2">&quot;starttime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="n">starttime</span><span class="p">)</span>
+        <span class="n">tr</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">Trace</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sub_dar</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">tr</span><span class="o">.</span><span class="n">stats</span> <span class="o">=</span> <span class="n">stat</span>
+        <span class="n">traces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Stream</span><span class="p">(</span><span class="n">traces</span><span class="o">=</span><span class="n">traces</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="attach_events"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.convert.attach_events">[docs]</a><span class="nd">@ops_method</span><span class="p">(</span><span class="s2">&quot;attach_events&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">attach_events</span><span class="p">(</span>
+    <span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">catalog</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">obspy</span><span class="o">.</span><span class="n">Catalog</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">event_df</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pick_df</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Attach A events to channels found in a waveform data array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dar</span>
+<span class="sd">        Waveform Data Array</span>
+<span class="sd">    catalog</span>
+<span class="sd">        obspy events, optional</span>
+<span class="sd">    event_df</span>
+<span class="sd">        dataframe containing event info, eg from :func: `detex.read_events`</span>
+<span class="sd">    pick_df</span>
+<span class="sd">        dataframe containing pick info, eg from :func: `</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.DataArray</span>
+<span class="sd">        The standard detex waveform array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># only a events or event_df/pick_df combo should be defined</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">catalog</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="n">event_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pick_df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">catalog</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># get everything in df format</span>
+        <span class="n">event_df</span> <span class="o">=</span> <span class="n">events_to_df</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span>
+        <span class="n">pick_df</span> <span class="o">=</span> <span class="n">picks_to_df</span><span class="p">(</span><span class="n">catalog</span><span class="p">)</span>
+        <span class="n">dar</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;events&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">catalog</span>  <span class="c1"># attach ref of events to dar</span>
+    <span class="c1"># attach events and picks</span>
+    <span class="n">_attach_events</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">event_df</span><span class="p">)</span>
+    <span class="n">_attach_picks</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">pick_df</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dar</span></div>
+
+
+<span class="k">def</span> <span class="nf">_attach_events</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">event_df</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; attach the interesting info from events onto dataframe &quot;&quot;&quot;</span>
+    <span class="c1"># convert stream_ids to pandas, join in origin_times</span>
+    <span class="n">df_stream</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">stream_id</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;event_id&quot;</span><span class="p">)</span>
+    <span class="n">df_merged</span> <span class="o">=</span> <span class="n">df_stream</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">event_df</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;event_id&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;event_id&quot;</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df_merged</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;event_id&quot;</span><span class="p">)[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;stream_id&quot;</span>  <span class="c1"># rename event_id to waveforms id for coord alignment</span>
+    <span class="c1"># set origin_time coords</span>
+    <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;origin_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;stream_id&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dar</span>
+
+
+<span class="k">def</span> <span class="nf">_attach_picks</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">pick_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; join the pick_df to the stream_df &quot;&quot;&quot;</span>
+    <span class="n">phases</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">]</span>  <span class="c1"># these will be made into coords on dar</span>
+    <span class="c1"># add seed_id to pick_df</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pick_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;seed_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;network&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;station&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;location&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;channel&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1"># ensure time contains time stamps</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
+    <span class="c1"># sort and drop duplicates, keeping only the first value</span>
+    <span class="c1"># this will ensure only the first of each phase for each event/seed is kept</span>
+    <span class="n">sort_vals</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;event_id&quot;</span><span class="p">,</span> <span class="s2">&quot;seed_id&quot;</span><span class="p">,</span> <span class="s2">&quot;phase_hint&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">]</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">sort_vals</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">sort_vals</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># pivot data and assign coords</span>
+    <span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="n">phases</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">phase_hint</span> <span class="o">==</span> <span class="n">phase</span><span class="p">]</span>
+        <span class="n">pivot</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s2">&quot;event_id&quot;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;seed_id&quot;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+        <span class="n">df_coords</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;stream_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;seed_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df_coords</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pivot</span><span class="p">)</span>  <span class="c1"># ensures extra index/columns are chopped</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">phase</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;_time&quot;</span>
+        <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;stream_id&quot;</span><span class="p">,</span> <span class="s2">&quot;seed_id&quot;</span><span class="p">),</span> <span class="n">df_coords</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">ObsPlus</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Derrick Chambers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

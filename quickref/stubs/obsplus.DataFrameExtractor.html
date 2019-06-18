@@ -1,0 +1,310 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>obsplus.DataFrameExtractor &#8212; ObsPlus 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/obsplus_panda.png" alt="Logo"/>
+            </a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/quickref/stubs/obsplus.DataFrameExtractor.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="obsplus-dataframeextractor">
+<h1>obsplus.DataFrameExtractor<a class="headerlink" href="#obsplus-dataframeextractor" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="obsplus.DataFrameExtractor">
+<em class="property">class </em><code class="descclassname">obsplus.</code><code class="descname">DataFrameExtractor</code><span class="sig-paren">(</span><em>cls</em>, <em>required_columns=None</em>, <em>dtypes=None</em>, <em>pass_dataframe=True</em>, <em>utc_columns=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/structures/dfextractor.html#DataFrameExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.DataFrameExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to extract dataframes from nested object trees.</p>
+<p>Generally used to construct summary dataframes from nested object
+structures such as the obspy Catalog.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cls</strong> – The top-level class the extractor acts on.</li>
+<li><strong>required_columns</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – If not None, assert required columns are in dataframe, and order
+columns the same as required_columns, with extra columns at the end.</li>
+<li><strong>dtypes</strong> – A dict of {column name: required data type}. Can also be specified
+when registering extractors.</li>
+<li><strong>pass_dataframe</strong> – If True, return dataframes passed to DataFrameExtractor.__call__.
+This allows the DataFrameExtractor to be idempotent.</li>
+<li><strong>utc_columns</strong> – Columns that are UTCDateTime objects. Will correctly handle
+UTCDateTime-able objects (like date-time strings, floats, etc).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#obsplus.DataFrameExtractor.dtypes" title="obsplus.DataFrameExtractor.dtypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dtypes</span></code></a></dt>
+<dd><p class="first last">return a dictionary of datatypes.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.DataFrameExtractor.SkipRow" title="obsplus.DataFrameExtractor.SkipRow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SkipRow</span></code></a></td>
+<td>exception to raise to skip a row.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(obj,&nbsp;**kwargs)</td>
+<td>Iterate an object tree and create a dataframe.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.DataFrameExtractor.extractor" title="obsplus.DataFrameExtractor.extractor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extractor</span></code></a>([dtypes])</td>
+<td>Register an extractor.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>(k[,d])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">pop</span></code>(k[,d])</td>
+<td>If key is not found, d is returned if given, otherwise KeyError is raised.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">popitem</span></code>()</td>
+<td>as a 2-tuple; but raise KeyError if D is empty.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.DataFrameExtractor.register" title="obsplus.DataFrameExtractor.register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register</span></code></a>(cls)</td>
+<td>Registers an alternate constructor.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">setdefault</span></code>(k[,d])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code>([E,&nbsp;]**F)</td>
+<td>If E present and has a .keys() method, does:     for k in E: D[k] = E[k] If E present and lacks .keys() method, does:     for (k, v) in E: D[k] = v In either case, this is followed by: for k, v in F.items(): D[k] = v</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">values</span></code>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="55%" />
+<col width="45%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>copy</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>fromkeys</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="obsplus.DataFrameExtractor.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>cls</em>, <em>required_columns=None</em>, <em>dtypes=None</em>, <em>pass_dataframe=True</em>, <em>utc_columns=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/structures/dfextractor.html#DataFrameExtractor.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.DataFrameExtractor.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.DataFrameExtractor.__init__" title="obsplus.DataFrameExtractor.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(cls[,&nbsp;required_columns,&nbsp;dtypes,&nbsp;…])</td>
+<td>Initialize self.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.DataFrameExtractor.extractor" title="obsplus.DataFrameExtractor.extractor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extractor</span></code></a>([dtypes])</td>
+<td>Register an extractor.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">fromkeys</span></code>(iterable[,&nbsp;value])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>(k[,d])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">pop</span></code>(k[,d])</td>
+<td>If key is not found, d is returned if given, otherwise KeyError is raised.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">popitem</span></code>()</td>
+<td>as a 2-tuple; but raise KeyError if D is empty.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.DataFrameExtractor.register" title="obsplus.DataFrameExtractor.register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register</span></code></a>(cls)</td>
+<td>Registers an alternate constructor.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">setdefault</span></code>(k[,d])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code>([E,&nbsp;]**F)</td>
+<td>If E present and has a .keys() method, does:     for k in E: D[k] = E[k] If E present and lacks .keys() method, does:     for (k, v) in E: D[k] = v In either case, this is followed by: for k, v in F.items(): D[k] = v</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">values</span></code>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.DataFrameExtractor.dtypes" title="obsplus.DataFrameExtractor.dtypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dtypes</span></code></a></td>
+<td>return a dictionary of datatypes.</td>
+</tr>
+</tbody>
+</table>
+<dl class="exception">
+<dt id="obsplus.DataFrameExtractor.SkipRow">
+<em class="property">exception </em><code class="descname">SkipRow</code><a class="reference internal" href="../../_modules/obsplus/structures/dfextractor.html#DataFrameExtractor.SkipRow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.DataFrameExtractor.SkipRow" title="Permalink to this definition">¶</a></dt>
+<dd><p>exception to raise to skip a row.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.DataFrameExtractor.dtypes">
+<code class="descname">dtypes</code><a class="headerlink" href="#obsplus.DataFrameExtractor.dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a dictionary of datatypes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.DataFrameExtractor.extractor">
+<code class="descname">extractor</code><span class="sig-paren">(</span><em>dtypes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/structures/dfextractor.html#DataFrameExtractor.extractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.DataFrameExtractor.extractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an extractor.</p>
+<p>An extractor is a function which extracts values from instances of a
+class. It should either return a dict of {column names: values} or
+a single value and the name of the function (minus <a href="#id1"><span class="problematic" id="id2">get_</span></a> prefix if
+one exists) will be the column name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dtypes</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code>]]) – A dict of {column name: dtype} to enforce a schema on the data.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.DataFrameExtractor.register">
+<code class="descname">register</code><span class="sig-paren">(</span><em>cls</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/structures/dfextractor.html#DataFrameExtractor.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.DataFrameExtractor.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers an alternate constructor.</p>
+<p>Registers an althernate constructor that is called when the input is
+not an instance of the expected class. This is useful, for examples to
+make the DataFrameExtractor idempotent or to default to various read
+methods in a path/str is passed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cls</strong> – The dtype to register</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Derrick Chambers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

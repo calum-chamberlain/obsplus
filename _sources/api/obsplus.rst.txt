@@ -1,0 +1,74 @@
+obsplus package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    obsplus.bank
+    obsplus.datasets
+    obsplus.events
+    obsplus.stations
+    obsplus.structures
+    obsplus.waveforms
+
+Submodules
+----------
+
+obsplus.constants module
+------------------------
+
+.. automodule:: obsplus.constants
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.conversions module
+--------------------------
+
+.. automodule:: obsplus.conversions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.exceptions module
+-------------------------
+
+.. automodule:: obsplus.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.interfaces module
+-------------------------
+
+.. automodule:: obsplus.interfaces
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.utils module
+--------------------
+
+.. automodule:: obsplus.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.version module
+----------------------
+
+.. automodule:: obsplus.version
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: obsplus
+    :members:
+    :undoc-members:
+    :show-inheritance:

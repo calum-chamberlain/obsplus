@@ -1,0 +1,16 @@
+obsplus.StationBank
+===================
+
+.. currentmodule:: obsplus
+
+.. autoclass:: StationBank
+
+   
+   .. automethod:: __init__
+
+   
+   
+
+   
+   
+   

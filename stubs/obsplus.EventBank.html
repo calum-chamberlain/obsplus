@@ -1,0 +1,445 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>obsplus.EventBank &#8212; ObsPlus 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/obsplus_panda.png" alt="Logo"/>
+            </a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/stubs/obsplus.EventBank.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="obsplus-eventbank">
+<h1>obsplus.EventBank<a class="headerlink" href="#obsplus-eventbank" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="obsplus.EventBank">
+<em class="property">class </em><code class="descclassname">obsplus.</code><code class="descname">EventBank</code><span class="sig-paren">(</span><em>base_path='.'</em>, <em>path_structure=None</em>, <em>name_structure=None</em>, <em>cache_size=5</em>, <em>format='quakeml'</em>, <em>ext='.xml'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/bank/eventbank.html#EventBank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.EventBank" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to interact with a directory of event files.</p>
+<p>Event bank reads through a directory structure of event files,
+collects info from each one, then creates and index to allow the files
+to be efficiently queried.</p>
+<p>Implements a superset of the <a class="reference internal" href="../api/obsplus.html#obsplus.interfaces.EventClient" title="obsplus.interfaces.EventClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventClient</span></code></a>
+interface.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>base_path</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <a class="reference internal" href="../api/obsplus.bank.html#obsplus.bank.eventbank.EventBank" title="obsplus.bank.eventbank.EventBank"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventBank</span></code></a>]) – The path to the directory containing event files. If it does not
+exist an empty directory will be created.</li>
+<li><strong>path_structure</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – <p>Define the directory structure used by the event bank. Characters are
+separated by /, regardless of operating system. The following
+words can be used in curly braces as data specific variables:</p>
+<blockquote>
+<div>year, month, day, julday, hour, minute, second, event_id,
+event_id_short</div></blockquote>
+<p>If no structure is provided it will be read from the index, if no
+index exists the default is {year}/{month}/{day}</p>
+</li>
+<li><strong>name_structure</strong> (<em>str</em>) – The same as path structure but for the file name. Supports the same
+variables and a slash cannot be used in a file name on most operating
+systems. The default extension (.xml) will be added.
+The default is {time}_{event_id_short}.</li>
+<li><strong>format</strong> – The anticipated format of the event files. Any format supported by the
+obspy.read_events function is permitted.</li>
+<li><strong>ext</strong> – The extension on the files. Can be used to avoid parsing non-event
+files.</li>
+<li><strong>cache_size</strong> (<em>int</em>) – The number of queries to store. Avoids having to read the index of
+the database multiple times for queries involving the same start and
+end times.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_path</span></code></dt>
+<dd><p class="first last">The expected path to the index file.</p>
+</dd>
+<dt><a class="reference internal" href="#obsplus.EventBank.last_updated" title="obsplus.EventBank.last_updated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">last_updated</span></code></a></dt>
+<dd><p class="first last">Return the last modified time stored in the index, else 0.0</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">lock_file_path</span></code></dt>
+<dd><p class="first last">The expected path for the lock file.</p>
+</dd>
+<dt><strong>name_structure</strong></dt>
+<dd></dd>
+<dt><strong>path_structure</strong></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">block_on_index_lock</span></code>([wait_interval,&nbsp;max_retry])</td>
+<td>Blocks until the lock is released.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_bank_path_exists</span></code>([create])</td>
+<td>Ensure the bank_path exists else raise an BankDoesNotExistError.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.EventBank.get_event_summary" title="obsplus.EventBank.get_event_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_event_summary</span></code></a>(**kwargs)</td>
+<td>Read the index and return a dataframe containing the event info.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.EventBank.get_events" title="obsplus.EventBank.get_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_events</span></code></a>(**kwargs)</td>
+<td>Read events from bank.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_service_version</span></code>()</td>
+<td>Return the version of obsplus used to create index.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">lock_index</span></code>()</td>
+<td>Acquire lock for work inside context manager.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.EventBank.put_events" title="obsplus.EventBank.put_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_events</span></code></a>(catalog[,&nbsp;update_index])</td>
+<td>Put an event into the database.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.EventBank.read_index" title="obsplus.EventBank.read_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_index</span></code></a>(**kwargs)</td>
+<td>Read the index and return a dataframe containing the event info.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.EventBank.update_index" title="obsplus.EventBank.update_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_index</span></code></a>([bar,&nbsp;min_files_for_bar])</td>
+<td>Iterate files in bank and add any modified since last update to index.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="obsplus.EventBank.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>base_path='.'</em>, <em>path_structure=None</em>, <em>name_structure=None</em>, <em>cache_size=5</em>, <em>format='quakeml'</em>, <em>ext='.xml'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/bank/eventbank.html#EventBank.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.EventBank.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize an instance.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.EventBank.__init__" title="obsplus.EventBank.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([base_path,&nbsp;path_structure,&nbsp;…])</td>
+<td>Initialize an instance.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.EventBank.get_event_summary" title="obsplus.EventBank.get_event_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_event_summary</span></code></a>(**kwargs)</td>
+<td>Read the index and return a dataframe containing the event info.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.EventBank.get_events" title="obsplus.EventBank.get_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_events</span></code></a>(**kwargs)</td>
+<td>Read events from bank.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_service_version</span></code>()</td>
+<td>Return the version of obsplus used to create index.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.EventBank.put_events" title="obsplus.EventBank.put_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_events</span></code></a>(catalog[,&nbsp;update_index])</td>
+<td>Put an event into the database.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.EventBank.read_index" title="obsplus.EventBank.read_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_index</span></code></a>(**kwargs)</td>
+<td>Read the index and return a dataframe containing the event info.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventBank.unindexed_file_iterator</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.EventBank.update_index" title="obsplus.EventBank.update_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_index</span></code></a>([bar,&nbsp;min_files_for_bar])</td>
+<td>Iterate files in bank and add any modified since last update to index.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">bank_path</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventBank.complevel</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventBank.complib</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ext</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventBank.format</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventBank.index_lock</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_name</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventBank.index_node</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_path</span></code></td>
+<td>The expected path to the index file.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.EventBank.last_updated" title="obsplus.EventBank.last_updated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">last_updated</span></code></a></td>
+<td>Return the last modified time stored in the index, else 0.0</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventBank.meta_node</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventBank.min_index_bar_files</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">namespace</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventBank.time_node</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="obsplus.EventBank.get_event_summary">
+<code class="descname">get_event_summary</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#obsplus.EventBank.get_event_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the index and return a dataframe containing the event info.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>starttime</strong> (<em>obspy.UTCDateTime</em><em> or </em><em>valid input to such</em><em>, </em><em>optional</em>) – Limit to events on or after the specified start time.</li>
+<li><strong>endtime</strong> (<em>obspy.UTCDateTime</em><em> or </em><em>valid input to such</em><em>, </em><em>optional</em>) – Limit to events on or before the specified end time.</li>
+<li><strong>minlatitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a latitude larger than the specified minimum.</li>
+<li><strong>maxlatitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a latitude smaller than the specified maximum.</li>
+<li><strong>minlongitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a longitude larger than the specified minimum.</li>
+<li><strong>maxlongitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a longitude smaller than the specified maximum.</li>
+<li><strong>mindepth</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with depth, in kilometers, larger than the specified
+minimum.</li>
+<li><strong>maxdepth</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with depth, in kilometers, smaller than the specified
+maximum.</li>
+<li><strong>minmagnitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a magnitude larger than the specified minimum.</li>
+<li><strong>maxmagnitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a magnitude smaller than the specified maximum.</li>
+<li><strong>magnitudetype</strong> (<em>str</em><em>, </em><em>optional</em>) – Specify a magnitude type to use for testing the minimum and maximum
+limits.</li>
+<li><strong>eventid</strong> (<em>str</em><em> (or </em><em>sequence of such</em><em>)</em><em>, </em><em>optional</em>) – Select specific event(s) by ID.</li>
+<li><strong>limit</strong> (<em>int</em><em>, </em><em>optional</em>) – Limit the results to the specified number of events.</li>
+<li><strong>offset</strong> (<em>int</em><em>, </em><em>optional</em>) – Return results starting at the event count specified, starting at 1.</li>
+<li><strong>contributor</strong> (<em>str</em><em>, </em><em>optional</em>) – Limit to events contributed by a specified contributor.</li>
+<li><strong>updatedafter</strong> (<em>obspy.UTCDateTime</em><em> or </em><em>valid input to such</em><em>, </em><em>optional</em>) – Limit to events updated after the specified time.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.EventBank.get_events">
+<code class="descname">get_events</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/bank/eventbank.html#EventBank.get_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.EventBank.get_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read events from bank.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>starttime</strong> (<em>obspy.UTCDateTime</em><em> or </em><em>valid input to such</em><em>, </em><em>optional</em>) – Limit to events on or after the specified start time.</li>
+<li><strong>endtime</strong> (<em>obspy.UTCDateTime</em><em> or </em><em>valid input to such</em><em>, </em><em>optional</em>) – Limit to events on or before the specified end time.</li>
+<li><strong>minlatitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a latitude larger than the specified minimum.</li>
+<li><strong>maxlatitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a latitude smaller than the specified maximum.</li>
+<li><strong>minlongitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a longitude larger than the specified minimum.</li>
+<li><strong>maxlongitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a longitude smaller than the specified maximum.</li>
+<li><strong>mindepth</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with depth, in kilometers, larger than the specified
+minimum.</li>
+<li><strong>maxdepth</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with depth, in kilometers, smaller than the specified
+maximum.</li>
+<li><strong>minmagnitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a magnitude larger than the specified minimum.</li>
+<li><strong>maxmagnitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a magnitude smaller than the specified maximum.</li>
+<li><strong>magnitudetype</strong> (<em>str</em><em>, </em><em>optional</em>) – Specify a magnitude type to use for testing the minimum and maximum
+limits.</li>
+<li><strong>eventid</strong> (<em>str</em><em> (or </em><em>sequence of such</em><em>)</em><em>, </em><em>optional</em>) – Select specific event(s) by ID.</li>
+<li><strong>limit</strong> (<em>int</em><em>, </em><em>optional</em>) – Limit the results to the specified number of events.</li>
+<li><strong>offset</strong> (<em>int</em><em>, </em><em>optional</em>) – Return results starting at the event count specified, starting at 1.</li>
+<li><strong>contributor</strong> (<em>str</em><em>, </em><em>optional</em>) – Limit to events contributed by a specified contributor.</li>
+<li><strong>updatedafter</strong> (<em>obspy.UTCDateTime</em><em> or </em><em>valid input to such</em><em>, </em><em>optional</em>) – Limit to events updated after the specified time.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.EventBank.last_updated">
+<code class="descname">last_updated</code><a class="headerlink" href="#obsplus.EventBank.last_updated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the last modified time stored in the index, else 0.0</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.EventBank.put_events">
+<code class="descname">put_events</code><span class="sig-paren">(</span><em>catalog</em>, <em>update_index=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/bank/eventbank.html#EventBank.put_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.EventBank.put_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put an event into the database.</p>
+<p>If the event_id already exists the old event will be overwritten on
+disk.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>catalog</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code>]) – A Catalog or Event object to put into the database.</li>
+<li><strong>update_index</strong> – Flag to indicate whether or not to update the event index after
+writing the new events. Default is True.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.EventBank.read_index">
+<code class="descname">read_index</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/bank/eventbank.html#EventBank.read_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.EventBank.read_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the index and return a dataframe containing the event info.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>starttime</strong> (<em>obspy.UTCDateTime</em><em> or </em><em>valid input to such</em><em>, </em><em>optional</em>) – Limit to events on or after the specified start time.</li>
+<li><strong>endtime</strong> (<em>obspy.UTCDateTime</em><em> or </em><em>valid input to such</em><em>, </em><em>optional</em>) – Limit to events on or before the specified end time.</li>
+<li><strong>minlatitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a latitude larger than the specified minimum.</li>
+<li><strong>maxlatitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a latitude smaller than the specified maximum.</li>
+<li><strong>minlongitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a longitude larger than the specified minimum.</li>
+<li><strong>maxlongitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a longitude smaller than the specified maximum.</li>
+<li><strong>mindepth</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with depth, in kilometers, larger than the specified
+minimum.</li>
+<li><strong>maxdepth</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with depth, in kilometers, smaller than the specified
+maximum.</li>
+<li><strong>minmagnitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a magnitude larger than the specified minimum.</li>
+<li><strong>maxmagnitude</strong> (<em>float</em><em>, </em><em>optional</em>) – Limit to events with a magnitude smaller than the specified maximum.</li>
+<li><strong>magnitudetype</strong> (<em>str</em><em>, </em><em>optional</em>) – Specify a magnitude type to use for testing the minimum and maximum
+limits.</li>
+<li><strong>eventid</strong> (<em>str</em><em> (or </em><em>sequence of such</em><em>)</em><em>, </em><em>optional</em>) – Select specific event(s) by ID.</li>
+<li><strong>limit</strong> (<em>int</em><em>, </em><em>optional</em>) – Limit the results to the specified number of events.</li>
+<li><strong>offset</strong> (<em>int</em><em>, </em><em>optional</em>) – Return results starting at the event count specified, starting at 1.</li>
+<li><strong>contributor</strong> (<em>str</em><em>, </em><em>optional</em>) – Limit to events contributed by a specified contributor.</li>
+<li><strong>updatedafter</strong> (<em>obspy.UTCDateTime</em><em> or </em><em>valid input to such</em><em>, </em><em>optional</em>) – Limit to events updated after the specified time.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.EventBank.update_index">
+<code class="descname">update_index</code><span class="sig-paren">(</span><em>bar=None</em>, <em>min_files_for_bar=100</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/bank/eventbank.html#EventBank.update_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.EventBank.update_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate files in bank and add any modified since last update to index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>bar</strong> – An class that has an <cite>update</cite> and <cite>finish</cite> method, should behave
+the same as the progressbar.ProgressBar class. This method provides
+a way to override the default progress bar but is rarely needed.</li>
+<li><strong>min_files_for_bar</strong> – Minimum number of un-indexed files required for displaying the
+progress bar.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Derrick Chambers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

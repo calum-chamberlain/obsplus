@@ -1,0 +1,62 @@
+obsplus.waveforms.xarray package
+================================
+
+Submodules
+----------
+
+obsplus.waveforms.xarray.accessor module
+----------------------------------------
+
+.. automodule:: obsplus.waveforms.xarray.accessor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.waveforms.xarray.aggregate module
+-----------------------------------------
+
+.. automodule:: obsplus.waveforms.xarray.aggregate
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.waveforms.xarray.convert module
+---------------------------------------
+
+.. automodule:: obsplus.waveforms.xarray.convert
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.waveforms.xarray.io module
+----------------------------------
+
+.. automodule:: obsplus.waveforms.xarray.io
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.waveforms.xarray.signal module
+--------------------------------------
+
+.. automodule:: obsplus.waveforms.xarray.signal
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.waveforms.xarray.utils module
+-------------------------------------
+
+.. automodule:: obsplus.waveforms.xarray.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: obsplus.waveforms.xarray
+    :members:
+    :undoc-members:
+    :show-inheritance:

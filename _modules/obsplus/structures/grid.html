@@ -1,0 +1,1337 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>obsplus.structures.grid &#8212; ObsPlus 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ObsPlus</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/obsplus_panda.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for obsplus.structures.grid</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains an experimental class/functions for creating a manipulating a grid for storing spatially variable</span>
+<span class="sd">data (for instance, velocities, travel times, geologic properties, etc.). The interfaces for the Grid class and its</span>
+<span class="sd">supporting functions are still under development and may be subject to change without warning. Use at your own risk.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="k">import</span> <span class="n">Number</span><span class="p">,</span> <span class="n">Integral</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="k">import</span> <span class="n">Integral</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.gridspec</span> <span class="k">as</span> <span class="nn">gridspec</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">griddata</span>
+
+<span class="kn">from</span> <span class="nn">obsplus.conversions</span> <span class="k">import</span> <span class="n">convert_coords</span><span class="p">,</span> <span class="n">Conversion</span>
+<span class="kn">from</span> <span class="nn">obsplus.utils</span> <span class="k">import</span> <span class="n">read_file</span>
+
+
+<div class="viewcode-block" id="Grid"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.Grid">[docs]</a><span class="k">class</span> <span class="nc">Grid</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for generating/storing grids (compatible with NonLinLoc)</span>
+
+<span class="sd">    This class is currently experimental and its interface is subject to change.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    base_name : str</span>
+<span class="sd">        Path to the grid file (minus extension).</span>
+<span class="sd">    gtype : str</span>
+<span class="sd">        String describing the grid type. Common NonLinLoc formats are: &quot;VELOCITY&quot;, &quot;SLOWNESS&quot;, &quot;VEL2&quot;, &quot;SLOW2&quot;,</span>
+<span class="sd">        &quot;SLOW_LEN&quot;, &quot;TIME&quot;, &quot;TIME2D&quot;, &quot;MISFIT&quot;, &quot;ANGLE&quot;, &quot;ANGLE2D&quot;</span>
+<span class="sd">    origin : list of float</span>
+<span class="sd">        List of coordinates defining the origin using a right-handed coordinate system (X positive East, Y positive</span>
+<span class="sd">        North, Z positive up). Functionality is only guaranteed for two- or three-dimensional grids at this time.</span>
+<span class="sd">    spacing : list of float</span>
+<span class="sd">        List of grid spacings in each direction. Functionality is only guaranteed for two- or three-dimensional grids at</span>
+<span class="sd">        this time.</span>
+<span class="sd">    num_cells : list of int, optional</span>
+<span class="sd">        List of number of cells in each direction. Functionality is only guaranteed for two- or three-dimensional grids</span>
+<span class="sd">        at this time. Must specify this or number of grid points.</span>
+<span class="sd">    num_gps : list of int, optional</span>
+<span class="sd">        List of number of grid points (number of cells + 1) in each direction. Functionality is only guaranteed for two-</span>
+<span class="sd">        or three-dimensional grids at this time. Must specify this or number of cells.</span>
+<span class="sd">    station : str, optional</span>
+<span class="sd">        Name of station, if grid is specific to a seismic station (ex. travel-time grid) (default=None)</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    base_name : str</span>
+<span class="sd">        Name for the grid for writing to file</span>
+<span class="sd">    gtype : str</span>
+<span class="sd">        Grid type descriptor</span>
+<span class="sd">    header : dict</span>
+<span class="sd">        Dictionary containing all of the parameters found in the grid header</span>
+<span class="sd">    grid_points : list of numpy array</span>
+<span class="sd">        Listing of grid coordinates along each dimension</span>
+<span class="sd">    grid_map : numpy meshgrid</span>
+<span class="sd">        Meshgrid mapping grid indices to physical space</span>
+<span class="sd">    values : numpy array</span>
+<span class="sd">        Array containing the values at each grid point</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">base_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">gtype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">origin</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">spacing</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">num_cells</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_gps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">station</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Conduct initial checks to make sure inputs are kosher</span>
+        <span class="n">origin</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">num_gps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_grid_inputs</span><span class="p">(</span>
+            <span class="n">base_name</span><span class="o">=</span><span class="n">base_name</span><span class="p">,</span>
+            <span class="n">origin</span><span class="o">=</span><span class="n">origin</span><span class="p">,</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span>
+            <span class="n">num_cells</span><span class="o">=</span><span class="n">num_cells</span><span class="p">,</span>
+            <span class="n">num_gps</span><span class="o">=</span><span class="n">num_gps</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_name</span> <span class="o">=</span> <span class="n">base_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gtype</span> <span class="o">=</span> <span class="n">gtype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;num_gps&quot;</span><span class="p">:</span> <span class="n">num_gps</span><span class="p">,</span>
+            <span class="s2">&quot;origin&quot;</span><span class="p">:</span> <span class="n">origin</span><span class="p">,</span>
+            <span class="s2">&quot;spacing&quot;</span><span class="p">:</span> <span class="n">spacing</span><span class="p">,</span>
+            <span class="s2">&quot;station&quot;</span><span class="p">:</span> <span class="n">station</span><span class="p">,</span>
+            <span class="s2">&quot;gtype&quot;</span><span class="p">:</span> <span class="n">gtype</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Build the shape of the grid based on the provided geometry</span>
+        <span class="n">xmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;origin&quot;</span><span class="p">]</span>
+        <span class="n">xmax</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">xmin</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;spacing&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;num_gps&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xmin</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="n">lims</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xmin</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xmax</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;spacing&quot;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.0001</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lims</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_map</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;num_gps&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="o">-</span><span class="mi">99</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="Grid.get_value"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.Grid.get_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">interpolate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Number</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for retrieving a value at the closest cell to the specified point in the grid</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        point : list of floats or ints</span>
+<span class="sd">            Physical coordinates of point to seek out in the grid</span>
+<span class="sd">        interpolate : bool, optional</span>
+<span class="sd">            Flag to indicate whether to interpolate between grid cells. If False, returns value at the center of the</span>
+<span class="sd">            nearest grid cell. If True, does a linear interpolation. Default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        value : Number</span>
+<span class="sd">            The retrieved value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">interpolate</span><span class="p">:</span>
+            <span class="c1"># Get the indices of the points immediately surrounding the provided point</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">_coord2surrounding_ind</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ind</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># The point is outside of the grid... just get the value of the nearest point</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">interpolate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ind</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="c1"># Do a bilinear interpolation</span>
+                <span class="k">return</span> <span class="n">_bilinear</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ind</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="c1"># Do a trilinear interpolation</span>
+                <span class="k">return</span> <span class="n">_trilinear</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Interpolation only supported for 2D or 3D grids at this time&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="Grid.get_index"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.Grid.get_index">[docs]</a>    <span class="k">def</span> <span class="nf">get_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for retrieving index of the cell point belongs to.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        point : list-like (required)</span>
+<span class="sd">            Physical coordinates of point to seek out in the grid</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            Index of the cell</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_coord2ind</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">)</span></div>
+
+    <span class="c1"># --- Write grid to file</span>
+<div class="viewcode-block" id="Grid.write"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.Grid.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for writing the grid to a binary file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str, optional</span>
+<span class="sd">            Base path (minus extension) for the grid. Defaults to Grid.base_name if not provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine the file names</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_name</span>
+        <span class="n">head_path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;.hdr&quot;</span>
+        <span class="n">bin_path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;.buf&quot;</span>
+
+        <span class="c1"># Write the grid file</span>
+        <span class="n">write_header</span><span class="p">(</span>
+            <span class="n">head_path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;num_gps&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;origin&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;spacing&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;gtype&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">write_bin_grid</span><span class="p">(</span><span class="n">bin_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+    <span class="c1"># --- Methods for plotting</span>
+<div class="viewcode-block" id="Grid.plot_2d"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.Grid.plot_2d">[docs]</a>    <span class="k">def</span> <span class="nf">plot_2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for plotting a 2D grid</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        figsize : tuple</span>
+<span class="sd">            Size of the figure. Default is (9, 9)</span>
+<span class="sd">        cmap : str or matplotlib Colormap (or related)</span>
+<span class="sd">            Colormap to use for displaying grid values. Default is &quot;rainbow&quot;.</span>
+<span class="sd">        alpha : float</span>
+<span class="sd">            Transparency value for the colormap. Default is 0.5.</span>
+<span class="sd">        legend_label : str</span>
+<span class="sd">            Label to display on the colorbar. Default is &quot;Value&quot;.</span>
+<span class="sd">        shading : str</span>
+<span class="sd">            Indicates whether to use shading when rendering. Acceptable values are &quot;flat&quot; for a solid color in each grid</span>
+<span class="sd">            cell (default) or &quot;gouraud&quot; to apply Gouraud shading (see matplotlib docs).</span>
+<span class="sd">        contour : bool</span>
+<span class="sd">            Flag to indicate whether to plot contour lines instead of a colormap</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : matplotlib Figure</span>
+<span class="sd">            Figure containing the resultant plot axes</span>
+<span class="sd">        ax : matplotlib Axes</span>
+<span class="sd">            Axes containing the resultant plot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Make sure the grid is kosher for this plotting method</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;plot_2d method only works for 2D grid. Use plot_slice instead&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Set necessary kwargs</span>
+        <span class="k">if</span> <span class="s2">&quot;legend_label&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;legend_label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;gtype&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Generate the plot</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt_grid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_map</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_map</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+<div class="viewcode-block" id="Grid.plot_slice"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.Grid.plot_slice">[docs]</a>    <span class="k">def</span> <span class="nf">plot_slice</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">layer</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span>
+        <span class="n">layer_coord</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;grid&quot;</span><span class="p">,</span>
+        <span class="n">orientation</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">transpose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to plot a section of a 3D grid</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : int or float</span>
+<span class="sd">            Index or coordinate of the slice of the model to be plotted</span>
+<span class="sd">        layer_coord : str, optional</span>
+<span class="sd">            If set to &quot;grid&quot;, then the value in layer should be the coordinate of the model slice in the grid space</span>
+<span class="sd">            (default). If it is &quot;ind&quot;, then it should be the index of the grid slice.</span>
+<span class="sd">        orientation : int, optional</span>
+<span class="sd">            Index of the dimension of to plot the cross-section in (e.x., index=2 would plot an x-y view). Default is 2.</span>
+<span class="sd">        transpose : bool (default=False)</span>
+<span class="sd">            Indicates whether to flip the axes</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        figsize : tuple</span>
+<span class="sd">            Size of the figure. Default is (9, 9)</span>
+<span class="sd">        cmap : str or matplotlib Colormap (or related)</span>
+<span class="sd">            Colormap to use for displaying grid values. Default is &quot;rainbow&quot;.</span>
+<span class="sd">        alpha : float</span>
+<span class="sd">            Transparency value for the colormap. Default is 0.5.</span>
+<span class="sd">        legend_label : str</span>
+<span class="sd">            Label to display on the colorbar. Default is &quot;Value&quot;.</span>
+<span class="sd">        shading : str</span>
+<span class="sd">            Indicates whether to use shading when rendering. Acceptable values are &quot;flat&quot; for a solid color in each grid</span>
+<span class="sd">            cell (default) or &quot;gouraud&quot; to apply Gouraud shading (see matplotlib docs).</span>
+<span class="sd">        contour : bool</span>
+<span class="sd">            Flag to indicate whether to plot contour lines instead of a colormap</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : matplotlib Figure</span>
+<span class="sd">            Figure containing the resultant plot axes</span>
+<span class="sd">        ax : matplotlib Axes</span>
+<span class="sd">            Axes containing the resultant plot</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This will most likely only function as expected with a 3D grid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Make sure the grid is kosher for this plotting method</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;plot_slice method only works for 3D grids. Use plot_2D instead&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">layer_coord</span> <span class="o">==</span> <span class="s2">&quot;grid&quot;</span><span class="p">:</span>
+            <span class="c1"># More complicated than I thought it would be...</span>
+            <span class="n">grid_tuple</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;origin&quot;</span><span class="p">])</span>
+            <span class="n">grid_tuple</span><span class="p">[</span><span class="n">orientation</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer</span>
+            <span class="n">layer</span> <span class="o">=</span> <span class="n">_coord2ind</span><span class="p">(</span><span class="n">grid_tuple</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">)[</span><span class="n">orientation</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">layer_coord</span> <span class="o">==</span> <span class="s2">&quot;ind&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Specified value is not a valid grid index (should be an integer).&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid option for layer_coord.&quot;</span><span class="p">)</span>
+
+        <span class="n">slice_tuple</span> <span class="o">=</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_map</span><span class="p">)</span>
+        <span class="n">slice_tuple</span><span class="p">[</span><span class="n">orientation</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer</span>
+        <span class="n">slice_tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">slice_tuple</span><span class="p">)</span>
+        <span class="n">val_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">slice_tuple</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_map</span><span class="p">[</span><span class="n">orientation</span> <span class="o">-</span> <span class="mi">2</span><span class="p">][</span><span class="n">slice_tuple</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_map</span><span class="p">[</span><span class="n">orientation</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">slice_tuple</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">orientation</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">orientation</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">x1</span> <span class="o">=</span> <span class="n">y</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x1</span>
+        <span class="k">if</span> <span class="n">transpose</span><span class="p">:</span>
+            <span class="n">x1</span> <span class="o">=</span> <span class="n">y</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x1</span>
+
+        <span class="c1"># Set necessary kwargs</span>
+        <span class="k">if</span> <span class="s2">&quot;legend_label&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;legend_label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;gtype&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Generate the plot</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt_grid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">val_slice</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+    <span class="c1"># ----------------------- Internal Methods ----------------------- #</span>
+    <span class="k">def</span> <span class="nf">_check_grid_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">num_cells</span><span class="p">,</span> <span class="n">num_gps</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Internal method to validate Grid class inputs\n</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        base_name : str</span>
+<span class="sd">            Path to the grid file (minus extension)</span>
+<span class="sd">        origin : list of floats</span>
+<span class="sd">            List of coordinates defining the origin using a right-handed coordinate system (X positive East, Y positive</span>
+<span class="sd">            North, Z positive up). Functionality is only guaranteed for three-dimensional grids at this time.</span>
+<span class="sd">        spacing : list of floats</span>
+<span class="sd">            List of grid spacing in each direction. Functionality is only guaranteed for three-dimensional grids at this</span>
+<span class="sd">            time. Note that NonLinLoc velocity grids must have equal spacing in all directions.</span>
+<span class="sd">        num_cells : list of ints</span>
+<span class="sd">            List of number of cells in each direction. Functionality is only guaranteed for three-dimensional grids at</span>
+<span class="sd">            this time. Must specify this or number of grid points.</span>
+<span class="sd">        num_gps : list of ints</span>
+<span class="sd">            List of number of grid points (number of cells + 1) in each direction. Functionality is only guaranteed for</span>
+<span class="sd">            three-dimensional grids at this time. Must specify this or number of cells.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        origin : list of floats</span>
+<span class="sd">            Correctly-typed grid origin</span>
+<span class="sd">        spacing : list of floats</span>
+<span class="sd">            Correctly-typed grid spacing</span>
+<span class="sd">        num_gps : list of ints</span>
+<span class="sd">            Correctly-typed number of grid points along each dimension</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># File path and grid type</span>
+        <span class="k">if</span> <span class="n">base_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;You must specify a path for the grid file (minus the file extension)&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Origin</span>
+        <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You must specify an origin for the grid&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_iterable</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="s2">&quot;origin&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">origin</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">origin</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;origin coordinates must be floats&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Spacing</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">spacing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You must specify a spacing for the grid&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_iterable</span><span class="p">(</span><span class="n">spacing</span><span class="p">,</span> <span class="s2">&quot;spacing&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">spacing</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">spacing</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;grid spacings must be floats&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Number of cells/grid points</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">num_cells</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">num_gps</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;num_cells or num_gps must be specified&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_cells</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_iterable</span><span class="p">(</span><span class="n">num_cells</span><span class="p">,</span> <span class="s2">&quot;num_cells&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">Integral</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">num_cells</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;num_cells values must be ints&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_gps</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_iterable</span><span class="p">(</span><span class="n">num_gps</span><span class="p">,</span> <span class="s2">&quot;num_gps&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">Integral</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">num_gps</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;num_gps values must be ints&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_cells</span> <span class="ow">and</span> <span class="n">num_gps</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_cells</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_gps</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;num_cells and num_gps must be the same shape&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">val</span> <span class="o">==</span> <span class="p">(</span><span class="n">num_gps</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">num_cells</span><span class="p">)]</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;num_gps must be one greater than num_cells in each dimension&quot;</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_cells</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">num_gps</span><span class="p">:</span>
+            <span class="n">num_gps</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">num_cells</span><span class="p">]</span>
+
+        <span class="c1"># Final checks</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">spacing</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_gps</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="n">f</span><span class="s2">&quot;Grid dimensions must match. Provided dimensions: Origin: {len(origin)} Spacing: {len(spacing)} &quot;</span>
+                <span class="n">f</span><span class="s2">&quot;Number of Grid Points: {len(num_gps)}&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">origin</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">num_gps</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_check_iterable</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{name}</span><span class="s2"> must be iterable&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># --------------- Internal functions for retrieving values from grids --------- #</span>
+<span class="k">def</span> <span class="nf">_coord2ind</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">xls</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert the spatial coordinates of a point to grid indeces\n</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    point : tuple</span>
+<span class="sd">        Point to be converted to indices</span>
+<span class="sd">    xls : numpy array</span>
+<span class="sd">        Array describing the model geometry</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># index of best fitting x point in L1 sense</span>
+    <span class="n">xind</span> <span class="o">=</span> <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="n">num2</span><span class="p">]</span> <span class="o">-</span> <span class="n">xls</span><span class="p">[</span><span class="n">num2</span><span class="p">])</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> <span class="k">for</span> <span class="n">num2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xls</span><span class="p">))]</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">xind</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_coord2surrounding_ind</span><span class="p">(</span><span class="n">point</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">xls</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the indices of the points in a grid surrounding the specified point</span>
+
+<span class="sd">    If the point falls outside of the grid, fall back to returning the nearest point</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    point : list of float</span>
+<span class="sd">        Point for which to retrieve the surrounding indices</span>
+<span class="sd">    xls : numpy array</span>
+<span class="sd">        Array describing the grid geometry</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        Min and max indices of the points surrounding the point in each dimension, or the nearest point if the point is</span>
+<span class="sd">        not in the grid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">xind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">),</span> <span class="mi">2</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xls</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xls</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">xind</span><span class="p">[</span><span class="n">num</span><span class="p">]])</span> <span class="o">&lt;</span> <span class="n">point</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">xind</span><span class="p">[</span><span class="n">num</span><span class="p">]]):</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> <span class="k">for</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xls</span><span class="p">)]</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">xind</span>
+
+
+<span class="k">def</span> <span class="nf">_bilinear</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">inds</span><span class="p">,</span> <span class="n">pts</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Do a bilinear interpolation for the provided point</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">inds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">x2</span> <span class="o">=</span> <span class="n">inds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">y1</span> <span class="o">=</span> <span class="n">inds</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">y2</span> <span class="o">=</span> <span class="n">inds</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">x1</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">y1</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">y1</span><span class="p">]],</span>
+            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">x1</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">y2</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">y2</span><span class="p">]],</span>
+            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">x2</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">y1</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">y1</span><span class="p">]],</span>
+            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">x2</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">y2</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">y2</span><span class="p">]],</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">vals</span><span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">]],</span> <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">y2</span><span class="p">]],</span> <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="n">x2</span><span class="p">,</span> <span class="n">y1</span><span class="p">]],</span> <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">]]])</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_trilinear</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">inds</span><span class="p">,</span> <span class="n">pts</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Do a trilinear interpolation for the provided point</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">xs</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ys</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">zs</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">inds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">x2</span> <span class="o">=</span> <span class="n">inds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">y1</span> <span class="o">=</span> <span class="n">inds</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">y2</span> <span class="o">=</span> <span class="n">inds</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">z1</span> <span class="o">=</span> <span class="n">inds</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">z2</span> <span class="o">=</span> <span class="n">inds</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">[</span>
+                <span class="mi">1</span><span class="p">,</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">],</span>
+                <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+            <span class="p">],</span>
+            <span class="p">[</span>
+                <span class="mi">1</span><span class="p">,</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">],</span>
+                <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+            <span class="p">],</span>
+            <span class="p">[</span>
+                <span class="mi">1</span><span class="p">,</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">],</span>
+                <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+            <span class="p">],</span>
+            <span class="p">[</span>
+                <span class="mi">1</span><span class="p">,</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">],</span>
+                <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z1</span><span class="p">],</span>
+            <span class="p">],</span>
+            <span class="p">[</span>
+                <span class="mi">1</span><span class="p">,</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">],</span>
+                <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+            <span class="p">],</span>
+            <span class="p">[</span>
+                <span class="mi">1</span><span class="p">,</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">],</span>
+                <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y1</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+            <span class="p">],</span>
+            <span class="p">[</span>
+                <span class="mi">1</span><span class="p">,</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">],</span>
+                <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+            <span class="p">],</span>
+            <span class="p">[</span>
+                <span class="mi">1</span><span class="p">,</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">],</span>
+                <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+                <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+                <span class="n">xs</span><span class="p">[</span><span class="n">x2</span><span class="p">]</span> <span class="o">*</span> <span class="n">ys</span><span class="p">[</span><span class="n">y2</span><span class="p">]</span> <span class="o">*</span> <span class="n">zs</span><span class="p">[</span><span class="n">z2</span><span class="p">],</span>
+            <span class="p">],</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z1</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="n">x2</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z1</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">z1</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">z1</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z2</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="n">x2</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z2</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">z2</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">vals</span><span class="p">[</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">z2</span><span class="p">]],</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">m</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">m</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">m</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">m</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">point</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="c1"># --------------- Functions for building/reading grids --------------- #</span>
+<div class="viewcode-block" id="load_grid"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.load_grid">[docs]</a><span class="k">def</span> <span class="nf">load_grid</span><span class="p">(</span><span class="n">base_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">gtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Grid</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function for reading a binary binary grid</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    base_name : str</span>
+<span class="sd">        Name of the grid file (minus extension)</span>
+<span class="sd">    gtype : str, optional</span>
+<span class="sd">        If specified, verify the grid is the expected format</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    grid : Grid</span>
+<span class="sd">        Grid object containing the binary grid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Make sure the grid files exist</span>
+    <span class="n">header_name</span> <span class="o">=</span> <span class="n">base_name</span> <span class="o">+</span> <span class="s2">&quot;.hdr&quot;</span>
+    <span class="n">binary_name</span> <span class="o">=</span> <span class="n">base_name</span> <span class="o">+</span> <span class="s2">&quot;.buf&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">header_name</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Binary grid header file </span><span class="si">{header_name}</span><span class="s2"> does not exist&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">binary_name</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Binary grid buffer file </span><span class="si">{binary_name}</span><span class="s2"> does not exist&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Read the header and use it to size the grid</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">read_header</span><span class="p">(</span><span class="n">header_name</span><span class="p">,</span> <span class="n">gtype</span><span class="p">)</span>
+    <span class="c1"># Initialize a grid Grid object</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">Grid</span><span class="p">(</span>
+        <span class="n">base_name</span><span class="p">,</span>
+        <span class="n">gtype</span><span class="o">=</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;gtype&quot;</span><span class="p">],</span>
+        <span class="n">origin</span><span class="o">=</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;origin&quot;</span><span class="p">],</span>
+        <span class="n">spacing</span><span class="o">=</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;spacing&quot;</span><span class="p">],</span>
+        <span class="n">num_gps</span><span class="o">=</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;num_gps&quot;</span><span class="p">],</span>
+        <span class="n">station</span><span class="o">=</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;station&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Populate the grid with values from the binary file</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">read_bin_grid</span><span class="p">(</span><span class="n">binary_name</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">grid</span></div>
+
+
+<div class="viewcode-block" id="read_header"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.read_header">[docs]</a><span class="k">def</span> <span class="nf">read_header</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">gtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function for reading NonLinLoc binary grid header files</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Path to the header file</span>
+<span class="sd">    gtype : str, optional</span>
+<span class="sd">        If specified, verify the grid is the expected format</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    header_data : dict</span>
+<span class="sd">        Contents of the header file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">headfile</span><span class="p">:</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">headfile</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">header</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">==</span> <span class="n">gtype</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Grid format does not match specified grid type: </span><span class="si">{gtype}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">num_gps</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">5</span><span class="p">])]</span>
+    <span class="n">spacing</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">6</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">7</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">8</span><span class="p">])]</span>
+    <span class="k">if</span> <span class="n">header</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;TIME&quot;</span><span class="p">,</span> <span class="s2">&quot;TIME2D&quot;</span><span class="p">,</span> <span class="s2">&quot;ANGLE&quot;</span><span class="p">,</span> <span class="s2">&quot;ANGLE2D&quot;</span><span class="p">]:</span>
+        <span class="n">station</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="mi">11</span><span class="p">],</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">12</span><span class="p">]),</span>
+            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">13</span><span class="p">]),</span>
+            <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="mi">14</span><span class="p">]),</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">station</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">gtype</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
+    <span class="c1"># Fix origin to correspond to a right-handed system with positive z up</span>
+    <span class="n">origin</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">origin</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">spacing</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">num_gps</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">header_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;num_gps&quot;</span><span class="p">:</span> <span class="n">num_gps</span><span class="p">,</span>
+        <span class="s2">&quot;origin&quot;</span><span class="p">:</span> <span class="n">origin</span><span class="p">,</span>
+        <span class="s2">&quot;spacing&quot;</span><span class="p">:</span> <span class="n">spacing</span><span class="p">,</span>
+        <span class="s2">&quot;station&quot;</span><span class="p">:</span> <span class="n">station</span><span class="p">,</span>
+        <span class="s2">&quot;gtype&quot;</span><span class="p">:</span> <span class="n">gtype</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">header_data</span></div>
+
+
+<div class="viewcode-block" id="read_bin_grid"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.read_bin_grid">[docs]</a><span class="k">def</span> <span class="nf">read_bin_grid</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">Grid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Grid</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function for reading in a NonLinLoc binary grid</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Path to the binary buffer</span>
+<span class="sd">    grid : Grid</span>
+<span class="sd">        Grid to dump the values into</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    grid : Grid</span>
+<span class="sd">        Grid as read from the file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;num_gps&quot;</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">values</span>
+    <span class="k">return</span> <span class="n">grid</span></div>
+
+
+<div class="viewcode-block" id="write_header"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.write_header">[docs]</a><span class="k">def</span> <span class="nf">write_header</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">gps</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">origin</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">gtype</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function for writing a NonLinLoc binary grid header</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Path for the header file</span>
+<span class="sd">    gps : list of int</span>
+<span class="sd">        Number of grid points in the X, Y, and Z directions</span>
+<span class="sd">    origin : list of float</span>
+<span class="sd">        X, Y, and Z coordinates of the grid origin (Z is positive up). Coordinates must be in the NonLinLoc coordinate</span>
+<span class="sd">        system and must be in kilometers.</span>
+<span class="sd">    spacing : float</span>
+<span class="sd">        Size of the grid cells in kilometers. Grid cells must be square to be compatible with NonLinLoc</span>
+<span class="sd">    gtype : str</span>
+<span class="sd">        Type of grid being written. Common options are: &quot;VELOCITY&quot;, &quot;SLOWNESS&quot;, &quot;VEL2&quot;, &quot;SLOW2&quot;, &quot;SLOW_LEN&quot;, &quot;TIME&quot;,</span>
+<span class="sd">        &quot;TIME2D&quot;, &quot;MISFIT&quot;, &quot;ANGLE&quot;, &quot;ANGLE2D&quot;</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    It is important to note that while the obsplus Grid objects here created such that Z is positive up, in order</span>
+<span class="sd">    to be compatible with NonLinLoc, the origin must be swapped when it is written so Z is positive down.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Swap origin to be a left-handed system with positive z down</span>
+    <span class="n">origin_z</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="n">origin</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">spacing</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">gps</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">header_gps</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{gps[0]}</span><span class="s2"> </span><span class="si">{gps[1]}</span><span class="s2"> </span><span class="si">{gps[2]}</span><span class="s2"> &quot;</span>
+    <span class="n">header_origin</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{origin[0]:0.3f}</span><span class="s2"> </span><span class="si">{origin[1]:0.3f}</span><span class="s2"> </span><span class="si">{origin_z:0.3f}</span><span class="s2"> &quot;</span>
+    <span class="n">header_spacing</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{spacing[0]:0.3f}</span><span class="s2"> </span><span class="si">{spacing[1]:0.3f}</span><span class="s2"> </span><span class="si">{spacing[2]:0.3f}</span><span class="s2"> &quot;</span>
+    <span class="n">header_remainder</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{gtype}</span><span class="s2"> FLOAT</span><span class="se">\n</span><span class="s2">TRANSFORM NONE</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">header_gps</span><span class="p">,</span> <span class="n">header_origin</span><span class="p">,</span> <span class="n">header_spacing</span><span class="p">,</span> <span class="n">header_remainder</span><span class="p">])</span>
+    <span class="c1"># Check to make sure directory exists, if not, create it...</span>
+    <span class="n">direc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">direc</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{direc}</span><span class="s2"> is not a directory&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">direc</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">direc</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="write_bin_grid"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.write_bin_grid">[docs]</a><span class="k">def</span> <span class="nf">write_bin_grid</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function for writing a NonLinLoc binary grid</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Path for the binary file</span>
+<span class="sd">    grid : numpy array</span>
+<span class="sd">        Three-dimensional numpy array containing the values for the grid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">grid</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<span class="c1"># ---------- Utilities for manipulating the values of a grid --------- #</span>
+<div class="viewcode-block" id="apply_layers"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.apply_layers">[docs]</a><span class="k">def</span> <span class="nf">apply_layers</span><span class="p">(</span><span class="n">grid</span><span class="p">:</span> <span class="n">Grid</span><span class="p">,</span> <span class="n">layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function for applying velocities from a 1D layered model</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grid : Grid</span>
+<span class="sd">        Grid on which to apply the layers</span>
+<span class="sd">    layers : list-like</span>
+<span class="sd">        List of layers of the form [(value1, elevation1), (value2,</span>
+<span class="sd">        elevation2)] to  apply to the grid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># For each layer in vel_input, apply the specified velocity</span>
+    <span class="k">for</span> <span class="n">elev</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">elev</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elev</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;velocity input should be a 2D list of values and elevations&quot;</span>
+            <span class="p">)</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">grid</span><span class="o">.</span><span class="n">grid_points</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">elev</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">elev</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="apply_rectangles"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.apply_rectangles">[docs]</a><span class="k">def</span> <span class="nf">apply_rectangles</span><span class="p">(</span>
+    <span class="n">grid</span><span class="p">:</span> <span class="n">Grid</span><span class="p">,</span>
+    <span class="n">rectangles</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">conversion</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Conversion</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">conversion_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function for perturbing grid values in rectangular regions</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grid : Grid</span>
+<span class="sd">        Grid on which to apply the layers</span>
+<span class="sd">    rectangles : pandas DataFrame</span>
+<span class="sd">        List of velocity perturbations to apply. Required columns</span>
+<span class="sd">        include [&quot;DELTA&quot;, &quot;XMIN&quot;, &quot;XMAX&quot;, &quot;YMIN&quot;, &quot;YMAX&quot;] where &quot;DELTA&quot; is</span>
+<span class="sd">        some percentage of the current grid value</span>
+<span class="sd">    tol : float</span>
+<span class="sd">        Value to add to rectangle coordinates to prevent rounding</span>
+<span class="sd">        errors. This value should be small relative to the grid</span>
+<span class="sd">        spacing.</span>
+<span class="sd">    conversion : list-like or callable, optional</span>
+<span class="sd">        See obsplus.conversions.convert_coords</span>
+<span class="sd">    conversion_kwargs : dict, optional</span>
+<span class="sd">        See obsplus.conversions.convert_coords</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rectangles</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">rectangles</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;rectangles file does not exist: </span><span class="si">{path}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">rectangles</span> <span class="o">=</span> <span class="n">read_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;delta&quot;</span><span class="p">,</span> <span class="s2">&quot;xmin&quot;</span><span class="p">,</span> <span class="s2">&quot;ymin&quot;</span><span class="p">,</span> <span class="s2">&quot;zmin&quot;</span><span class="p">,</span> <span class="s2">&quot;xmax&quot;</span><span class="p">,</span> <span class="s2">&quot;ymax&quot;</span><span class="p">,</span> <span class="s2">&quot;zmax&quot;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cols</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">rectangles</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{path}</span><span class="s2"> is not a valid rectangles file&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rectangles</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;rectangles must be a pandas DataFrame&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">conversion</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rectangles</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">rectangles</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">num</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;xmin&quot;</span><span class="p">,</span> <span class="s2">&quot;ymin&quot;</span><span class="p">,</span> <span class="s2">&quot;zmin&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">convert_coords</span><span class="p">(</span>
+                <span class="n">r</span><span class="p">[[</span><span class="s2">&quot;xmin&quot;</span><span class="p">,</span> <span class="s2">&quot;ymin&quot;</span><span class="p">,</span> <span class="s2">&quot;zmin&quot;</span><span class="p">]],</span>
+                <span class="n">conversion</span><span class="o">=</span><span class="n">conversion</span><span class="p">,</span>
+                <span class="n">conversion_kwargs</span><span class="o">=</span><span class="n">conversion_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">rectangles</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">num</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;xmax&quot;</span><span class="p">,</span> <span class="s2">&quot;ymax&quot;</span><span class="p">,</span> <span class="s2">&quot;zmax&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">convert_coords</span><span class="p">(</span>
+                <span class="n">r</span><span class="p">[[</span><span class="s2">&quot;xmax&quot;</span><span class="p">,</span> <span class="s2">&quot;ymax&quot;</span><span class="p">,</span> <span class="s2">&quot;zmax&quot;</span><span class="p">]],</span>
+                <span class="n">conversion</span><span class="o">=</span><span class="n">conversion</span><span class="p">,</span>
+                <span class="n">conversion_kwargs</span><span class="o">=</span><span class="n">conversion_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">gmap</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">grid_map</span>
+    <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">zone</span> <span class="ow">in</span> <span class="n">rectangles</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="c1"># apply the perturbation</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">zone</span><span class="o">.</span><span class="n">delta</span>
+        <span class="n">xmask</span> <span class="o">=</span> <span class="p">(</span><span class="n">gmap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">zone</span><span class="o">.</span><span class="n">xmin</span> <span class="o">-</span> <span class="n">tol</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">gmap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">zone</span><span class="o">.</span><span class="n">xmax</span> <span class="o">+</span> <span class="n">tol</span><span class="p">)</span>
+        <span class="n">ymask</span> <span class="o">=</span> <span class="p">(</span><span class="n">gmap</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">zone</span><span class="o">.</span><span class="n">ymin</span> <span class="o">-</span> <span class="n">tol</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">gmap</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">zone</span><span class="o">.</span><span class="n">ymax</span> <span class="o">+</span> <span class="n">tol</span><span class="p">)</span>
+        <span class="n">zmask</span> <span class="o">=</span> <span class="p">(</span><span class="n">gmap</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">zone</span><span class="o">.</span><span class="n">zmin</span> <span class="o">-</span> <span class="n">tol</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">gmap</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">zone</span><span class="o">.</span><span class="n">zmax</span> <span class="o">+</span> <span class="n">tol</span><span class="p">)</span>
+        <span class="n">v</span><span class="p">[</span><span class="n">xmask</span> <span class="o">&amp;</span> <span class="n">ymask</span> <span class="o">&amp;</span> <span class="n">zmask</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="n">xmask</span> <span class="o">&amp;</span> <span class="n">ymask</span> <span class="o">&amp;</span> <span class="n">zmask</span><span class="p">]</span> <span class="o">*</span> <span class="n">delta</span>
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="apply_topo"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.apply_topo">[docs]</a><span class="k">def</span> <span class="nf">apply_topo</span><span class="p">(</span>
+    <span class="n">grid</span><span class="p">:</span> <span class="n">Grid</span><span class="p">,</span>
+    <span class="n">topo_points</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+    <span class="n">air</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.343</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+    <span class="n">conversion</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Conversion</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">conversion_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">buffer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">topo_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;TOPO&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Grid</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function for applying a topographic surface to the model</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grid : Grid</span>
+<span class="sd">        Grid on which to apply the layers</span>
+<span class="sd">    topo_points : pandas DataFrame or path to csv or dxf file</span>
+<span class="sd">        Input containing the topography data</span>
+<span class="sd">    air : float, optional</span>
+<span class="sd">        Value to assign to the &quot;air&quot; blocks (blocks above the topography). Default is 0.343 km/s.</span>
+<span class="sd">    method : str, optional</span>
+<span class="sd">        Method used by scipy&#39;s griddata to interpolate the topography grid. Acceptable values include: &quot;nearest&quot;</span>
+<span class="sd">        (default), &quot;linear&quot;, and &quot;cubic&quot;</span>
+<span class="sd">    conversion : list-like or callable, optional</span>
+<span class="sd">        See obsplus.conversions.convert_coords</span>
+<span class="sd">    conversion_kwargs : dict, optional</span>
+<span class="sd">        See obsplus.conversions.convert_coords</span>
+<span class="sd">    tolerance : float, optional</span>
+<span class="sd">        Should be small relative to the grid size. Deals with those pesky rounding errors. (Default=1e-6)</span>
+<span class="sd">    buffer : int, optional</span>
+<span class="sd">        Number of cells above the topography to extend the &quot;rock&quot; values (i.e., the values that are below the</span>
+<span class="sd">        topography) (default=0)</span>
+<span class="sd">    topo_label : str, optional</span>
+<span class="sd">        Label to assign the 2D grid that is created from topo_points (default=&quot;TOPO&quot;)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    topo : Grid</span>
+<span class="sd">        2D grid created from topo_points</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    If the input is a CSV file or pandas DataFrame, the following columns are required: [&quot;x&quot;, &quot;y&quot;, &quot;z&quot;]. If the input is</span>
+<span class="sd">    a dxf file, the dxf should not contain any data other than the topography (in the form of LWPOLYLINEs, LINEs,</span>
+<span class="sd">    POLYLINES, POINTS, and/or 3DFACEs) and must have the elevation data stored in the entities (Z coordinates</span>
+<span class="sd">    shouldn&#39;t be 0.0).\n</span>
+<span class="sd">    It should be noted that bizarre results may occur if the topo data does not extend beyond the grid region.\n</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Do some basic error checking and read in the topo data</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">topo_points</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="n">topo</span> <span class="o">=</span> <span class="n">topo_points</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">topo</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="s2">&quot;topo_points must contain the following columns: [&#39;x&#39;, &#39;y&#39;, &#39;z&#39;]&quot;</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">topo_points</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">topo_points</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;topo file does not exist: </span><span class="si">{topo_points}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">topo</span> <span class="o">=</span> <span class="n">read_file</span><span class="p">(</span><span class="n">topo_points</span><span class="p">,</span> <span class="n">funcs</span><span class="o">=</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">,</span> <span class="n">_read_topo_dxf</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">topo</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{topo_points}</span><span class="s2"> is not a valid topo file&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;An invalid topo_points was provided to apply_topo&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">topo</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+            <span class="s2">&quot;topo_points must contain the following columns: [&#39;x&#39;, &#39;y&#39;, &#39;z&#39;]&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;cubic&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Unsupported interpolation format: </span><span class="si">{method}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Apply a coordinate conversion, if necessary</span>
+    <span class="k">if</span> <span class="n">conversion</span><span class="p">:</span>
+        <span class="n">topo</span> <span class="o">=</span> <span class="n">convert_coords</span><span class="p">(</span>
+            <span class="n">topo</span><span class="p">,</span>
+            <span class="n">conversion</span><span class="p">,</span>
+            <span class="n">x_in</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+            <span class="n">y_in</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
+            <span class="n">z_in</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span>
+            <span class="n">x_out</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+            <span class="n">y_out</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
+            <span class="n">z_out</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span>
+            <span class="n">conversion_kwargs</span><span class="o">=</span><span class="n">conversion_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Create a 2D grid space for the topo map</span>
+    <span class="n">grid_x</span><span class="p">,</span> <span class="n">grid_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">grid_points</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="n">grid</span><span class="o">.</span><span class="n">grid_points</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="p">:</span> <span class="n">grid</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;num_gps&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="o">*</span> <span class="mi">1</span><span class="n">j</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">.</span><span class="n">grid_points</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="n">grid</span><span class="o">.</span><span class="n">grid_points</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="p">:</span> <span class="n">grid</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;num_gps&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="o">*</span> <span class="mi">1</span><span class="n">j</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="c1"># Interpolate over the grid</span>
+    <span class="n">nearest_grid</span> <span class="o">=</span> <span class="n">griddata</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">topo</span><span class="p">[[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]]),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">topo</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]),</span>
+        <span class="p">(</span><span class="n">grid_x</span><span class="p">,</span> <span class="n">grid_y</span><span class="p">),</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;nearest&quot;</span><span class="p">:</span>
+        <span class="n">topo_grid</span> <span class="o">=</span> <span class="n">nearest_grid</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">topo_grid</span> <span class="o">=</span> <span class="n">griddata</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">topo</span><span class="p">[[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]]),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">topo</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]),</span>
+            <span class="p">(</span><span class="n">grid_x</span><span class="p">,</span> <span class="n">grid_y</span><span class="p">),</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">topo_grid</span><span class="p">)</span>
+        <span class="n">topo_grid</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">nearest_grid</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">topo_grid</span> <span class="o">=</span> <span class="n">topo_grid</span> <span class="o">-</span> <span class="n">tolerance</span>
+    <span class="n">topo_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">topo_grid</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">topo</span> <span class="o">=</span> <span class="n">Grid</span><span class="p">(</span>
+        <span class="n">base_name</span><span class="o">=</span><span class="n">grid</span><span class="o">.</span><span class="n">base_name</span> <span class="o">+</span> <span class="s2">&quot;_topo&quot;</span><span class="p">,</span>
+        <span class="n">gtype</span><span class="o">=</span><span class="n">topo_label</span><span class="p">,</span>
+        <span class="n">origin</span><span class="o">=</span><span class="n">grid</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;origin&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+        <span class="n">num_gps</span><span class="o">=</span><span class="n">grid</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;num_gps&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+        <span class="n">spacing</span><span class="o">=</span><span class="n">grid</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;spacing&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">topo</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">topo_grid</span>
+    <span class="c1"># Overlay the topo grid on the velocity grid</span>
+    <span class="n">elevs</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">grid_map</span><span class="p">[:][:][</span><span class="mi">2</span><span class="p">]</span>
+    <span class="c1"># Optionally add extra cells above the topo layer to deal with the ways some programs interpolate between cells</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">(</span><span class="n">elevs</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">topo_grid</span> <span class="o">+</span> <span class="n">buffer</span> <span class="o">*</span> <span class="n">grid</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;spacing&quot;</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">elevs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">air</span>
+    <span class="k">return</span> <span class="n">topo</span></div>
+
+
+<span class="c1"># --------------------- Grid plotting utilities ---------------------- #</span>
+<div class="viewcode-block" id="plt_grid"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.plt_grid">[docs]</a><span class="k">def</span> <span class="nf">plt_grid</span><span class="p">(</span>
+    <span class="n">x1_coords</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">x2_coords</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">contour</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to plot a colormap of a grid</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x1_coords : array-like</span>
+<span class="sd">        Coordinates of grid points along the horizontal axis of the plot</span>
+<span class="sd">    x2_coords : array-like</span>
+<span class="sd">        Coordinates of grid points along the vertical axis of the plot</span>
+<span class="sd">    values : array-like</span>
+<span class="sd">        Values stored in the grid</span>
+<span class="sd">    contour : bool, optional</span>
+<span class="sd">        Flag indicating whether to plot contour lines instead of a colormap (default=False</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    figsize : tuple</span>
+<span class="sd">        Size of the figure (default=(9,9))</span>
+<span class="sd">    cmap : str or matplotlib Colormap (or related)</span>
+<span class="sd">        Colormap to use for displaying grid values (default=&quot;rainbow&quot;)</span>
+<span class="sd">    alpha : float</span>
+<span class="sd">        Transparency value for the colormap (default=0.5)</span>
+<span class="sd">    legend_label : str</span>
+<span class="sd">        Label to display on the colorbar (default=&quot;Value&quot;)</span>
+<span class="sd">    shading : str</span>
+<span class="sd">        Indicates whether to use shading when rendering. Acceptable values are &quot;flat&quot; for a solid color in each grid</span>
+<span class="sd">        cell (default) or &quot;gouraud&quot; to apply Gouraud shading (see matplotlib docs)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig : matplotlib Figure</span>
+<span class="sd">        Figure containing the resultant plot axes</span>
+<span class="sd">    ax : matplotlib Axes</span>
+<span class="sd">        Axes containing the resultant plot</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">figsize</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;figsize&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="s2">&quot;rainbow&quot;</span><span class="p">)</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">legend_label</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;legend_label&quot;</span><span class="p">,</span> <span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+    <span class="n">shading</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;shading&quot;</span><span class="p">,</span> <span class="s2">&quot;flat&quot;</span><span class="p">)</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+
+    <span class="c1"># Define the plot grid and create a new axes</span>
+    <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span>
+        <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.05</span>
+    <span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># Plot the grid with the appropriate user args</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">contour</span><span class="p">:</span>
+        <span class="n">cmesh</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span>
+            <span class="n">x1_coords</span><span class="p">,</span>
+            <span class="n">x2_coords</span><span class="p">,</span>
+            <span class="n">values</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="n">shading</span><span class="o">=</span><span class="n">shading</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cmesh</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">x1_coords</span><span class="p">,</span> <span class="n">x2_coords</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">cmesh</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%2.2f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="c1"># Make the plot look nice and add a legend</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">tick_top</span><span class="p">()</span>
+
+    <span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">cmesh</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">legend_label</span><span class="p">)</span>
+
+    <span class="c1"># Make the plot look nice</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="grid_cross"><a class="viewcode-back" href="../../../api/obsplus.structures.html#obsplus.structures.grid.grid_cross">[docs]</a><span class="k">def</span> <span class="nf">grid_cross</span><span class="p">(</span>
+    <span class="n">grid</span><span class="p">:</span> <span class="n">Grid</span><span class="p">,</span> <span class="n">coord</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;X&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function for returning a profile from a two-dimensional grid</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    grid : Grid</span>
+<span class="sd">        Grid from which to pull the values</span>
+<span class="sd">    coord : float</span>
+<span class="sd">        Coordinate along which to get the profile</span>
+<span class="sd">    direction : str, optional</span>
+<span class="sd">        Direction along which to get the profile. Possible values are &quot;X&quot;</span>
+<span class="sd">        for a profile that parallel to the x-axis (default) and &quot;Y&quot; for a profile</span>
+<span class="sd">        that is parallel to the y-axis.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    points : np.array</span>
+<span class="sd">        List of coordinates along the profile</span>
+<span class="sd">    values : np.array</span>
+<span class="sd">        Values at each coordinate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">grid_points</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;grid must be a 2D Grid&quot;</span><span class="p">)</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;X&quot;</span><span class="p">:</span> <span class="n">grid</span><span class="o">.</span><span class="n">grid_points</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;Y&quot;</span><span class="p">:</span> <span class="n">grid</span><span class="o">.</span><span class="n">grid_points</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">coord</span> <span class="o">&lt;</span> <span class="n">points</span><span class="p">[</span><span class="n">direction</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span><span class="n">coord</span> <span class="o">&gt;</span> <span class="n">points</span><span class="p">[</span><span class="n">direction</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="n">f</span><span class="s2">&quot;coord is outside grid bounds: </span><span class="si">{coord}</span><span class="s2"> not in &quot;</span>
+            <span class="n">f</span><span class="s2">&quot;(</span><span class="si">{points[direction][0]}</span><span class="s2">, </span><span class="si">{points[direction][-1]}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;X&quot;</span><span class="p">:</span>
+        <span class="c1"># Slice the grid in the X-direction at that the provided Y-coordinate</span>
+        <span class="n">dummy</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">get_index</span><span class="p">((</span><span class="n">dummy</span><span class="p">,</span> <span class="n">coord</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="n">ind</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">points</span><span class="p">[</span><span class="n">direction</span><span class="p">],</span> <span class="n">values</span>
+    <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;Y&quot;</span><span class="p">:</span>
+        <span class="c1"># Slice the grid in the Y-direction at the provided X-coordinate</span>
+        <span class="n">dummy</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;Y&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">get_index</span><span class="p">((</span><span class="n">coord</span><span class="p">,</span> <span class="n">dummy</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">return</span> <span class="n">points</span><span class="p">[</span><span class="n">direction</span><span class="p">],</span> <span class="n">values</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Unknown direction: </span><span class="si">{direction}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># ------------- Internal functions for handling dxfs ----------------- #</span>
+<span class="k">def</span> <span class="nf">_read_topo_dxf</span><span class="p">(</span><span class="n">dxf</span><span class="p">,</span> <span class="n">line_end</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Function for parsing topography information from a dxf file &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dxf</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="c1"># Split by section</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;  0</span><span class="si">{line_end}</span><span class="s2">SECTION</span><span class="si">{line_end}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Get the entities and split them up</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">parsed</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+            <span class="n">f</span><span class="s2">&quot;</span><span class="si">{line_end}</span><span class="s2">  0</span><span class="si">{line_end}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>  <span class="c1"># Technically dangerous... should really explicitly seek out the entities section</span>
+    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Invalid dxf file: </span><span class="si">{dxf}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">parsed</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">parsed</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">entities</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">enum</span> <span class="o">=</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">num</span><span class="p">,</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">enum</span><span class="p">:</span>
+        <span class="n">records</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">line_end</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;LWPOLYLINE&quot;</span><span class="p">:</span>
+            <span class="n">records</span> <span class="o">=</span> <span class="n">_entity_boilerplate</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+            <span class="c1"># Get the elevation of the polyline</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">elev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">records</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">records</span><span class="o">.</span><span class="n">CODE</span> <span class="o">==</span> <span class="s2">&quot; 38&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">VALUE</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># Get a table of the points</span>
+            <span class="n">inlist</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot; 10&quot;</span><span class="p">,</span> <span class="s2">&quot; 20&quot;</span><span class="p">]</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="n">_reshape_points</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">inlist</span><span class="p">,</span> <span class="n">use_z</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># Append the elevation</span>
+            <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elev</span>
+            <span class="c1"># Append the parsed polyline to the list of parsed entities</span>
+            <span class="n">entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;LINE&quot;</span><span class="p">:</span>
+            <span class="n">records</span> <span class="o">=</span> <span class="n">_entity_boilerplate</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+            <span class="c1"># Append table of endpoints to list of parsed entities</span>
+            <span class="n">inlist</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot; 10&quot;</span><span class="p">,</span> <span class="s2">&quot; 20&quot;</span><span class="p">,</span> <span class="s2">&quot; 30&quot;</span><span class="p">,</span> <span class="s2">&quot; 11&quot;</span><span class="p">,</span> <span class="s2">&quot; 21&quot;</span><span class="p">,</span> <span class="s2">&quot; 31&quot;</span><span class="p">]</span>
+            <span class="n">entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_reshape_points</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">inlist</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;POLYLINE&quot;</span><span class="p">:</span>
+            <span class="c1"># Loop through the next entities until reach something</span>
+            <span class="c1"># other than a vertex</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">parsed</span><span class="p">[(</span><span class="n">num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="p">:]:</span>
+                <span class="n">records</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">line_end</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;VERTEX&quot;</span><span class="p">:</span>
+                    <span class="c1"># If the entity is not a vertex, then reach end of</span>
+                    <span class="c1"># polyline</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Otherwise, move the enumerator forward and add</span>
+                    <span class="c1"># the parsed vertex to the point list</span>
+                    <span class="n">_</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">enum</span><span class="p">)</span>
+                    <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_parse_pointlike</span><span class="p">(</span><span class="n">records</span><span class="p">))</span>
+            <span class="c1"># Take the points and merge them into a single df and</span>
+            <span class="c1"># append to the list of parsed entities</span>
+            <span class="n">entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">points</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;POINT&quot;</span><span class="p">:</span>
+            <span class="c1"># Append the parsed point coord to the list of parsed entities</span>
+            <span class="n">entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_parse_pointlike</span><span class="p">(</span><span class="n">records</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;TEXT&quot;</span><span class="p">:</span>
+            <span class="c1"># Append the parsed text coord to the list of parsed entities</span>
+            <span class="n">entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_parse_pointlike</span><span class="p">(</span><span class="n">records</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;3DFACE&quot;</span><span class="p">:</span>
+            <span class="n">records</span> <span class="o">=</span> <span class="n">_entity_boilerplate</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+            <span class="c1"># Append table of endpoints to list of parsed entities</span>
+            <span class="n">inlist</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot; 10&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; 20&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; 30&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; 11&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; 21&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; 31&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; 12&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; 22&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; 32&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; 13&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; 23&quot;</span><span class="p">,</span>
+                <span class="s2">&quot; 33&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="n">entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_reshape_points</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">inlist</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="n">entities</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">entities</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">entities</span>
+
+
+<span class="k">def</span> <span class="nf">_entity_boilerplate</span><span class="p">(</span><span class="n">entity</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Internal function for parsing an entity from a dxf file &quot;&quot;&quot;</span>
+    <span class="c1"># Parse into a key, value DataFrame</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">entity</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Corrupt dxf file while parsing </span><span class="si">{entity[0]}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;CODE&quot;</span><span class="p">,</span> <span class="s2">&quot;VALUE&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_pointlike</span><span class="p">(</span><span class="n">entity</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Internal function for parsing a point-like entity from a dxf file &quot;&quot;&quot;</span>
+    <span class="n">entity</span> <span class="o">=</span> <span class="n">_entity_boilerplate</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+    <span class="c1"># Retrieve the X, Y, and Z coordinates of the point</span>
+    <span class="n">inlist</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot; 10&quot;</span><span class="p">,</span> <span class="s2">&quot; 20&quot;</span><span class="p">,</span> <span class="s2">&quot; 30&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">_reshape_points</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">inlist</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_reshape_points</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">inlist</span><span class="p">,</span> <span class="n">use_z</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Internal function for properly reshaping a point entity &quot;&quot;&quot;</span>
+    <span class="c1"># Drop all of the extraneous stuff</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">CODE</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">inlist</span><span class="p">)]</span>
+    <span class="c1"># Reshape the series as a table of X, Y, and Z (optional) coordinates</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">VALUE</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">use_z</span><span class="p">:</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">%</span> <span class="n">dim</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">CODE</span> <span class="o">==</span> <span class="s2">&quot;  5&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">VALUE</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Corrupt dxf file crashed while parsing entity: </span><span class="si">{handle}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">//</span> <span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">)),</span> <span class="n">columns</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">ObsPlus</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Derrick Chambers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

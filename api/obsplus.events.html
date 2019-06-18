@@ -1,0 +1,654 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>obsplus.events package &#8212; ObsPlus 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/obsplus_panda.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">obsplus.events package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-obsplus.events.get_events">obsplus.events.get_events module</a></li>
+<li><a class="reference internal" href="#module-obsplus.events.json">obsplus.events.json module</a></li>
+<li><a class="reference internal" href="#module-obsplus.events.merge">obsplus.events.merge module</a></li>
+<li><a class="reference internal" href="#module-obsplus.events.pd">obsplus.events.pd module</a></li>
+<li><a class="reference internal" href="#module-obsplus.events.utils">obsplus.events.utils module</a></li>
+<li><a class="reference internal" href="#module-obsplus.events.validate">obsplus.events.validate module</a></li>
+<li><a class="reference internal" href="#module-obsplus.events">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/obsplus.events.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="obsplus-events-package">
+<h1>obsplus.events package<a class="headerlink" href="#obsplus-events-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-obsplus.events.get_events">
+<span id="obsplus-events-get-events-module"></span><h2>obsplus.events.get_events module<a class="headerlink" href="#module-obsplus.events.get_events" title="Permalink to this headline">¶</a></h2>
+<p>Module for adding a get_events method to obspy events.</p>
+<dl class="function">
+<dt id="obsplus.events.get_events.get_event_summary">
+<code class="descclassname">obsplus.events.get_events.</code><code class="descname">get_event_summary</code><span class="sig-paren">(</span><em>cat</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/get_events.html#get_event_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.get_events.get_event_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dataframe from a events object after applying filters.</p>
+<p>See obspy.core.fdsn.Client.get_events for supported arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.get_events.get_events">
+<code class="descclassname">obsplus.events.get_events.</code><code class="descname">get_events</code><span class="sig-paren">(</span><em>cat</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/get_events.html#get_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.get_events.get_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a subset of a events filtered on input parameters.</p>
+<p>See obspy.core.fdsn.Client.get_events for supported arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.events.json">
+<span id="obsplus-events-json-module"></span><h2>obsplus.events.json module<a class="headerlink" href="#module-obsplus.events.json" title="Permalink to this headline">¶</a></h2>
+<p>Module for converting obspy object to json format</p>
+<dl class="function">
+<dt id="obsplus.events.json.cat_to_dict">
+<code class="descclassname">obsplus.events.json.</code><code class="descname">cat_to_dict</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/json.html#cat_to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.json.cat_to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively convert cat_name object to json.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj</strong> – An object that will be recursed (obspy cat_name to start)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.json.cat_to_json">
+<code class="descclassname">obsplus.events.json.</code><code class="descname">cat_to_json</code><span class="sig-paren">(</span><em>catalog</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/json.html#cat_to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.json.cat_to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a json string of the catalog object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.json.dict_to_cat">
+<code class="descclassname">obsplus.events.json.</code><code class="descname">dict_to_cat</code><span class="sig-paren">(</span><em>cjson</em><span class="sig-paren">)</span><a class="headerlink" href="#obsplus.events.json.dict_to_cat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load json str or dict into a catalog object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cjson</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – A str or dict produced by cat_to_dict or cat_to_json.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">obspy.Catalog instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.json.json_to_cat">
+<code class="descclassname">obsplus.events.json.</code><code class="descname">json_to_cat</code><span class="sig-paren">(</span><em>cjson</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/json.html#json_to_cat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.json.json_to_cat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load json str or dict into a catalog object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cjson</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – A str or dict produced by cat_to_dict or cat_to_json.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">obspy.Catalog instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.events.merge">
+<span id="obsplus-events-merge-module"></span><h2>obsplus.events.merge module<a class="headerlink" href="#module-obsplus.events.merge" title="Permalink to this headline">¶</a></h2>
+<p>functions for merging catalogs together</p>
+<dl class="function">
+<dt id="obsplus.events.merge.attach_new_origin">
+<code class="descclassname">obsplus.events.merge.</code><code class="descname">attach_new_origin</code><span class="sig-paren">(</span><em>old_event</em>, <em>new_event</em>, <em>new_origin</em>, <em>preferred</em>, <em>index=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/merge.html#attach_new_origin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.merge.attach_new_origin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attach a new origin to an existing events object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>old_event</strong> (<em>obspy.core.event.Event</em>) – The old event that will receive the new origin</li>
+<li><strong>new_event</strong> (<em>obspy.core.event.Event</em>) – The new event that contains the origin, needed for merging picks
+that may not exist in old_event</li>
+<li><strong>new_origin</strong> (<em>obspy.core.event.Origin</em>) – The new origin that will be attached to old_event</li>
+<li><strong>preferred</strong> (<em>bool</em>) – If True mark the new origin as the preferred_origin</li>
+<li><strong>index</strong> (<em>int</em><em> or </em><em>None</em>) – The origin index of old_cat that new_origin will overwrite, if None
+append the new_origin to old_cat.origins</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">modifies old_cat in-place, returns old_catalog</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">obspy.Catalog</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.merge.merge_events">
+<code class="descclassname">obsplus.events.merge.</code><code class="descname">merge_events</code><span class="sig-paren">(</span><em>eve1</em>, <em>eve2</em>, <em>delete_old=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/merge.html#merge_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.merge.merge_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge two events together, giving preference to the second.</p>
+<p>This function attempts to merge two events together that may have
+different resource_ids in some attributes (like picks, arrivals, etc).
+Events are modified in place.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>eve1</strong> (<em>Catalog</em>) – The first (former) event</li>
+<li><strong>eve2</strong> (<em>Catalog</em>) – The second (new) event</li>
+<li><strong>delete_old</strong> (<em>bool</em>) – If True delete from eve1 anything not in eve2</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The merged events</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Event</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.events.pd">
+<span id="obsplus-events-pd-module"></span><h2>obsplus.events.pd module<a class="headerlink" href="#module-obsplus.events.pd" title="Permalink to this headline">¶</a></h2>
+<p>Module for generating a pandas dataframe from an obspy events.</p>
+<dl class="function">
+<dt id="obsplus.events.pd.amplitudes_to_dataframe">
+<code class="descclassname">obsplus.events.pd.</code><code class="descname">amplitudes_to_dataframe</code><span class="sig-paren">(</span><em>cat_or_event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/pd.html#amplitudes_to_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.pd.amplitudes_to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a catalog or event, return a dataframe of amplitudes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.pd.arrivals_to_dataframe">
+<code class="descclassname">obsplus.events.pd.</code><code class="descname">arrivals_to_dataframe</code><span class="sig-paren">(</span><em>cat_or_event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/pd.html#arrivals_to_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.pd.arrivals_to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a catalog or event, return a dataframe of arrivals</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.pd.event_to_dataframe">
+<code class="descclassname">obsplus.events.pd.</code><code class="descname">event_to_dataframe</code><span class="sig-paren">(</span><em>cat_or_event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/pd.html#event_to_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.pd.event_to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a catalog or event, return a Dataframe summary.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.pd.magnitudes_to_dataframe">
+<code class="descclassname">obsplus.events.pd.</code><code class="descname">magnitudes_to_dataframe</code><span class="sig-paren">(</span><em>cat_or_event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/pd.html#magnitudes_to_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.pd.magnitudes_to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a catalog or event, return a dataframe of magnitudes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.pd.picks_to_dataframe">
+<code class="descclassname">obsplus.events.pd.</code><code class="descname">picks_to_dataframe</code><span class="sig-paren">(</span><em>cat_or_event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/pd.html#picks_to_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.pd.picks_to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a catalog or event, return a dataframe of picks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.pd.station_magnitudes_to_dataframe">
+<code class="descclassname">obsplus.events.pd.</code><code class="descname">station_magnitudes_to_dataframe</code><span class="sig-paren">(</span><em>cat_or_event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/pd.html#station_magnitudes_to_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.pd.station_magnitudes_to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a catalog or event, return a dataframe of station magnitudes</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.events.utils">
+<span id="obsplus-events-utils-module"></span><h2>obsplus.events.utils module<a class="headerlink" href="#module-obsplus.events.utils" title="Permalink to this headline">¶</a></h2>
+<p>Functions that were too small to put into their own module</p>
+<dl class="function">
+<dt id="obsplus.events.utils.bump_creation_version">
+<code class="descclassname">obsplus.events.utils.</code><code class="descname">bump_creation_version</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/utils.html#bump_creation_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.utils.bump_creation_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bump the version in an object’s CreationInfo and add creation time.</p>
+<p>Take an obspy object and try to bump creation info. This is done
+by first creating info if obj.creation_info is None, then addition
+creation_time and bumping the version by one</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.utils.catalog_to_directory">
+<code class="descclassname">obsplus.events.utils.</code><code class="descname">catalog_to_directory</code><span class="sig-paren">(</span><em>cat</em>, <em>path</em>, <em>file_format='quakeml'</em>, <em>ext='xml'</em>, <em>event_bank_index=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/utils.html#catalog_to_directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.utils.catalog_to_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a catalog and save each event to a time-based directory structure.</p>
+<p>Saves each event based on preferred origin time. The format of the saved
+file and directory is:</p>
+<blockquote>
+<div>YYYY/MM/DD/YYYY-MM-DDThh-mm-ss-RID</div></blockquote>
+<p>where RID is the last 5 digits of the event id. If another event is found
+with the same last 5 digits of the resource_id the event will be read into
+memory. If the complete resource IDs are the same the old path will be
+used. This helps avoid changing the path of the event when origin times
+change slightly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cat</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]) – The obspy events, event or path to such.</li>
+<li><strong>path</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>]) – A path to the directory. If one does not exist it will be created.</li>
+<li><strong>file_format.</strong> – Any obspy event format that can be written.</li>
+<li><strong>ext</strong> – The extention to add to each file.</li>
+<li><strong>event_bank_index</strong> – If True, create an event bank index on the newly created directory.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.utils.duplicate_events">
+<code class="descclassname">obsplus.events.utils.</code><code class="descname">duplicate_events</code><span class="sig-paren">(</span><em>event</em>, <em>resource_generator=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/utils.html#duplicate_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.utils.duplicate_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Duplicate an event.</p>
+<p>Creates a copy of the event, and assigns new resource IDs to all
+internal objects (ie picks, station_magnitudes, etc.). Will not
+assign new resource_id to those representing external resources
+(eg analyst, velocity models, etc.).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>event</strong> (<em>~catalog_or_event</em>) – The event to duplicate.</li>
+<li><strong>resource_generator</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – A callable that can be used to generate resource IDs.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">~catalog_or_event</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.utils.get_event_client">
+<code class="descclassname">obsplus.events.utils.</code><code class="descname">get_event_client</code><span class="sig-paren">(</span><em>events</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/utils.html#get_event_client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.utils.get_event_client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract an event client from various inputs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>events</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code>, <a class="reference internal" href="obsplus.html#obsplus.interfaces.EventClient" title="obsplus.interfaces.EventClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventClient</span></code></a>]) – <dl class="docutils">
+<dt>Any of the following:</dt>
+<dd><ul class="first last simple">
+<li>A path to an obspy-readable event file</li>
+<li>A path to a directory of obspy-readable event files</li>
+<li>An <cite>obspy.Catalog</cite> instance</li>
+<li>An instance of <a class="reference internal" href="../stubs/obsplus.EventBank.html#obsplus.EventBank" title="obsplus.EventBank"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventBank</span></code></a></li>
+<li>Any other object that has a <cite>get_events</cite> method</li>
+</ul>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code> – If an event client cannot be determined from the input.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="obsplus.html#obsplus.interfaces.EventClient" title="obsplus.interfaces.EventClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventClient</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.utils.get_event_path">
+<code class="descclassname">obsplus.events.utils.</code><code class="descname">get_event_path</code><span class="sig-paren">(</span><em>eve</em>, <em>base_directory='.'</em>, <em>create_directories=True</em>, <em>ext='.xml'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/utils.html#get_event_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.utils.get_event_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a path for the event (or len(1) catalog) to save to disk.</p>
+<p>This function is used in internal NIOSH systems and as such is very
+opinionated about how events should be named. It does the following:
+The comments will first be scanned for seisan comments, identified
+with the “ID:” tag. If one is found the date string used in the seisan
+comment will be used for the file name. If a comment with the substring
+“ID:” is not found the name will be generated based on the preferred
+origin time.</p>
+<p>The last 5 characters of the event ID will be included in the file name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>eve</strong> (<em>obspy.Event</em>) – The event to get a path for</li>
+<li><strong>base_directory</strong> (<em>str</em>) – The path to the base directory</li>
+<li><strong>create_directories</strong> (<em>bool</em>) – If True create any directories needed for path that do not exist</li>
+<li><strong>ext</strong> (<em>str</em>) – The extension for the file to save</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The path</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.utils.get_preferred">
+<code class="descclassname">obsplus.events.utils.</code><code class="descname">get_preferred</code><span class="sig-paren">(</span><em>event</em>, <em>what</em>, <em>init_empty=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/utils.html#get_preferred"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.utils.get_preferred" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the preferred object (eg origin, magnitude) from the event.</p>
+<p>If not defined use the last in the list. If list is empty init empty
+object.</p>
+<p>Parameters</p>
+<dl class="docutils">
+<dt>event: obspy.core.event.Event</dt>
+<dd>The instance for which the preferred should be sought.</dd>
+<dt>what: the preferred item to get</dt>
+<dd>Can either be “magnitude”, “origin”, or “focal_mechanism”.</dd>
+<dt>init_empty</dt>
+<dd>If True, rather than return None when no preferred object is found
+create an empty object of the appropriate class and return it.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.utils.get_seed_id">
+<code class="descclassname">obsplus.events.utils.</code><code class="descname">get_seed_id</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/utils.html#get_seed_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.utils.get_seed_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the NSLC associated with a station-specific object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">AttribDict</span></code>) – The object for which to retrieve the SCNL. Can be anything that
+has a waveform_id attribute or refers to an object with a
+waveform_id attribute.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The NSLC, in the form of a seed string</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.utils.get_utc_path">
+<code class="descclassname">obsplus.events.utils.</code><code class="descname">get_utc_path</code><span class="sig-paren">(</span><em>utc</em>, <em>base_dir</em>, <em>format='year/month/day'</em>, <em>create=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/utils.html#get_utc_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.utils.get_utc_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a subdirectory structure from a UTCDateTime object according to format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>utc</strong> (<em>obspy.UTCDateTime</em>) – The time to use in the path creation</li>
+<li><strong>base_dir</strong> (<em>str</em>) – The base directory</li>
+<li><strong>format</strong> (<em>str</em>) – The format to return</li>
+<li><strong>create</strong> (<em>bool</em>) – If True create the directory structure</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.events.utils.make_class_map">
+<code class="descclassname">obsplus.events.utils.</code><code class="descname">make_class_map</code><a class="reference internal" href="../_modules/obsplus/events/utils.html#make_class_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.utils.make_class_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict that maps names in QML to the appropriate obspy class.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.utils.make_origins">
+<code class="descclassname">obsplus.events.utils.</code><code class="descname">make_origins</code><span class="sig-paren">(</span><em>events</em>, <em>inventory</em>, <em>depth=1.0</em>, <em>phase_hints=('P'</em>, <em>'p')</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/utils.html#make_origins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.utils.make_origins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate a catalog or single events and ensure each has an origin.</p>
+<p>If no origins are found for an event, create one with the time set to
+the earliest pick and the location set to the location of the first hit</p>
+<blockquote>
+<div>station. Events are modified in place.</div></blockquote>
+<p>This may be useful for location codes that need a starting location.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>events</strong> (<em>~catalog_or_event</em>) – The events to scan and add origins were necessary.</li>
+<li><strong>inventory</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Inventory</span></code>) – An inventory object which contains all the stations referenced in
+quakeml elements of events.</li>
+<li><strong>depth</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The default depth for created origins. Should be in meters. See the
+obspy docs for Origin or the quakeml standard for more details.</li>
+<li><strong>phase_hints</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[+T_co]]) – List of acceptable phase hints to use for identifying the earliest
+pick. By default will only search for “P” or “p” phase hints.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Either a Catalog or Event object (same as input)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.utils.obj_to_dict">
+<code class="descclassname">obsplus.events.utils.</code><code class="descname">obj_to_dict</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/utils.html#obj_to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.utils.obj_to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the dict representation of an obspy object.</p>
+<p>Attributes and type are determined from the docstrings of the object.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.utils.prune_events">
+<code class="descclassname">obsplus.events.utils.</code><code class="descname">prune_events</code><span class="sig-paren">(</span><em>events</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/utils.html#prune_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.utils.prune_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all the unreferenced rejected objects from an event or catalog.</p>
+<p>This function first creates a copy of the event/catalog. Then it looks
+all objects with rejected evaluation status’, which are not referred to
+by any unrejected object, and removes them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>events</strong> (<em>~catalog_or_event</em>) – The events to iterate and modify</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">A Catalog with the pruned events.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.events.validate">
+<span id="obsplus-events-validate-module"></span><h2>obsplus.events.validate module<a class="headerlink" href="#module-obsplus.events.validate" title="Permalink to this headline">¶</a></h2>
+<p>Functions for validating obspy events objects</p>
+<dl class="function">
+<dt id="obsplus.events.validate.attach_all_resource_ids">
+<code class="descclassname">obsplus.events.validate.</code><code class="descname">attach_all_resource_ids</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/validate.html#attach_all_resource_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.validate.attach_all_resource_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>recurse all objects in a events and set referred objects</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.validate.catalog_validator">
+<code class="descclassname">obsplus.events.validate.</code><code class="descname">catalog_validator</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/validate.html#catalog_validator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.validate.catalog_validator" title="Permalink to this definition">¶</a></dt>
+<dd><p>register a catalog_validator function, which should take a single
+events as the only arguments. If the check fails an exception should
+be raised</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.validate.check_arrivals_pick_id">
+<code class="descclassname">obsplus.events.validate.</code><code class="descname">check_arrivals_pick_id</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/validate.html#check_arrivals_pick_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.validate.check_arrivals_pick_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>check that all arrivals link to a pick object, if they are not
+attached set the referred object attr</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.validate.check_origins">
+<code class="descclassname">obsplus.events.validate.</code><code class="descname">check_origins</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/validate.html#check_origins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.validate.check_origins" title="Permalink to this definition">¶</a></dt>
+<dd><p>check the origins and types</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.validate.check_picks">
+<code class="descclassname">obsplus.events.validate.</code><code class="descname">check_picks</code><span class="sig-paren">(</span><em>cat</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/validate.html#check_picks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.validate.check_picks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for errors with phase picks</p>
+<p>This function will check for duplicate picks on each station (i.e. more
+than one P or S per station) as well as if there are any S picks before
+P picks on each station.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code>) – Obspy catalog to validate</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.validate.set_preferred_values">
+<code class="descclassname">obsplus.events.validate.</code><code class="descname">set_preferred_values</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/validate.html#set_preferred_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.validate.set_preferred_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>set the preferred values to the last in the list if they are not
+defined</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.events.validate.validate_catalog">
+<code class="descclassname">obsplus.events.validate.</code><code class="descname">validate_catalog</code><span class="sig-paren">(</span><em>events</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/events/validate.html#validate_catalog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.events.validate.validate_catalog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform tchecks on a events or event object.</p>
+<p>This function will try to fix any issues but will raise if it cannot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>events</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code>]) – The events or event to check</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.events">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-obsplus.events" title="Permalink to this headline">¶</a></h2>
+<p>Useful function for dealing with catalogs</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Derrick Chambers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+obsplus.datasets.dataloader.DataSet
+===================================
+
+.. currentmodule:: obsplus.datasets.dataloader
+
+.. autoclass:: DataSet
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DataSet.__init__
+      ~DataSet.check_files
+      ~DataSet.copy
+      ~DataSet.copy_to
+      ~DataSet.create_md5_hash
+      ~DataSet.download_events
+      ~DataSet.download_stations
+      ~DataSet.download_waveforms
+      ~DataSet.get_fetcher
+      ~DataSet.load_dataset
+      ~DataSet.post_download_hook
+      ~DataSet.pre_download_hook
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DataSet.base_path
+      ~DataSet.data_loaded
+      ~DataSet.datasets
+      ~DataSet.event_client
+      ~DataSet.event_path
+      ~DataSet.events_need_downloading
+      ~DataSet.name
+      ~DataSet.path
+      ~DataSet.station_client
+      ~DataSet.station_path
+      ~DataSet.stations_need_downloading
+      ~DataSet.waveform_client
+      ~DataSet.waveform_path
+      ~DataSet.waveforms_need_downloading
+   
+   

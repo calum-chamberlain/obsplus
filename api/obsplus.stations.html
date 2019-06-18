@@ -1,0 +1,195 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>obsplus.stations package &#8212; ObsPlus 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/obsplus_panda.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">obsplus.stations package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-obsplus.stations.get_stations">obsplus.stations.get_stations module</a></li>
+<li><a class="reference internal" href="#module-obsplus.stations.pd">obsplus.stations.pd module</a></li>
+<li><a class="reference internal" href="#module-obsplus.stations.utils">obsplus.stations.utils module</a></li>
+<li><a class="reference internal" href="#module-obsplus.stations">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/obsplus.stations.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="obsplus-stations-package">
+<h1>obsplus.stations package<a class="headerlink" href="#obsplus-stations-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-obsplus.stations.get_stations">
+<span id="obsplus-stations-get-stations-module"></span><h2>obsplus.stations.get_stations module<a class="headerlink" href="#module-obsplus.stations.get_stations" title="Permalink to this headline">¶</a></h2>
+<p>A Client.get_stations like interface for obspy stations objects</p>
+<dl class="function">
+<dt id="obsplus.stations.get_stations.get_stations">
+<code class="descclassname">obsplus.stations.get_stations.</code><code class="descname">get_stations</code><span class="sig-paren">(</span><em>inv</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/stations/get_stations.html#get_stations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.stations.get_stations.get_stations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return new stations whose channels meet the filter parameters.</p>
+<p>See obspy.clients.fdsn.Client for supported parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">Inventory</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.stations.get_stations.get_stations_bulk">
+<code class="descclassname">obsplus.stations.get_stations.</code><code class="descname">get_stations_bulk</code><span class="sig-paren">(</span><em>inv</em>, <em>bulk_args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/stations/get_stations.html#get_stations_bulk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.stations.get_stations.get_stations_bulk" title="Permalink to this definition">¶</a></dt>
+<dd><p>return bulk station request</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">Inventory</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.stations.get_stations.match">
+<code class="descclassname">obsplus.stations.get_stations.</code><code class="descname">match</code><span class="sig-paren">(</span><em>name</em>, <em>patern</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/stations/get_stations.html#match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.stations.get_stations.match" title="Permalink to this definition">¶</a></dt>
+<dd><p>perform case in-sensitive unix style matches with fnmatch</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.stations.pd">
+<span id="obsplus-stations-pd-module"></span><h2>obsplus.stations.pd module<a class="headerlink" href="#module-obsplus.stations.pd" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="obsplus.stations.pd.inventory_to_dataframe">
+<code class="descclassname">obsplus.stations.pd.</code><code class="descname">inventory_to_dataframe</code><span class="sig-paren">(</span><em>inventory_like</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/stations/pd.html#inventory_to_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.stations.pd.inventory_to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.stations.utils">
+<span id="obsplus-stations-utils-module"></span><h2>obsplus.stations.utils module<a class="headerlink" href="#module-obsplus.stations.utils" title="Permalink to this headline">¶</a></h2>
+<p>Utilities for working with inventories.</p>
+<dl class="function">
+<dt id="obsplus.stations.utils.get_station_client">
+<code class="descclassname">obsplus.stations.utils.</code><code class="descname">get_station_client</code><span class="sig-paren">(</span><em>stations</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/stations/utils.html#get_station_client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.stations.utils.get_station_client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract a station client from various inputs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stations</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Inventory</span></code>]) – <dl class="docutils">
+<dt>Any of the following:</dt>
+<dd><ul class="first last simple">
+<li>A path to an obspy-readable station file</li>
+<li>A path to a directory of obspy-readable station files</li>
+<li>An <cite>obspy.Inventory</cite> instance</li>
+<li>An instance of <a class="reference internal" href="../stubs/obsplus.EventBank.html#obsplus.EventBank" title="obsplus.EventBank"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventBank</span></code></a></li>
+<li>Any other object that has a <cite>get_stations</cite> method</li>
+</ul>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code> – If a station client cannot be determined from the input.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="obsplus.html#obsplus.interfaces.StationClient" title="obsplus.interfaces.StationClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">StationClient</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.stations">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-obsplus.stations" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Derrick Chambers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

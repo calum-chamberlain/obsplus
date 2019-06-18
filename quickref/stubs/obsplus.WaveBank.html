@@ -1,0 +1,672 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>obsplus.WaveBank &#8212; ObsPlus 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/obsplus_panda.png" alt="Logo"/>
+            </a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/quickref/stubs/obsplus.WaveBank.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="obsplus-wavebank">
+<h1>obsplus.WaveBank<a class="headerlink" href="#obsplus-wavebank" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="obsplus.WaveBank">
+<em class="property">class </em><code class="descclassname">obsplus.</code><code class="descname">WaveBank</code><span class="sig-paren">(</span><em>base_path='.'</em>, <em>path_structure=None</em>, <em>name_structure=None</em>, <em>cache_size=5</em>, <em>inventory=None</em>, <em>format='mseed'</em>, <em>ext=None</em>, <em>concurrent_updates=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/bank/wavebank.html#WaveBank"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.WaveBank" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to interact with a directory of waveform files.</p>
+<p><cite>WaveBank</cite> reads through a directory structure of waveforms files,
+collects info from each one, then creates and index to allow the files
+to be efficiently queried.</p>
+<p>Implements a superset of the <a class="reference internal" href="../../api/obsplus.html#obsplus.interfaces.WaveformClient" title="obsplus.interfaces.WaveformClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">WaveformClient</span></code></a>
+interface.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>base_path</strong> (<em>str</em>) – The path to the directory containing waveform files. If it does not
+exist an empty directory will be created.</li>
+<li><strong>path_structure</strong> (<em>str</em>) – <p>Define the directory structure of the wavebank that will be used to
+put waveforms into the directory. Characters are separated by /,
+regardless of operating system. The following words can be used in
+curly braces as data specific variables:</p>
+<blockquote>
+<div>year, month, day, julday, hour, minute, second, network,
+station, location, channel, time</div></blockquote>
+<p>example : streams/{year}/{month}/{day}/{network}/{station}
+If no structure is provided it will be read from the index, if no
+index exists the default is {net}/{sta}/{chan}/{year}/{month}/{day}</p>
+</li>
+<li><strong>name_structure</strong> (<em>str</em>) – The same as path structure but for the file name. Supports the same
+variables but requires a period as the separation character. The
+default extension (.mseed) will be added. The default is {time}
+example : {seedid}.{time}</li>
+<li><strong>cache_size</strong> (<em>int</em>) – The number of queries to store. Avoids having to read the index of
+the bank multiple times for queries involving the same start and end
+times.</li>
+<li><strong>inventory</strong> (<em>obspy.Inventory</em><em> or </em><em>str</em>) – obspy.Inventory or path to stationxml to load. Only used to attach
+responses when requested.</li>
+<li><strong>format</strong> (<em>str</em>) – The expected format for the waveform files. Any format supported by
+obspy.read is permitted. The default is mseed. Other formats will be
+tried after the default parser fails.</li>
+<li><strong>ext</strong> (<em>str</em><em> or </em><em>None</em>) – The extension of the waveform files. If provided, only files with
+this extension will be read.</li>
+<li><strong>concurrent_updates</strong> – If True this bank will share an index with other processes, one or
+more of which may perform update_index operations. When used a simple
+file locking mechanism attempts to compensate for shortcomings in
+HDF5 stores lack of concurrency support. This is not needed if all
+processes are only going to read from the bank, nor is it bulletproof,
+but it should help avoid some issues with a few concurrent processes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.hdf_kwargs" title="obsplus.WaveBank.hdf_kwargs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hdf_kwargs</span></code></a></dt>
+<dd><p class="first last">A dict of hdf_kwargs to pass to PyTables</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_path</span></code></dt>
+<dd><p class="first last">The expected path to the index file.</p>
+</dd>
+<dt><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.last_updated" title="obsplus.WaveBank.last_updated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">last_updated</span></code></a></dt>
+<dd><p class="first last">Return the last modified time stored in the index, else None.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">lock_file_path</span></code></dt>
+<dd><p class="first last">The expected path for the lock file.</p>
+</dd>
+<dt><strong>name_structure</strong></dt>
+<dd></dd>
+<dt><strong>path_structure</strong></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">block_on_index_lock</span></code>([wait_interval,&nbsp;max_retry])</td>
+<td>Blocks until the lock is released.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_bank_path_exists</span></code>([create])</td>
+<td>Ensure the bank_path exists else raise an BankDoesNotExistError.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_availability_df" title="obsplus.WaveBank.get_availability_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_availability_df</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>Return a dataframe specifying the availability of the archive.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_gaps_df" title="obsplus.WaveBank.get_gaps_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_gaps_df</span></code></a>(*args[,&nbsp;min_gap])</td>
+<td>Return a dataframe containing an entry for every gap in the archive.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_service_version" title="obsplus.WaveBank.get_service_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_service_version</span></code></a>()</td>
+<td>Return the version of obsplus</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_uptime_df" title="obsplus.WaveBank.get_uptime_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_uptime_df</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>Return a dataframe with uptime stats for selected channels.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_waveforms" title="obsplus.WaveBank.get_waveforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_waveforms</span></code></a>([network,&nbsp;station,&nbsp;location,&nbsp;…])</td>
+<td>Get waveforms from the bank.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_waveforms_bulk" title="obsplus.WaveBank.get_waveforms_bulk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_waveforms_bulk</span></code></a>(bulk[,&nbsp;index])</td>
+<td>Get a large number of waveforms with a bulk request.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_waveforms_by_seed" title="obsplus.WaveBank.get_waveforms_by_seed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_waveforms_by_seed</span></code></a>(seed_id,&nbsp;starttime,&nbsp;…)</td>
+<td>Get waveforms based on a single seed_id or a list of seed_ids.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">lock_index</span></code>()</td>
+<td>Acquire lock for work inside context manager.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.put_waveforms" title="obsplus.WaveBank.put_waveforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_waveforms</span></code></a>(stream[,&nbsp;name,&nbsp;update_index])</td>
+<td>Add the waveforms in a waveforms to the bank.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.read_index" title="obsplus.WaveBank.read_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_index</span></code></a>([network,&nbsp;station,&nbsp;location,&nbsp;…])</td>
+<td>Return a dataframe of the index, optionally applying filters.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.update_index" title="obsplus.WaveBank.update_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_index</span></code></a>([bar,&nbsp;min_files_for_bar])</td>
+<td>Iterate files in bank and add any modified since last update to index.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.yield_waveforms" title="obsplus.WaveBank.yield_waveforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">yield_waveforms</span></code></a>([network,&nbsp;station,&nbsp;…])</td>
+<td>Yield waveforms from the bank.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="62%" />
+<col width="38%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>availability</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="obsplus.WaveBank.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>base_path='.'</em>, <em>path_structure=None</em>, <em>name_structure=None</em>, <em>cache_size=5</em>, <em>inventory=None</em>, <em>format='mseed'</em>, <em>ext=None</em>, <em>concurrent_updates=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/bank/wavebank.html#WaveBank.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.WaveBank.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.__init__" title="obsplus.WaveBank.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([base_path,&nbsp;path_structure,&nbsp;…])</td>
+<td>Initialize self.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">availability</span></code>([network,&nbsp;station,&nbsp;location,&nbsp;…])</td>
+<td><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">rtype:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>]]</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">block_on_index_lock</span></code>([wait_interval,&nbsp;max_retry])</td>
+<td>Blocks until the lock is released.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ensure_bank_path_exists</span></code>([create])</td>
+<td>Ensure the bank_path exists else raise an BankDoesNotExistError.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_availability_df" title="obsplus.WaveBank.get_availability_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_availability_df</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>Return a dataframe specifying the availability of the archive.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_gaps_df" title="obsplus.WaveBank.get_gaps_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_gaps_df</span></code></a>(*args[,&nbsp;min_gap])</td>
+<td>Return a dataframe containing an entry for every gap in the archive.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_service_version" title="obsplus.WaveBank.get_service_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_service_version</span></code></a>()</td>
+<td>Return the version of obsplus</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_uptime_df" title="obsplus.WaveBank.get_uptime_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_uptime_df</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>Return a dataframe with uptime stats for selected channels.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_waveforms" title="obsplus.WaveBank.get_waveforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_waveforms</span></code></a>([network,&nbsp;station,&nbsp;location,&nbsp;…])</td>
+<td>Get waveforms from the bank.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_waveforms_bulk" title="obsplus.WaveBank.get_waveforms_bulk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_waveforms_bulk</span></code></a>(bulk[,&nbsp;index])</td>
+<td>Get a large number of waveforms with a bulk request.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.get_waveforms_by_seed" title="obsplus.WaveBank.get_waveforms_by_seed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_waveforms_by_seed</span></code></a>(seed_id,&nbsp;starttime,&nbsp;…)</td>
+<td>Get waveforms based on a single seed_id or a list of seed_ids.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">lock_index</span></code>()</td>
+<td>Acquire lock for work inside context manager.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.put_waveforms" title="obsplus.WaveBank.put_waveforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put_waveforms</span></code></a>(stream[,&nbsp;name,&nbsp;update_index])</td>
+<td>Add the waveforms in a waveforms to the bank.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.read_index" title="obsplus.WaveBank.read_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_index</span></code></a>([network,&nbsp;station,&nbsp;location,&nbsp;…])</td>
+<td>Return a dataframe of the index, optionally applying filters.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.update_index" title="obsplus.WaveBank.update_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_index</span></code></a>([bar,&nbsp;min_files_for_bar])</td>
+<td>Iterate files in bank and add any modified since last update to index.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.yield_waveforms" title="obsplus.WaveBank.yield_waveforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">yield_waveforms</span></code></a>([network,&nbsp;station,&nbsp;…])</td>
+<td>Yield waveforms from the bank.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">bank_path</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">buffer</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">columns_no_path</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">ext</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">gap_columns</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.hdf_kwargs" title="obsplus.WaveBank.hdf_kwargs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hdf_kwargs</span></code></a></td>
+<td>A dict of hdf_kwargs to pass to PyTables</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_columns</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_float</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_name</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_path</span></code></td>
+<td>The expected path to the index file.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">index_str</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../../stubs/obsplus.WaveBank.html#obsplus.WaveBank.last_updated" title="obsplus.WaveBank.last_updated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">last_updated</span></code></a></td>
+<td>Return the last modified time stored in the index, else None.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">lock_file_path</span></code></td>
+<td>The expected path for the lock file.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">metadata_columns</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">min_itemsize</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">name_structure</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">namespace</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_structure</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="obsplus.WaveBank.get_availability_df">
+<code class="descname">get_availability_df</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/bank/wavebank.html#WaveBank.get_availability_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.WaveBank.get_availability_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dataframe specifying the availability of the archive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>network</strong> (<em>str</em>) – The network code</li>
+<li><strong>station</strong> (<em>str</em>) – The station code</li>
+<li><strong>location</strong> (<em>str</em>) – The location code</li>
+<li><strong>channel</strong> (<em>str</em>) – The channel code</li>
+<li><strong>starttime</strong> (<em>float</em><em> or </em><em>obspy.UTCDateTime</em>) – The desired starttime of the waveforms</li>
+<li><strong>endtime</strong> (<em>float</em><em> or </em><em>obspy.UTCDateTime</em>) – The desired endtime of the waveforms</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.WaveBank.get_gaps_df">
+<code class="descname">get_gaps_df</code><span class="sig-paren">(</span><em>*args</em>, <em>min_gap=1.0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/bank/wavebank.html#WaveBank.get_gaps_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.WaveBank.get_gaps_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dataframe containing an entry for every gap in the archive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>network</strong> (<em>str</em>) – The network code</li>
+<li><strong>station</strong> (<em>str</em>) – The station code</li>
+<li><strong>location</strong> (<em>str</em>) – The location code</li>
+<li><strong>channel</strong> (<em>str</em>) – The channel code</li>
+<li><strong>starttime</strong> (<em>float</em><em> or </em><em>obspy.UTCDateTime</em>) – The desired starttime of the waveforms</li>
+<li><strong>endtime</strong> (<em>float</em><em> or </em><em>obspy.UTCDateTime</em>) – The desired endtime of the waveforms</li>
+<li><strong>min_gap</strong> – The minimum gap to report. Should at least be greater than
+the sample rate in order to avoid counting one sample between
+files as gaps. If files have some overlaps this parameter can
+be set to 0.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pd.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.WaveBank.get_service_version">
+<code class="descname">get_service_version</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/bank/wavebank.html#WaveBank.get_service_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.WaveBank.get_service_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the version of obsplus</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.WaveBank.get_uptime_df">
+<code class="descname">get_uptime_df</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/bank/wavebank.html#WaveBank.get_uptime_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.WaveBank.get_uptime_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dataframe with uptime stats for selected channels.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>network</strong> (<em>str</em>) – The network code</li>
+<li><strong>station</strong> (<em>str</em>) – The station code</li>
+<li><strong>location</strong> (<em>str</em>) – The location code</li>
+<li><strong>channel</strong> (<em>str</em>) – The channel code</li>
+<li><strong>starttime</strong> (<em>float</em><em> or </em><em>obspy.UTCDateTime</em>) – The desired starttime of the waveforms</li>
+<li><strong>endtime</strong> (<em>float</em><em> or </em><em>obspy.UTCDateTime</em>) – The desired endtime of the waveforms</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.WaveBank.get_waveforms">
+<code class="descname">get_waveforms</code><span class="sig-paren">(</span><em>network=None</em>, <em>station=None</em>, <em>location=None</em>, <em>channel=None</em>, <em>starttime=None</em>, <em>endtime=None</em>, <em>attach_response=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/bank/wavebank.html#WaveBank.get_waveforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.WaveBank.get_waveforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get waveforms from the bank.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>network</strong> (<em>str</em>) – The network code</li>
+<li><strong>station</strong> (<em>str</em>) – The station code</li>
+<li><strong>location</strong> (<em>str</em>) – The location code</li>
+<li><strong>channel</strong> (<em>str</em>) – The channel code</li>
+<li><strong>starttime</strong> (<em>float</em><em> or </em><em>obspy.UTCDateTime</em>) – The desired starttime of the waveforms</li>
+<li><strong>endtime</strong> (<em>float</em><em> or </em><em>obspy.UTCDateTime</em>) – The desired endtime of the waveforms</li>
+<li><strong>attach_response</strong> (<em>bool</em>) – If True attach the response to the waveforms using the stations</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>All string parameters can use posix style matching with * and ? chars.
+All datapoints between selected starttime and endtime will be returned.
+Consequently there may be gaps in the returned stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.WaveBank.get_waveforms_bulk">
+<code class="descname">get_waveforms_bulk</code><span class="sig-paren">(</span><em>bulk</em>, <em>index=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/bank/wavebank.html#WaveBank.get_waveforms_bulk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.WaveBank.get_waveforms_bulk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a large number of waveforms with a bulk request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>bulk</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – A list of any number of lists containing the following:
+(network, station, location, channel, starttime, endtime).</li>
+<li><strong>index</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]) – A dataframe returned by read_index. Enables calling code to only
+read the index from disk once for repetitive calls.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.WaveBank.get_waveforms_by_seed">
+<code class="descname">get_waveforms_by_seed</code><span class="sig-paren">(</span><em>seed_id</em>, <em>starttime</em>, <em>endtime</em>, <em>attach_response=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/bank/wavebank.html#WaveBank.get_waveforms_by_seed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.WaveBank.get_waveforms_by_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get waveforms based on a single seed_id or a list of seed_ids.</p>
+<p>Seed ids have the following form: network.station.location.channel,
+it does not yet support usage of wildcards.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>seed_id</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – A single seed id or sequence of ids</li>
+<li><strong>starttime</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>) – The beginning of time to pull</li>
+<li><strong>endtime</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>) – The end of the time to pull</li>
+<li><strong>attach_response</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True, and if a an stations is attached to the bank, attach
+the response to the waveforms before returning.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.WaveBank.hdf_kwargs">
+<code class="descname">hdf_kwargs</code><a class="headerlink" href="#obsplus.WaveBank.hdf_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dict of hdf_kwargs to pass to PyTables</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.WaveBank.last_updated">
+<code class="descname">last_updated</code><a class="headerlink" href="#obsplus.WaveBank.last_updated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the last modified time stored in the index, else None.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.WaveBank.put_waveforms">
+<code class="descname">put_waveforms</code><span class="sig-paren">(</span><em>stream</em>, <em>name=None</em>, <em>update_index=True</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/bank/wavebank.html#WaveBank.put_waveforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.WaveBank.put_waveforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the waveforms in a waveforms to the bank.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stream</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – An obspy waveforms object to add to the bank</li>
+<li><strong>name</strong> – Name of file, if None it will be determined based on contents</li>
+<li><strong>update_index</strong> – Flag to indicate whether or not to update the waveform index
+after writing the new events. Default is True.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.WaveBank.read_index">
+<code class="descname">read_index</code><span class="sig-paren">(</span><em>network=None</em>, <em>station=None</em>, <em>location=None</em>, <em>channel=None</em>, <em>starttime=None</em>, <em>endtime=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/bank/wavebank.html#WaveBank.read_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.WaveBank.read_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dataframe of the index, optionally applying filters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>network</strong> (<em>str</em>) – The network code</li>
+<li><strong>station</strong> (<em>str</em>) – The station code</li>
+<li><strong>location</strong> (<em>str</em>) – The location code</li>
+<li><strong>channel</strong> (<em>str</em>) – The channel code</li>
+<li><strong>starttime</strong> (<em>float</em><em> or </em><em>obspy.UTCDateTime</em>) – The desired starttime of the waveforms</li>
+<li><strong>endtime</strong> (<em>float</em><em> or </em><em>obspy.UTCDateTime</em>) – The desired endtime of the waveforms</li>
+<li><strong>kwargs</strong> – kwargs are passed to pandas.read_hdf function</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.WaveBank.update_index">
+<code class="descname">update_index</code><span class="sig-paren">(</span><em>bar=None</em>, <em>min_files_for_bar=5000</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/bank/wavebank.html#WaveBank.update_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.WaveBank.update_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate files in bank and add any modified since last update to index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>bar</strong> – An class that has an <cite>update</cite> and <cite>finish</cite> method, should behave
+the same as the progressbar.ProgressBar class. This method provides
+a way to override the default progress bar and is used only for
+hooking this class into larger (graphical) systems.</li>
+<li><strong>min_files_for_bar</strong> – Minimum number of un-indexed files required for using the
+progress bar.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.WaveBank.yield_waveforms">
+<code class="descname">yield_waveforms</code><span class="sig-paren">(</span><em>network=None</em>, <em>station=None</em>, <em>location=None</em>, <em>channel=None</em>, <em>starttime=None</em>, <em>endtime=None</em>, <em>attach_response=False</em>, <em>duration=3600.0</em>, <em>overlap=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/obsplus/bank/wavebank.html#WaveBank.yield_waveforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.WaveBank.yield_waveforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yield waveforms from the bank.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>network</strong> (<em>str</em>) – The network code</li>
+<li><strong>station</strong> (<em>str</em>) – The station code</li>
+<li><strong>location</strong> (<em>str</em>) – The location code</li>
+<li><strong>channel</strong> (<em>str</em>) – The channel code</li>
+<li><strong>starttime</strong> (<em>float</em><em> or </em><em>obspy.UTCDateTime</em>) – The desired starttime of the waveforms</li>
+<li><strong>endtime</strong> (<em>float</em><em> or </em><em>obspy.UTCDateTime</em>) – The desired endtime of the waveforms</li>
+<li><strong>attach_response</strong> (<em>bool</em>) – If True attach the response to the waveforms using the stations</li>
+<li><strong>duration</strong> (<em>float</em>) – The duration of the streams to yield. All channels selected
+channels will be included in the waveforms.</li>
+<li><strong>overlap</strong> (<em>float</em>) – If duration is used, the amount of overlap in yielded streams,
+added to the end of the waveforms.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>All string parameters can use posix style matching with * and ? chars.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Derrick Chambers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

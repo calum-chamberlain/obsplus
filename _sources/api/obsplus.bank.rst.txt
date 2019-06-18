@@ -1,0 +1,62 @@
+obsplus.bank package
+====================
+
+Submodules
+----------
+
+obsplus.bank.core module
+------------------------
+
+.. automodule:: obsplus.bank.core
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.bank.eventbank module
+-----------------------------
+
+.. automodule:: obsplus.bank.eventbank
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.bank.mseed module
+-------------------------
+
+.. automodule:: obsplus.bank.mseed
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.bank.stationbank module
+-------------------------------
+
+.. automodule:: obsplus.bank.stationbank
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.bank.utils module
+-------------------------
+
+.. automodule:: obsplus.bank.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.bank.wavebank module
+----------------------------
+
+.. automodule:: obsplus.bank.wavebank
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: obsplus.bank
+    :members:
+    :undoc-members:
+    :show-inheritance:

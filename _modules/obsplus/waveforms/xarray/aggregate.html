@@ -1,0 +1,260 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>obsplus.waveforms.xarray.aggregate &#8212; ObsPlus 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">ObsPlus</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/obsplus_panda.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for obsplus.waveforms.xarray.aggregate</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Aggregation functions for xarray datastructures.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+
+<span class="kn">from</span> <span class="nn">obsplus.constants</span> <span class="k">import</span> <span class="n">xr_type</span>
+<span class="kn">from</span> <span class="nn">obsplus.waveforms.xarray.accessor</span> <span class="k">import</span> <span class="n">ops_method</span>
+<span class="kn">from</span> <span class="nn">obsplus.waveforms.xarray.utils</span> <span class="k">import</span> <span class="n">keep_attrs</span><span class="p">,</span> <span class="n">_add_level</span>
+
+<span class="n">_AGGREGATION_FUNC</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="register_aggregation_func"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.aggregate.register_aggregation_func">[docs]</a><span class="k">def</span> <span class="nf">register_aggregation_func</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; decorator for registering aggregation functions &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_wrap</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="n">_AGGREGATION_FUNC</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="k">return</span> <span class="n">func</span>
+
+    <span class="k">return</span> <span class="n">_wrap</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_aggregate_from_xarray</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; closure for common group aggregations &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">groupby_aggregate</span><span class="p">(</span><span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># ignore mean of empty slice warnings</span>
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+            <span class="n">ar</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">method</span><span class="p">)(</span><span class="n">dim</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ar</span>
+
+    <span class="k">return</span> <span class="n">groupby_aggregate</span>
+
+
+<span class="k">def</span> <span class="nf">_get_aggregate_from_ufunc</span><span class="p">(</span><span class="n">ufunc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Closure to return aggregation function from a ufunc.</span>
+
+<span class="sd">    The ufunc must accept an axis argument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># TODO make this cleaner</span>
+
+    <span class="k">def</span> <span class="nf">groupby_aggregate</span><span class="p">(</span><span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">axis</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">dar</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">wrap_func</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="n">ufunc</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">values</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="s2">&quot;values&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">vals</span>
+            <span class="n">dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">dim</span><span class="p">)</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="p">{</span><span class="n">d</span><span class="p">:</span> <span class="n">da</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dims</span><span class="p">}</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">out</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">wrap_func</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="k">return</span> <span class="n">groupby_aggregate</span>
+
+
+<div class="viewcode-block" id="aggregate"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.aggregate.aggregate">[docs]</a><span class="nd">@ops_method</span><span class="p">(</span><span class="s2">&quot;agg&quot;</span><span class="p">)</span>
+<span class="nd">@keep_attrs</span>
+<span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span>
+    <span class="n">dar</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span>
+    <span class="n">level</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;seed_id&quot;</span><span class="p">,</span>
+    <span class="n">coord</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a channel aggregation over a data array using dim.</span>
+
+<span class="sd">    The dimension referenced by the variable dim must be a seed id str which</span>
+<span class="sd">    has the following format: network.station.location.channel, e.g.</span>
+<span class="sd">    BW.RJOB..EHZ</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dar</span>
+<span class="sd">        The data array to aggregate</span>
+<span class="sd">    method</span>
+<span class="sd">        The method for channel aggregation, can either be a str which refers</span>
+<span class="sd">        to a method in detex.utils.aggregate_methods dict, a callable, which</span>
+<span class="sd">        will be passed to the xr.GroupBy.apply method, or a method supported</span>
+<span class="sd">        by the xr.GroupBy class, like &quot;mean&quot; and &quot;std&quot;</span>
+<span class="sd">    level</span>
+<span class="sd">        The seed_id level over which to apply the aggregation. Supported</span>
+<span class="sd">        options are:</span>
+<span class="sd">            &#39;all&#39; - aggregate all channels in a waveforms together</span>
+<span class="sd">            &#39;network&#39; - Multiplex all channels with a common network together</span>
+<span class="sd">            &#39;station&#39; - Multiplex all channels with a common station together</span>
+<span class="sd">    dim</span>
+<span class="sd">        The dimension over which to aggregate. Will almost always be seed_id.</span>
+<span class="sd">    coord</span>
+<span class="sd">        A coordinate that has the dim (seed_id by default) as a subset</span>
+<span class="sd">        that should also be truncated to reflect the aggregation. If None</span>
+<span class="sd">        dont attempt to reconcile any coords with the aggregation level.</span>
+<span class="sd">        For example, if a coordinate had an entry &quot;subspace_1_UU.HDR..BHZ&quot;</span>
+<span class="sd">        and the aggregation was performed on station, it would be changed in</span>
+<span class="sd">        place to &quot;subspace_1_UU.HDR&quot;.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.DataArray</span>
+<span class="sd">        The aggregated array, with the aggregated dimension renamed to the</span>
+<span class="sd">        value of the variable dim</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># make sure the method does exist or is a callable</span>
+    <span class="k">assert</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">_AGGREGATION_FUNC</span> <span class="ow">or</span> <span class="n">callable</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+    <span class="n">dar</span><span class="p">,</span> <span class="n">new_coord</span> <span class="o">=</span> <span class="n">_add_level</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="n">coord</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">dar</span><span class="o">.</span><span class="n">coords</span>
+    <span class="c1"># get aggregation function and apply</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="n">_AGGREGATION_FUNC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">method</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_get_aggregate_from_ufunc</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+    <span class="n">combined</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">dar</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">new_coord</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># add the altered coord back to the data array</span>
+        <span class="n">combined</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">coord</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_coord</span>
+    <span class="n">combined</span> <span class="o">=</span> <span class="n">combined</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="n">level</span><span class="p">:</span> <span class="n">dim</span><span class="p">})</span>  <span class="c1"># rename back to seed_id</span>
+    <span class="k">return</span> <span class="n">combined</span></div>
+
+
+<div class="viewcode-block" id="bin_array"><a class="viewcode-back" href="../../../../api/obsplus.waveforms.xarray.html#obsplus.waveforms.xarray.aggregate.bin_array">[docs]</a><span class="nd">@ops_method</span><span class="p">(</span><span class="s2">&quot;bin&quot;</span><span class="p">)</span>
+<span class="nd">@keep_attrs</span>
+<span class="k">def</span> <span class="nf">bin_array</span><span class="p">(</span><span class="n">dar</span><span class="p">:</span> <span class="n">xr_type</span><span class="p">,</span> <span class="n">bins</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">raise_on_limit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr_type</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Bin the values in a datarray into specified bins.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dar</span>
+<span class="sd">        DataArray containing numerical values</span>
+<span class="sd">    bins</span>
+<span class="sd">        Values of bin limits See :func: `numpy.histogram` for details</span>
+<span class="sd">    raise_on_limit</span>
+<span class="sd">        If True, raise a ValueError if any values in dar fall out of the bin</span>
+<span class="sd">        limits</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.DataArray</span>
+<span class="sd">        The binned values contained in a data array where the last axis is</span>
+<span class="sd">        switched for &quot;bin&quot; which represents the lower bound of the bin.</span>
+<span class="sd">        The coord &quot;upper_bin&quot; represents the upper.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">raise_on_limit</span><span class="p">:</span>  <span class="c1"># raise if bad values encountered</span>
+        <span class="n">b_min</span><span class="p">,</span> <span class="n">b_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">bins</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">values</span> <span class="o">&lt;</span> <span class="n">b_min</span><span class="p">,</span> <span class="n">dar</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="n">b_max</span><span class="p">)):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;values in </span><span class="si">{dar}</span><span class="s2"> are out of bounds with </span><span class="si">{bins}</span><span class="s2">&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="c1"># perform binning</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">binned</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dar</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="c1"># create/return new data array</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">dar</span><span class="o">.</span><span class="n">dims</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;bin&quot;</span><span class="p">])</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="p">{</span><span class="n">item</span><span class="p">:</span> <span class="n">dar</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dims</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]}</span>
+    <span class="n">coords</span><span class="p">[</span><span class="s2">&quot;bin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">coords</span><span class="p">[</span><span class="s2">&quot;upper_bin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">binned</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">)</span></div>
+
+
+<span class="c1"># add standard stats to aggregation functions</span>
+<span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="s2">&quot;mean median std max min&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+    <span class="n">register_aggregation_func</span><span class="p">(</span><span class="n">method</span><span class="p">)(</span><span class="n">_get_aggregate_from_xarray</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">ObsPlus</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Derrick Chambers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

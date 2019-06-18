@@ -1,0 +1,38 @@
+obsplus.stations package
+========================
+
+Submodules
+----------
+
+obsplus.stations.get\_stations module
+-------------------------------------
+
+.. automodule:: obsplus.stations.get_stations
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.stations.pd module
+--------------------------
+
+.. automodule:: obsplus.stations.pd
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.stations.utils module
+-----------------------------
+
+.. automodule:: obsplus.stations.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: obsplus.stations
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,37 @@
+obsplus.waveforms package
+=========================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    obsplus.waveforms.xarray
+
+Submodules
+----------
+
+obsplus.waveforms.get\_waveforms module
+---------------------------------------
+
+.. automodule:: obsplus.waveforms.get_waveforms
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+obsplus.waveforms.utils module
+------------------------------
+
+.. automodule:: obsplus.waveforms.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: obsplus.waveforms
+    :members:
+    :undoc-members:
+    :show-inheritance:

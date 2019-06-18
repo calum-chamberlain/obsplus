@@ -1,0 +1,1247 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>obsplus.structures package &#8212; ObsPlus 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/obsplus_panda.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">obsplus.structures package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-obsplus.structures.dfextractor">obsplus.structures.dfextractor module</a></li>
+<li><a class="reference internal" href="#module-obsplus.structures.fetcher">obsplus.structures.fetcher module</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-obsplus.structures.grid">obsplus.structures.grid module</a></li>
+<li><a class="reference internal" href="#module-obsplus.structures">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/obsplus.structures.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="obsplus-structures-package">
+<h1>obsplus.structures package<a class="headerlink" href="#obsplus-structures-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-obsplus.structures.dfextractor">
+<span id="obsplus-structures-dfextractor-module"></span><h2>obsplus.structures.dfextractor module<a class="headerlink" href="#module-obsplus.structures.dfextractor" title="Permalink to this headline">¶</a></h2>
+<p>DataFrameExtractor class and friends.</p>
+<dl class="class">
+<dt id="obsplus.structures.dfextractor.DataFrameExtractor">
+<em class="property">class </em><code class="descclassname">obsplus.structures.dfextractor.</code><code class="descname">DataFrameExtractor</code><span class="sig-paren">(</span><em>cls</em>, <em>required_columns=None</em>, <em>dtypes=None</em>, <em>pass_dataframe=True</em>, <em>utc_columns=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/dfextractor.html#DataFrameExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.dfextractor.DataFrameExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserDict</span></code></p>
+<p>A class to extract dataframes from nested object trees.</p>
+<p>Generally used to construct summary dataframes from nested object
+structures such as the obspy Catalog.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cls</strong> – The top-level class the extractor acts on.</li>
+<li><strong>required_columns</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – If not None, assert required columns are in dataframe, and order
+columns the same as required_columns, with extra columns at the end.</li>
+<li><strong>dtypes</strong> – A dict of {column name: required data type}. Can also be specified
+when registering extractors.</li>
+<li><strong>pass_dataframe</strong> – If True, return dataframes passed to DataFrameExtractor.__call__.
+This allows the DataFrameExtractor to be idempotent.</li>
+<li><strong>utc_columns</strong> – Columns that are UTCDateTime objects. Will correctly handle
+UTCDateTime-able objects (like date-time strings, floats, etc).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#obsplus.structures.dfextractor.DataFrameExtractor.dtypes" title="obsplus.structures.dfextractor.DataFrameExtractor.dtypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dtypes</span></code></a></dt>
+<dd><p class="first last">return a dictionary of datatypes.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.structures.dfextractor.DataFrameExtractor.SkipRow" title="obsplus.structures.dfextractor.DataFrameExtractor.SkipRow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SkipRow</span></code></a></td>
+<td>exception to raise to skip a row.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(obj,&nbsp;**kwargs)</td>
+<td>Iterate an object tree and create a dataframe.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.structures.dfextractor.DataFrameExtractor.extractor" title="obsplus.structures.dfextractor.DataFrameExtractor.extractor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extractor</span></code></a>([dtypes])</td>
+<td>Register an extractor.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>(k[,d])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">pop</span></code>(k[,d])</td>
+<td>If key is not found, d is returned if given, otherwise KeyError is raised.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">popitem</span></code>()</td>
+<td>as a 2-tuple; but raise KeyError if D is empty.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.structures.dfextractor.DataFrameExtractor.register" title="obsplus.structures.dfextractor.DataFrameExtractor.register"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register</span></code></a>(cls)</td>
+<td>Registers an alternate constructor.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">setdefault</span></code>(k[,d])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code>([E,&nbsp;]**F)</td>
+<td>If E present and has a .keys() method, does:     for k in E: D[k] = E[k] If E present and lacks .keys() method, does:     for (k, v) in E: D[k] = v In either case, this is followed by: for k, v in F.items(): D[k] = v</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">values</span></code>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="55%" />
+<col width="45%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>copy</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>fromkeys</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<dl class="exception">
+<dt id="obsplus.structures.dfextractor.DataFrameExtractor.SkipRow">
+<em class="property">exception </em><code class="descname">SkipRow</code><a class="reference internal" href="../_modules/obsplus/structures/dfextractor.html#DataFrameExtractor.SkipRow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.dfextractor.DataFrameExtractor.SkipRow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">StopIteration</span></code></p>
+<p>exception to raise to skip a row.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.dfextractor.DataFrameExtractor.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/dfextractor.html#DataFrameExtractor.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.dfextractor.DataFrameExtractor.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.structures.dfextractor.DataFrameExtractor.dtypes">
+<code class="descname">dtypes</code><a class="headerlink" href="#obsplus.structures.dfextractor.DataFrameExtractor.dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a dictionary of datatypes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.dfextractor.DataFrameExtractor.extractor">
+<code class="descname">extractor</code><span class="sig-paren">(</span><em>dtypes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/dfextractor.html#DataFrameExtractor.extractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.dfextractor.DataFrameExtractor.extractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an extractor.</p>
+<p>An extractor is a function which extracts values from instances of a
+class. It should either return a dict of {column names: values} or
+a single value and the name of the function (minus <a href="#id1"><span class="problematic" id="id2">get_</span></a> prefix if
+one exists) will be the column name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dtypes</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code>]]) – A dict of {column name: dtype} to enforce a schema on the data.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.dfextractor.DataFrameExtractor.register">
+<code class="descname">register</code><span class="sig-paren">(</span><em>cls</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/dfextractor.html#DataFrameExtractor.register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.dfextractor.DataFrameExtractor.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers an alternate constructor.</p>
+<p>Registers an althernate constructor that is called when the input is
+not an instance of the expected class. This is useful, for examples to
+make the DataFrameExtractor idempotent or to default to various read
+methods in a path/str is passed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cls</strong> – The dtype to register</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.structures.fetcher">
+<span id="obsplus-structures-fetcher-module"></span><h2>obsplus.structures.fetcher module<a class="headerlink" href="#module-obsplus.structures.fetcher" title="Permalink to this headline">¶</a></h2>
+<p>Data fetcher class stuff</p>
+<dl class="class">
+<dt id="obsplus.structures.fetcher.EventStream">
+<em class="property">class </em><code class="descclassname">obsplus.structures.fetcher.</code><code class="descname">EventStream</code><span class="sig-paren">(</span><em>event_id</em>, <em>stream</em><span class="sig-paren">)</span><a class="headerlink" href="#obsplus.structures.fetcher.EventStream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#obsplus.structures.fetcher.EventStream.event_id" title="obsplus.structures.fetcher.EventStream.event_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_id</span></code></a></dt>
+<dd><p class="first last">Alias for field number 0</p>
+</dd>
+<dt><a class="reference internal" href="#obsplus.structures.fetcher.EventStream.stream" title="obsplus.structures.fetcher.EventStream.stream"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stream</span></code></a></dt>
+<dd><p class="first last">Alias for field number 1</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code>($self,&nbsp;value,&nbsp;/)</td>
+<td>Return number of occurrences of value.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code>($self,&nbsp;value[,&nbsp;start,&nbsp;stop])</td>
+<td>Return first index of value.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="obsplus.structures.fetcher.EventStream.event_id">
+<code class="descname">event_id</code><a class="headerlink" href="#obsplus.structures.fetcher.EventStream.event_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.structures.fetcher.EventStream.stream">
+<code class="descname">stream</code><a class="headerlink" href="#obsplus.structures.fetcher.EventStream.stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="obsplus.structures.fetcher.Fetcher">
+<em class="property">class </em><code class="descclassname">obsplus.structures.fetcher.</code><code class="descname">Fetcher</code><span class="sig-paren">(</span><em>waveforms</em>, <em>stations=None</em>, <em>events=None</em>, <em>picks=None</em>, <em>stream_processor=None</em>, <em>time_before=None</em>, <em>time_after=None</em>, <em>event_query=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/fetcher.html#Fetcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class for serving up data from various sources.</p>
+<p>Integrates station, event, and waveform client for requests that
+are aware of the complete dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>waveforms</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference internal" href="obsplus.html#obsplus.interfaces.WaveformClient" title="obsplus.interfaces.WaveformClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">WaveformClient</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>]) – Any argument from which a waveform client can be extracted. This
+includes an obspy waveforms, directory of waveform files, or an object
+with a <cite>get_waveforms</cite> method.</li>
+<li><strong>stations</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code>, <a class="reference internal" href="obsplus.html#obsplus.interfaces.EventClient" title="obsplus.interfaces.EventClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventClient</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Any argument from which an station client can be extracted. This
+includes an obspy Inventory, directory of station files, or an object
+with a <cite>get_stations</cite> method.</li>
+<li><strong>events</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code>, <a class="reference internal" href="obsplus.html#obsplus.interfaces.EventClient" title="obsplus.interfaces.EventClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventClient</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>, <code class="docutils literal notranslate"><span class="pre">None</span></code>]) – Any argument from which an event client can be extracted. This
+includes an obspy Catalog, directory of event files, or an object with
+a <cite>get_events</cite> method.</li>
+<li><strong>picks</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]) – Data from which picks can be extracted. A dataframe, events, or
+event_client are all acceptable.</li>
+<li><strong>stream_processor</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>]]) – A callable that takes an obspy waveforms as input and returns an obspy
+waveforms.</li>
+<li><strong>time_before</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The default time before an given time to fetch.</li>
+<li><strong>time_after</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The default time after a supplied time to fetch.</li>
+<li><strong>event_query</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – A dict of arguments used to filter events.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#obsplus.structures.fetcher.Fetcher.picks_df" title="obsplus.structures.fetcher.Fetcher.picks_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">picks_df</span></code></a></dt>
+<dd><p class="first last">return a dataframe from the picks (if possible)</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(time_arg[,&nbsp;time_before,&nbsp;time_after])</td>
+<td>Using a reference time, return a waveforms that encompasses that time.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.structures.fetcher.Fetcher.download_event_waveforms" title="obsplus.structures.fetcher.Fetcher.download_event_waveforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_event_waveforms</span></code></a>(time_before_origin,&nbsp;…)</td>
+<td>Download waveforms corresponding to events in waveforms from client.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.structures.fetcher.Fetcher.download_waveforms" title="obsplus.structures.fetcher.Fetcher.download_waveforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_waveforms</span></code></a>(starttime,&nbsp;endtime,&nbsp;duration)</td>
+<td>Download contiguous waveform data and save in directory.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.structures.fetcher.Fetcher.get_event_waveforms" title="obsplus.structures.fetcher.Fetcher.get_event_waveforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_event_waveforms</span></code></a>([time_before,&nbsp;…])</td>
+<td>Return a dict of event_ids and waveforms for each event in events.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.structures.fetcher.Fetcher.get_waveforms" title="obsplus.structures.fetcher.Fetcher.get_waveforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_waveforms</span></code></a>(*args,&nbsp;**kwargs)</td>
+<td>Get waveforms for all channels in stations.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.structures.fetcher.Fetcher.set_events" title="obsplus.structures.fetcher.Fetcher.set_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_events</span></code></a>(events)</td>
+<td>Set event state in fetcher.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.structures.fetcher.Fetcher.set_stations" title="obsplus.structures.fetcher.Fetcher.set_stations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_stations</span></code></a>(stations)</td>
+<td>Set the station state in fetcher.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.structures.fetcher.Fetcher.set_waveforms" title="obsplus.structures.fetcher.Fetcher.set_waveforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_waveforms</span></code></a>(waveforms)</td>
+<td>Set waveform state in Fetcher.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.structures.fetcher.Fetcher.yield_event_waveforms" title="obsplus.structures.fetcher.Fetcher.yield_event_waveforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">yield_event_waveforms</span></code></a>([time_before,&nbsp;…])</td>
+<td>Yield event_id and streams for each event in the events.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.structures.fetcher.Fetcher.yield_waveform_callable" title="obsplus.structures.fetcher.Fetcher.yield_waveform_callable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">yield_waveform_callable</span></code></a>(starttime,&nbsp;endtime,&nbsp;…)</td>
+<td>Yield callables that take no arguments and return a waveforms.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.structures.fetcher.Fetcher.yield_waveforms" title="obsplus.structures.fetcher.Fetcher.yield_waveforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">yield_waveforms</span></code></a>(starttime,&nbsp;endtime,&nbsp;…)</td>
+<td>Yield streams from starttime to endtime of a specified duration.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="44%" />
+<col width="56%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>copy</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="obsplus.structures.fetcher.Fetcher.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/fetcher.html#Fetcher.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.fetcher.Fetcher.download_event_waveforms">
+<code class="descname">download_event_waveforms</code><span class="sig-paren">(</span><em>time_before_origin</em>, <em>time_after_origin</em>, <em>path='event_waveforms/{year}/{julday}'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/fetcher.html#Fetcher.download_event_waveforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher.download_event_waveforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download waveforms corresponding to events in waveforms from client.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>time_before_origin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The number of seconds before the reported origin to include in the
+event waveforms</li>
+<li><strong>time_after_origin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The number of seconds after the reported origin to include in the
+event waveforms</li>
+<li><strong>path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – A string that specifies the directory structure. See the
+path_structure argument of :class: <cite>~obsplus.Sbank</cite> for more info.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.fetcher.Fetcher.download_waveforms">
+<code class="descname">download_waveforms</code><span class="sig-paren">(</span><em>starttime</em>, <em>endtime</em>, <em>duration</em>, <em>overlap=0</em>, <em>path='waveforms/{year}/{month}/{day}/{network}/{station}/{channel}'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/fetcher.html#Fetcher.download_waveforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher.download_waveforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download contiguous waveform data and save in directory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>starttime</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>) – The start time of the data  to download</li>
+<li><strong>endtime</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>) – The end time of the data to download</li>
+<li><strong>duration</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The duration of each chunk of data in seconds</li>
+<li><strong>overlap</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The overlap, added to the end of each waveforms, for the data</li>
+<li><strong>path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – A string that specifies the directory structure. See the
+path_structure argument of :class: <cite>~obsplus.Sbank</cite> for more info</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.fetcher.Fetcher.get_event_waveforms">
+<code class="descname">get_event_waveforms</code><span class="sig-paren">(</span><em>time_before=None</em>, <em>time_after=None</em>, <em>reference='origin'</em>, <em>raise_on_fail=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/fetcher.html#Fetcher.get_event_waveforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher.get_event_waveforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of event_ids and waveforms for each event in events.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>time_before</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The time before (in seconds) the reference that will be included
+in the waveforms if possible.</li>
+<li><strong>time_after</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The Time after (in seconds) the reference that will be included
+in the waveforms if possible.</li>
+<li><strong>reference</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – <p>A str that indicates how the starttime of the trace should be
+determined. The following are supported:</p>
+<blockquote>
+<div>origin - use the origin time of the event for each channel
+p - use the first p times as the start of the station traces
+s - use the first s times as the start of the station traces</div></blockquote>
+<p>If a station doesn’t have p or s picks and “p” or “s” is used,
+it’s streams will not be returned.</p>
+</li>
+<li><strong>raise_on_fail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True, re raise and exception if one is caught during waveform
+fetching, else continue to next event.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first"><em>obspy.Stream</em></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.fetcher.Fetcher.get_waveforms">
+<code class="descname">get_waveforms</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/fetcher.html#Fetcher.get_waveforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher.get_waveforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get waveforms for all channels in stations.</p>
+<p>{get_waveform_parameters}</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">obspy.Stream</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.structures.fetcher.Fetcher.picks_df">
+<code class="descname">picks_df</code><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher.picks_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a dataframe from the picks (if possible)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.structures.fetcher.Fetcher.reference_funcs">
+<code class="descname">reference_funcs</code><em class="property"> = {'origin': &lt;function _get_origin_reference_times&gt;, 'p': &lt;function _get_p_reference_times&gt;, 's': &lt;function _get_s_reference_times&gt;}</em><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher.reference_funcs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.fetcher.Fetcher.set_events">
+<code class="descname">set_events</code><span class="sig-paren">(</span><em>events</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/fetcher.html#Fetcher.set_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher.set_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set event state in fetcher.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>events</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Catalog</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code>, <a class="reference internal" href="obsplus.html#obsplus.interfaces.EventClient" title="obsplus.interfaces.EventClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventClient</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]) – Data representing events, from which a client or dataframe can
+be obtained.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.fetcher.Fetcher.set_stations">
+<code class="descname">set_stations</code><span class="sig-paren">(</span><em>stations</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/fetcher.html#Fetcher.set_stations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher.set_stations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the station state in fetcher.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stations</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Inventory</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>]) – Data representing stations, from which a client or dataframe
+can be inferred.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.fetcher.Fetcher.set_waveforms">
+<code class="descname">set_waveforms</code><span class="sig-paren">(</span><em>waveforms</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/fetcher.html#Fetcher.set_waveforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher.set_waveforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set waveform state in Fetcher.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>waveforms</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference internal" href="obsplus.html#obsplus.interfaces.WaveformClient" title="obsplus.interfaces.WaveformClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">WaveformClient</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>]) – Data representing waveforms, from which a wave client can be
+inferred.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.fetcher.Fetcher.yield_event_waveforms">
+<code class="descname">yield_event_waveforms</code><span class="sig-paren">(</span><em>time_before=None</em>, <em>time_after=None</em>, <em>reference='origin'</em>, <em>raise_on_fail=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/fetcher.html#Fetcher.yield_event_waveforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher.yield_event_waveforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yield event_id and streams for each event in the events.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>time_before</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The time before (in seconds) the reference that will be included
+in the waveforms if possible.</li>
+<li><strong>time_after</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The Time after (in seconds) the reference that will be included
+in the waveforms if possible.</li>
+<li><strong>reference</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – <p>A str that indicates how the starttime of the trace should be
+determined. The following are supported:</p>
+<blockquote>
+<div>origin - use the origin time of the event for each channel
+p - use the first p times as the start of the station traces
+s - use the first s times as the start of the station traces</div></blockquote>
+<p>If a station doesn’t have p or s picks and “p” or “s” is used,
+it’s streams will not be returned.</p>
+</li>
+<li><strong>raise_on_fail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True, re raise and exception if one is caught during waveform
+fetching, else continue to next event.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first"><em>obspy.Stream</em></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.fetcher.Fetcher.yield_waveform_callable">
+<code class="descname">yield_waveform_callable</code><span class="sig-paren">(</span><em>starttime</em>, <em>endtime</em>, <em>duration</em>, <em>overlap</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/fetcher.html#Fetcher.yield_waveform_callable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher.yield_waveform_callable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yield callables that take no arguments and return a waveforms.</p>
+<p>This function is useful if you are distributing work to remote
+processes and want to avoid serializing the waveforms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>starttime</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>) – The starting time of the streams</li>
+<li><strong>endtime</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>) – The stopping time of the streams</li>
+<li><strong>duration</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The duration of each waveforms between starttime and endtime</li>
+<li><strong>overlap</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The overlap between streams added to the end of the waveforms</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first"><em>Callable[…, Stream]</em></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>[…, <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.fetcher.Fetcher.yield_waveforms">
+<code class="descname">yield_waveforms</code><span class="sig-paren">(</span><em>starttime</em>, <em>endtime</em>, <em>duration</em>, <em>overlap</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/fetcher.html#Fetcher.yield_waveforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.fetcher.Fetcher.yield_waveforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yield streams from starttime to endtime of a specified duration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>starttime</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>) – The starting time of the streams</li>
+<li><strong>endtime</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>) – The stopping time of the streams</li>
+<li><strong>duration</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The duration of each waveforms between starttime and endtime</li>
+<li><strong>overlap</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The overlap between streams added to the end of the waveforms</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first"><em>Stream</em></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.structures.grid">
+<span id="obsplus-structures-grid-module"></span><h2>obsplus.structures.grid module<a class="headerlink" href="#module-obsplus.structures.grid" title="Permalink to this headline">¶</a></h2>
+<p>This module contains an experimental class/functions for creating a manipulating a grid for storing spatially variable
+data (for instance, velocities, travel times, geologic properties, etc.). The interfaces for the Grid class and its
+supporting functions are still under development and may be subject to change without warning. Use at your own risk.</p>
+<dl class="class">
+<dt id="obsplus.structures.grid.Grid">
+<em class="property">class </em><code class="descclassname">obsplus.structures.grid.</code><code class="descname">Grid</code><span class="sig-paren">(</span><em>base_name</em>, <em>gtype</em>, <em>origin</em>, <em>spacing</em>, <em>num_cells=None</em>, <em>num_gps=None</em>, <em>station=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#Grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.Grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for generating/storing grids (compatible with NonLinLoc)</p>
+<p>This class is currently experimental and its interface is subject to change.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>base_name</strong> (<em>str</em>) – Path to the grid file (minus extension).</li>
+<li><strong>gtype</strong> (<em>str</em>) – String describing the grid type. Common NonLinLoc formats are: “VELOCITY”, “SLOWNESS”, “VEL2”, “SLOW2”,
+“SLOW_LEN”, “TIME”, “TIME2D”, “MISFIT”, “ANGLE”, “ANGLE2D”</li>
+<li><strong>origin</strong> (<em>list of float</em>) – List of coordinates defining the origin using a right-handed coordinate system (X positive East, Y positive
+North, Z positive up). Functionality is only guaranteed for two- or three-dimensional grids at this time.</li>
+<li><strong>spacing</strong> (<em>list of float</em>) – List of grid spacings in each direction. Functionality is only guaranteed for two- or three-dimensional grids at
+this time.</li>
+<li><strong>num_cells</strong> (<em>list of int</em><em>, </em><em>optional</em>) – List of number of cells in each direction. Functionality is only guaranteed for two- or three-dimensional grids
+at this time. Must specify this or number of grid points.</li>
+<li><strong>num_gps</strong> (<em>list of int</em><em>, </em><em>optional</em>) – List of number of grid points (number of cells + 1) in each direction. Functionality is only guaranteed for two-
+or three-dimensional grids at this time. Must specify this or number of cells.</li>
+<li><strong>station</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of station, if grid is specific to a seismic station (ex. travel-time grid) (default=None)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="obsplus.structures.grid.Grid.base_name">
+<code class="descname">base_name</code><a class="headerlink" href="#obsplus.structures.grid.Grid.base_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name for the grid for writing to file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.structures.grid.Grid.gtype">
+<code class="descname">gtype</code><a class="headerlink" href="#obsplus.structures.grid.Grid.gtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grid type descriptor</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.structures.grid.Grid.header">
+<code class="descname">header</code><a class="headerlink" href="#obsplus.structures.grid.Grid.header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary containing all of the parameters found in the grid header</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.structures.grid.Grid.grid_points">
+<code class="descname">grid_points</code><a class="headerlink" href="#obsplus.structures.grid.Grid.grid_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Listing of grid coordinates along each dimension</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list of numpy array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.structures.grid.Grid.grid_map">
+<code class="descname">grid_map</code><a class="headerlink" href="#obsplus.structures.grid.Grid.grid_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Meshgrid mapping grid indices to physical space</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">numpy meshgrid</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="obsplus.structures.grid.Grid.values">
+<code class="descname">values</code><a class="headerlink" href="#obsplus.structures.grid.Grid.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array containing the values at each grid point</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">numpy array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.structures.grid.Grid.get_index" title="obsplus.structures.grid.Grid.get_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_index</span></code></a>(point)</td>
+<td>Method for retrieving index of the cell point belongs to.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.structures.grid.Grid.get_value" title="obsplus.structures.grid.Grid.get_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_value</span></code></a>(point[,&nbsp;interpolate])</td>
+<td>Method for retrieving a value at the closest cell to the specified point in the grid</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.structures.grid.Grid.plot_2d" title="obsplus.structures.grid.Grid.plot_2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_2d</span></code></a>(**kwargs)</td>
+<td>Method for plotting a 2D grid</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#obsplus.structures.grid.Grid.plot_slice" title="obsplus.structures.grid.Grid.plot_slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_slice</span></code></a>(layer[,&nbsp;layer_coord,&nbsp;…])</td>
+<td>Method to plot a section of a 3D grid</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#obsplus.structures.grid.Grid.write" title="obsplus.structures.grid.Grid.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>([path])</td>
+<td>Method for writing the grid to a binary file</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="obsplus.structures.grid.Grid.get_index">
+<code class="descname">get_index</code><span class="sig-paren">(</span><em>point</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#Grid.get_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.Grid.get_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for retrieving index of the cell point belongs to.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>point</strong> (<em>list-like</em><em> (</em><em>required</em><em>)</em>) – Physical coordinates of point to seek out in the grid</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Index of the cell</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.grid.Grid.get_value">
+<code class="descname">get_value</code><span class="sig-paren">(</span><em>point</em>, <em>interpolate=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#Grid.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.Grid.get_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for retrieving a value at the closest cell to the specified point in the grid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>point</strong> (<em>list of floats</em><em> or </em><em>ints</em>) – Physical coordinates of point to seek out in the grid</li>
+<li><strong>interpolate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag to indicate whether to interpolate between grid cells. If False, returns value at the center of the
+nearest grid cell. If True, does a linear interpolation. Default is False.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>value</strong> – The retrieved value</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Number</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.grid.Grid.plot_2d">
+<code class="descname">plot_2d</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#Grid.plot_2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.Grid.plot_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for plotting a 2D grid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>figsize</strong> (<em>tuple</em>) – Size of the figure. Default is (9, 9)</li>
+<li><strong>cmap</strong> (<em>str or matplotlib Colormap (or related)</em>) – Colormap to use for displaying grid values. Default is “rainbow”.</li>
+<li><strong>alpha</strong> (<em>float</em>) – Transparency value for the colormap. Default is 0.5.</li>
+<li><strong>legend_label</strong> (<em>str</em>) – Label to display on the colorbar. Default is “Value”.</li>
+<li><strong>shading</strong> (<em>str</em>) – Indicates whether to use shading when rendering. Acceptable values are “flat” for a solid color in each grid
+cell (default) or “gouraud” to apply Gouraud shading (see matplotlib docs).</li>
+<li><strong>contour</strong> (<em>bool</em>) – Flag to indicate whether to plot contour lines instead of a colormap</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code>]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>fig</strong> (<em>matplotlib Figure</em>) – Figure containing the resultant plot axes</li>
+<li><strong>ax</strong> (<em>matplotlib Axes</em>) – Axes containing the resultant plot</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.grid.Grid.plot_slice">
+<code class="descname">plot_slice</code><span class="sig-paren">(</span><em>layer</em>, <em>layer_coord='grid'</em>, <em>orientation=2</em>, <em>transpose=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#Grid.plot_slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.Grid.plot_slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to plot a section of a 3D grid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>layer</strong> (<em>int</em><em> or </em><em>float</em>) – Index or coordinate of the slice of the model to be plotted</li>
+<li><strong>layer_coord</strong> (<em>str</em><em>, </em><em>optional</em>) – If set to “grid”, then the value in layer should be the coordinate of the model slice in the grid space
+(default). If it is “ind”, then it should be the index of the grid slice.</li>
+<li><strong>orientation</strong> (<em>int</em><em>, </em><em>optional</em>) – Index of the dimension of to plot the cross-section in (e.x., index=2 would plot an x-y view). Default is 2.</li>
+<li><strong>transpose</strong> (<em>bool</em><em> (</em><em>default=False</em><em>)</em>) – Indicates whether to flip the axes</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>figsize</strong> (<em>tuple</em>) – Size of the figure. Default is (9, 9)</li>
+<li><strong>cmap</strong> (<em>str or matplotlib Colormap (or related)</em>) – Colormap to use for displaying grid values. Default is “rainbow”.</li>
+<li><strong>alpha</strong> (<em>float</em>) – Transparency value for the colormap. Default is 0.5.</li>
+<li><strong>legend_label</strong> (<em>str</em>) – Label to display on the colorbar. Default is “Value”.</li>
+<li><strong>shading</strong> (<em>str</em>) – Indicates whether to use shading when rendering. Acceptable values are “flat” for a solid color in each grid
+cell (default) or “gouraud” to apply Gouraud shading (see matplotlib docs).</li>
+<li><strong>contour</strong> (<em>bool</em>) – Flag to indicate whether to plot contour lines instead of a colormap</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code>]</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>fig</strong> (<em>matplotlib Figure</em>) – Figure containing the resultant plot axes</li>
+<li><strong>ax</strong> (<em>matplotlib Axes</em>) – Axes containing the resultant plot</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This will most likely only function as expected with a 3D grid.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="obsplus.structures.grid.Grid.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#Grid.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.Grid.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for writing the grid to a binary file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em><em>, </em><em>optional</em>) – Base path (minus extension) for the grid. Defaults to Grid.base_name if not provided.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal notranslate"><span class="pre">None</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.structures.grid.apply_layers">
+<code class="descclassname">obsplus.structures.grid.</code><code class="descname">apply_layers</code><span class="sig-paren">(</span><em>grid</em>, <em>layers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#apply_layers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.apply_layers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for applying velocities from a 1D layered model</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>grid</strong> (<a class="reference internal" href="#obsplus.structures.grid.Grid" title="obsplus.structures.grid.Grid"><em>Grid</em></a>) – Grid on which to apply the layers</li>
+<li><strong>layers</strong> (<em>list-like</em>) – List of layers of the form [(value1, elevation1), (value2,
+elevation2)] to  apply to the grid</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.structures.grid.apply_rectangles">
+<code class="descclassname">obsplus.structures.grid.</code><code class="descname">apply_rectangles</code><span class="sig-paren">(</span><em>grid</em>, <em>rectangles</em>, <em>tol=1e-06</em>, <em>conversion=None</em>, <em>conversion_kwargs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#apply_rectangles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.apply_rectangles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for perturbing grid values in rectangular regions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>grid</strong> (<a class="reference internal" href="#obsplus.structures.grid.Grid" title="obsplus.structures.grid.Grid"><em>Grid</em></a>) – Grid on which to apply the layers</li>
+<li><strong>rectangles</strong> (<em>pandas DataFrame</em>) – List of velocity perturbations to apply. Required columns
+include [“DELTA”, “XMIN”, “XMAX”, “YMIN”, “YMAX”] where “DELTA” is
+some percentage of the current grid value</li>
+<li><strong>tol</strong> (<em>float</em>) – Value to add to rectangle coordinates to prevent rounding
+errors. This value should be small relative to the grid
+spacing.</li>
+<li><strong>conversion</strong> (<em>list-like</em><em> or </em><em>callable</em><em>, </em><em>optional</em>) – See obsplus.conversions.convert_coords</li>
+<li><strong>conversion_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – See obsplus.conversions.convert_coords</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.structures.grid.apply_topo">
+<code class="descclassname">obsplus.structures.grid.</code><code class="descname">apply_topo</code><span class="sig-paren">(</span><em>grid</em>, <em>topo_points</em>, <em>air=0.343</em>, <em>method='nearest'</em>, <em>conversion=None</em>, <em>conversion_kwargs=None</em>, <em>tolerance=1e-06</em>, <em>buffer=0</em>, <em>topo_label='TOPO'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#apply_topo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.apply_topo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for applying a topographic surface to the model</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>grid</strong> (<a class="reference internal" href="#obsplus.structures.grid.Grid" title="obsplus.structures.grid.Grid"><em>Grid</em></a>) – Grid on which to apply the layers</li>
+<li><strong>topo_points</strong> (<em>pandas DataFrame</em><em> or </em><em>path to csv</em><em> or </em><em>dxf file</em>) – Input containing the topography data</li>
+<li><strong>air</strong> (<em>float</em><em>, </em><em>optional</em>) – Value to assign to the “air” blocks (blocks above the topography). Default is 0.343 km/s.</li>
+<li><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – Method used by scipy’s griddata to interpolate the topography grid. Acceptable values include: “nearest”
+(default), “linear”, and “cubic”</li>
+<li><strong>conversion</strong> (<em>list-like</em><em> or </em><em>callable</em><em>, </em><em>optional</em>) – See obsplus.conversions.convert_coords</li>
+<li><strong>conversion_kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – See obsplus.conversions.convert_coords</li>
+<li><strong>tolerance</strong> (<em>float</em><em>, </em><em>optional</em>) – Should be small relative to the grid size. Deals with those pesky rounding errors. (Default=1e-6)</li>
+<li><strong>buffer</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of cells above the topography to extend the “rock” values (i.e., the values that are below the
+topography) (default=0)</li>
+<li><strong>topo_label</strong> (<em>str</em><em>, </em><em>optional</em>) – Label to assign the 2D grid that is created from topo_points (default=”TOPO”)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>topo</strong> – 2D grid created from topo_points</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#obsplus.structures.grid.Grid" title="obsplus.structures.grid.Grid">Grid</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If the input is a CSV file or pandas DataFrame, the following columns are required: [“x”, “y”, “z”]. If the input is
+a dxf file, the dxf should not contain any data other than the topography (in the form of LWPOLYLINEs, LINEs,
+POLYLINES, POINTS, and/or 3DFACEs) and must have the elevation data stored in the entities (Z coordinates
+shouldn’t be 0.0).</p>
+<p>It should be noted that bizarre results may occur if the topo data does not extend beyond the grid region.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.structures.grid.grid_cross">
+<code class="descclassname">obsplus.structures.grid.</code><code class="descname">grid_cross</code><span class="sig-paren">(</span><em>grid</em>, <em>coord</em>, <em>direction='X'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#grid_cross"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.grid_cross" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for returning a profile from a two-dimensional grid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>grid</strong> (<a class="reference internal" href="#obsplus.structures.grid.Grid" title="obsplus.structures.grid.Grid"><em>Grid</em></a>) – Grid from which to pull the values</li>
+<li><strong>coord</strong> (<em>float</em>) – Coordinate along which to get the profile</li>
+<li><strong>direction</strong> (<em>str</em><em>, </em><em>optional</em>) – Direction along which to get the profile. Possible values are “X”
+for a profile that parallel to the x-axis (default) and “Y” for a profile
+that is parallel to the y-axis.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tuple</span></code>[&lt;built-in function array&gt;, &lt;built-in function array&gt;]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>points</strong> (<em>np.array</em>) – List of coordinates along the profile</li>
+<li><strong>values</strong> (<em>np.array</em>) – Values at each coordinate</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.structures.grid.load_grid">
+<code class="descclassname">obsplus.structures.grid.</code><code class="descname">load_grid</code><span class="sig-paren">(</span><em>base_name</em>, <em>gtype=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#load_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.load_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for reading a binary binary grid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>base_name</strong> (<em>str</em>) – Name of the grid file (minus extension)</li>
+<li><strong>gtype</strong> (<em>str</em><em>, </em><em>optional</em>) – If specified, verify the grid is the expected format</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>grid</strong> – Grid object containing the binary grid</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#obsplus.structures.grid.Grid" title="obsplus.structures.grid.Grid">Grid</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.structures.grid.plt_grid">
+<code class="descclassname">obsplus.structures.grid.</code><code class="descname">plt_grid</code><span class="sig-paren">(</span><em>x1_coords</em>, <em>x2_coords</em>, <em>values</em>, <em>contour=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#plt_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.plt_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to plot a colormap of a grid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x1_coords</strong> (<em>array-like</em>) – Coordinates of grid points along the horizontal axis of the plot</li>
+<li><strong>x2_coords</strong> (<em>array-like</em>) – Coordinates of grid points along the vertical axis of the plot</li>
+<li><strong>values</strong> (<em>array-like</em>) – Values stored in the grid</li>
+<li><strong>contour</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag indicating whether to plot contour lines instead of a colormap (default=False</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>figsize</strong> (<em>tuple</em>) – Size of the figure (default=(9,9))</li>
+<li><strong>cmap</strong> (<em>str or matplotlib Colormap (or related)</em>) – Colormap to use for displaying grid values (default=”rainbow”)</li>
+<li><strong>alpha</strong> (<em>float</em>) – Transparency value for the colormap (default=0.5)</li>
+<li><strong>legend_label</strong> (<em>str</em>) – Label to display on the colorbar (default=”Value”)</li>
+<li><strong>shading</strong> (<em>str</em>) – Indicates whether to use shading when rendering. Acceptable values are “flat” for a solid color in each grid
+cell (default) or “gouraud” to apply Gouraud shading (see matplotlib docs)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code>]</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>fig</strong> (<em>matplotlib Figure</em>) – Figure containing the resultant plot axes</li>
+<li><strong>ax</strong> (<em>matplotlib Axes</em>) – Axes containing the resultant plot</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.structures.grid.read_bin_grid">
+<code class="descclassname">obsplus.structures.grid.</code><code class="descname">read_bin_grid</code><span class="sig-paren">(</span><em>path</em>, <em>grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#read_bin_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.read_bin_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for reading in a NonLinLoc binary grid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>path</strong> (<em>str</em>) – Path to the binary buffer</li>
+<li><strong>grid</strong> (<a class="reference internal" href="#obsplus.structures.grid.Grid" title="obsplus.structures.grid.Grid"><em>Grid</em></a>) – Grid to dump the values into</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>grid</strong> – Grid as read from the file.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#obsplus.structures.grid.Grid" title="obsplus.structures.grid.Grid">Grid</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.structures.grid.read_header">
+<code class="descclassname">obsplus.structures.grid.</code><code class="descname">read_header</code><span class="sig-paren">(</span><em>path</em>, <em>gtype=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#read_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.read_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for reading NonLinLoc binary grid header files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>path</strong> (<em>str</em>) – Path to the header file</li>
+<li><strong>gtype</strong> (<em>str</em><em>, </em><em>optional</em>) – If specified, verify the grid is the expected format</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>header_data</strong> – Contents of the header file</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.structures.grid.write_bin_grid">
+<code class="descclassname">obsplus.structures.grid.</code><code class="descname">write_bin_grid</code><span class="sig-paren">(</span><em>path</em>, <em>grid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#write_bin_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.write_bin_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for writing a NonLinLoc binary grid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>path</strong> (<em>str</em>) – Path for the binary file</li>
+<li><strong>grid</strong> (<em>numpy array</em>) – Three-dimensional numpy array containing the values for the grid</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal notranslate"><span class="pre">None</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="obsplus.structures.grid.write_header">
+<code class="descclassname">obsplus.structures.grid.</code><code class="descname">write_header</code><span class="sig-paren">(</span><em>path</em>, <em>gps</em>, <em>origin</em>, <em>spacing</em>, <em>gtype</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/obsplus/structures/grid.html#write_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#obsplus.structures.grid.write_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for writing a NonLinLoc binary grid header</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>str</em>) – Path for the header file</li>
+<li><strong>gps</strong> (<em>list of int</em>) – Number of grid points in the X, Y, and Z directions</li>
+<li><strong>origin</strong> (<em>list of float</em>) – X, Y, and Z coordinates of the grid origin (Z is positive up). Coordinates must be in the NonLinLoc coordinate
+system and must be in kilometers.</li>
+<li><strong>spacing</strong> (<em>float</em>) – Size of the grid cells in kilometers. Grid cells must be square to be compatible with NonLinLoc</li>
+<li><strong>gtype</strong> (<em>str</em>) – Type of grid being written. Common options are: “VELOCITY”, “SLOWNESS”, “VEL2”, “SLOW2”, “SLOW_LEN”, “TIME”,
+“TIME2D”, “MISFIT”, “ANGLE”, “ANGLE2D”</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>It is important to note that while the obsplus Grid objects here created such that Z is positive up, in order
+to be compatible with NonLinLoc, the origin must be swapped when it is written so Z is positive down.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal notranslate"><span class="pre">None</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-obsplus.structures">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-obsplus.structures" title="Permalink to this headline">¶</a></h2>
+<p>Various classes that don’t fall cleanly into other categories.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ObsPlus</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Derrick Chambers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

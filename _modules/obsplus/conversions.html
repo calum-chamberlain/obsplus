@@ -1,0 +1,376 @@
+
+
+<!doctype html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>obsplus.conversions &#8212; ObsPlus 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/bizstyle.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ObsPlus</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/obsplus_panda.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for obsplus.conversions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains an experimental functions for converting coordinate systems. The interfaces for these functions</span>
+<span class="sd">likely will not change, but the functions may be moved.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">singledispatch</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">VALID_KEYS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;scale_x&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;scale_y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;scale_z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;translate_x&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;translate_y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;translate_z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rotate_xy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rotate_yz&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rotate_xz&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;project&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">OPERATIONS</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">INDICES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;xy&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;yz&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s2">&quot;xz&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)}</span>
+
+<span class="n">Conversion</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]]],</span> <span class="n">Callable</span><span class="p">]</span>
+<span class="n">XYCoords</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span>
+<span class="n">Convertable</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="convert_coords"><a class="viewcode-back" href="../../api/obsplus.html#obsplus.conversions.convert_coords">[docs]</a><span class="nd">@singledispatch</span>
+<span class="k">def</span> <span class="nf">convert_coords</span><span class="p">(</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">Convertable</span><span class="p">,</span>
+    <span class="n">conversion</span><span class="p">:</span> <span class="n">Conversion</span><span class="p">,</span>
+    <span class="n">conversion_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Convertable</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts coordinates from one system to another</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    points : Array-like</span>
+<span class="sd">        List of points to be converted. Can take a variety of formats, including tuples, lists, pandas DataFrames,</span>
+<span class="sd">        and numpy arrays as long as they can be arranged into a numpy array with three columns for the X, Y, and Z</span>
+<span class="sd">        coordinates.</span>
+<span class="sd">    conversion : list-like or callable</span>
+<span class="sd">        A set of instructions or callable for the coordinate conversion. If instructions are provided, they should</span>
+<span class="sd">        be arrange in a two-dimensional list-like structure of key-value pairs (i.e., [[&quot;scale_x&quot;, 0.3048], [&quot;scale_y&quot;,</span>
+<span class="sd">        0.3048]]). See notes for acceptable keywords. If a callable is provided, it should take a three-column numpy</span>
+<span class="sd">        array as input and output.</span>
+<span class="sd">    conversion_kwargs : dict, optional</span>
+<span class="sd">        Used if conversion is a callable. kwargs to be passed to the callable.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    x_in : str, optional</span>
+<span class="sd">        Name of the input x-coordinate column (default=&quot;x&quot;)</span>
+<span class="sd">    y_in : str, optional</span>
+<span class="sd">        Name of the input y-coordinate column (default=&quot;y&quot;)</span>
+<span class="sd">    z_in : str, optional</span>
+<span class="sd">        Name of the input z-coordinate column (default=&quot;z&quot;)</span>
+<span class="sd">    x_out : str, optional</span>
+<span class="sd">        Name of the output x-coordinate column (default=&quot;x_conv&quot;)</span>
+<span class="sd">    y_out : str, optional</span>
+<span class="sd">        Name of the output y-coordinate column (default=&quot;y_conv&quot;)</span>
+<span class="sd">    z_out : str, optional</span>
+<span class="sd">        Name of the output z-coordinate column (default=&quot;z_conv&quot;)</span>
+<span class="sd">    inplace : bool, optional</span>
+<span class="sd">        Indicates whether the coordinate conversion should be done on the DataFrame in place or a new DataFrame should</span>
+<span class="sd">        be returned. (Only when a DataFrame is provided as input.) (default=False)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The following describes the values to be provided with the keywords:\n</span>
+<span class="sd">    scale_x : float</span>
+<span class="sd">        Scale factor to apply to the x-coordinates\n</span>
+<span class="sd">    scale_y : float</span>
+<span class="sd">        Scale factor to apply to the x-coordinates\n</span>
+<span class="sd">    scale_z : float</span>
+<span class="sd">        Scale factor to apply to the x-coordinates\n</span>
+<span class="sd">    translate_x : float</span>
+<span class="sd">        Amount to move the coordinates in the x-direction\n</span>
+<span class="sd">    translate_y : float</span>
+<span class="sd">        Amount to move the coordinates in the y-direction\n</span>
+<span class="sd">    translate_z : float</span>
+<span class="sd">        Amount to move the coordinates in the z-direction\n</span>
+<span class="sd">    rotate_xy : float</span>
+<span class="sd">        Angle (in radians) to rotate the coordinates in the xy plane.</span>
+<span class="sd">        Positive is CCW.\n</span>
+<span class="sd">    rotate_xz : float</span>
+<span class="sd">        Angle (in radians) to rotate the coordinates in the xz plane.</span>
+<span class="sd">        Positive is CCW.\n</span>
+<span class="sd">    rotate_yz : float</span>
+<span class="sd">        Angle (in radians) to rotate the coordinates in the yz plane.</span>
+<span class="sd">        Positive is CCW.\n</span>
+<span class="sd">    project : dict</span>
+<span class="sd">        Strings for the pyproj.Proj class projection, or a pyproj.Proj object (ex: &quot;+init=EPSG:32611&quot;). Keys in the</span>
+<span class="sd">        dictionary should be &quot;from&quot; and &quot;to&quot;\n</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    points : Sequence</span>
+<span class="sd">        Array-like object with the converted coordinates. If a DataFrame, list, or tuple were provided as input, then</span>
+<span class="sd">        the same type will be returned. For all other formats, a numpy array will be returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span>
+        <span class="n">kwargs</span>
+    <span class="p">):</span>  <span class="c1"># While the registered converters can support kwargs, the main one does not</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Unexpected kwargs: {list(kwargs.keys())}&quot;</span><span class="p">)</span>
+
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+    <span class="c1"># Deal with a callable conversion</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">conversion</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">conversion_kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">points</span> <span class="o">=</span> <span class="n">conversion</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="o">**</span><span class="n">conversion_kwargs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">points</span> <span class="o">=</span> <span class="n">conversion</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Conversion callable raised an exception: </span><span class="si">{e}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Callable coordinate conversion must return a numpy array with 3 columns&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">points</span>
+
+    <span class="c1"># Do some checking to make sure the conversion is kosher</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">conversion</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;conversion should be a list of transformations&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">conversion</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">VALID_KEYS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;conversion should be a list of transformations&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;conversion should be a list of transformations&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Go through each stage of the conversion</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">conversion</span><span class="p">:</span>
+        <span class="c1"># Make sure the stage is valid</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">VALID_KEYS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Invalid conversion operation: </span><span class="si">{key}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;project&quot;</span><span class="p">:</span>
+            <span class="n">points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">project</span><span class="p">(</span>
+                <span class="n">points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">],</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;value must be a float for key: </span><span class="si">{key}</span><span class="s2">, </span><span class="si">{value}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+            <span class="n">stage</span> <span class="o">=</span> <span class="n">OPERATIONS</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">inds</span> <span class="o">=</span> <span class="n">INDICES</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">stage</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">inds</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,))</span>
+    <span class="k">return</span> <span class="n">points</span></div>
+
+
+<span class="nd">@convert_coords</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_convert_df</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">conversion</span><span class="p">,</span>
+    <span class="n">conversion_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">x_in</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+    <span class="n">y_in</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
+    <span class="n">z_in</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span>
+    <span class="n">x_out</span><span class="o">=</span><span class="s2">&quot;x_conv&quot;</span><span class="p">,</span>
+    <span class="n">y_out</span><span class="o">=</span><span class="s2">&quot;y_conv&quot;</span><span class="p">,</span>
+    <span class="n">z_out</span><span class="o">=</span><span class="s2">&quot;z_conv&quot;</span><span class="p">,</span>
+    <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># Copy the input if not inplace</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">inplace</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="c1"># Define the columns to do the conversion on</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="n">x_in</span><span class="p">,</span> <span class="n">y_in</span><span class="p">,</span> <span class="n">z_in</span><span class="p">]])</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">convert_coords</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">conversion</span><span class="p">,</span> <span class="n">conversion_kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">x_out</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">y_out</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">z_out</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">x_out</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">y_out</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">z_out</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="nd">@convert_coords</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_convert_tuple</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">conversion</span><span class="p">,</span> <span class="n">conversion_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Single point</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;points must be a tuple of three-dimensional points&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">convert_coords</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">conversion</span><span class="p">,</span> <span class="n">conversion_kwargs</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># Multiple points</span>
+        <span class="n">converted</span> <span class="o">=</span> <span class="n">convert_coords</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">conversion</span><span class="p">,</span> <span class="n">conversion_kwargs</span><span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">converted</span><span class="p">:</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;points must be a tuple of three-dimensional points&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@convert_coords</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_convert_list</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">conversion</span><span class="p">,</span> <span class="n">conversion_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Single point</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;points must be a list of three-dimensional points&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">convert_coords</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">conversion</span><span class="p">,</span> <span class="n">conversion_kwargs</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># Multiple points</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">convert_coords</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">conversion</span><span class="p">,</span> <span class="n">conversion_kwargs</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;points must be a list of three-dimensional points&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="rotate_points"><a class="viewcode-back" href="../../api/obsplus.html#obsplus.conversions.rotate_points">[docs]</a><span class="k">def</span> <span class="nf">rotate_points</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">ang</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">XYCoords</span><span class="p">:</span>  <span class="c1"># around origin</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rotate a point about the origin</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : float or list of floats (required)</span>
+<span class="sd">        X-coordinate(s)</span>
+<span class="sd">    y : float or list of floats (required)</span>
+<span class="sd">        Y-coordinate(s)</span>
+<span class="sd">    ang : float (required)</span>
+<span class="sd">        Rotation angle (radians)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x_temp</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ang</span><span class="p">)</span> <span class="o">-</span> <span class="n">y</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ang</span><span class="p">)</span>
+    <span class="n">y_temp</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ang</span><span class="p">)</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ang</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x_temp</span><span class="p">,</span> <span class="n">y_temp</span></div>
+
+
+<div class="viewcode-block" id="project"><a class="viewcode-back" href="../../api/obsplus.html#obsplus.conversions.project">[docs]</a><span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fro</span><span class="p">,</span> <span class="n">to</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">pyproj</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fro</span><span class="p">,</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fro</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fro</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{fro}</span><span class="s2"> is not a valid projection&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">to</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">to</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{to}</span><span class="s2"> is not a valid projection&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">fro</span><span class="p">,</span> <span class="n">to</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+
+
+<span class="c1"># Operations for coordinate conversions</span>
+<span class="k">def</span> <span class="nf">_scale</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="n">points</span><span class="p">[:,</span> <span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:,</span> <span class="n">ind</span><span class="p">]</span> <span class="o">*</span> <span class="n">value</span>
+
+
+<span class="n">OPERATIONS</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_scale</span>
+
+
+<span class="k">def</span> <span class="nf">_translate</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="n">points</span><span class="p">[:,</span> <span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:,</span> <span class="n">ind</span><span class="p">]</span> <span class="o">+</span> <span class="n">value</span>
+
+
+<span class="n">OPERATIONS</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_translate</span>
+
+
+<span class="k">def</span> <span class="nf">_rotate</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">inds</span><span class="p">,</span> <span class="n">ang</span><span class="p">):</span>
+    <span class="n">points</span><span class="p">[:,</span> <span class="n">inds</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">points</span><span class="p">[:,</span> <span class="n">inds</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">rotate_points</span><span class="p">(</span>
+        <span class="n">points</span><span class="p">[:,</span> <span class="n">inds</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">points</span><span class="p">[:,</span> <span class="n">inds</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">ang</span>
+    <span class="p">)</span>
+
+
+<span class="n">OPERATIONS</span><span class="p">[</span><span class="s2">&quot;rotate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_rotate</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ObsPlus</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Derrick Chambers.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

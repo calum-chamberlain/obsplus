@@ -1,0 +1,6 @@
+obsplus.array\_to\_obspy
+========================
+
+.. currentmodule:: obsplus
+
+.. autofunction:: array_to_obspy

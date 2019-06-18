@@ -1,0 +1,908 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "pycharm": {}
+   },
+   "source": [
+    "# Waveforms to Xarray\n",
+    "\n",
+    "<div class=\"alert alert-warning\">\n",
+    "\n",
+    "**Warning**: This part of obsplus is still very experimental and subject to rapid changes, proceed with caution.\n",
+    "\n",
+    "</div>\n",
+    "\n",
+    "\n",
+    "The [xarray library](http://xarray.pydata.org/en/stable/) offers pandas-like data structures that are not limited to 2 dimensions (rows and columns). We have found working with seismic waveform data in such a way can be useful, but certainly is not as general as [obspy streams](https://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html). Particularly, Xarray data structures don't work well with gappy data or data with non-uniform sampling rates.\n",
+    "\n",
+    "Before attempting to use these features in obsplus we highly recommend you read through the [xarray documentation](http://xarray.pydata.org/en/stable/) as the API may take a bit of time to learn. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "pycharm": {}
+   },
+   "source": [
+    "## Creating data arrays\n",
+    "\n",
+    "Creating DataArrays from ObsPy objects is straight-forward. A single `Trace`, `Stream`, or collection (list-like) of either, or a mapping (dict-like) of either are all valid inputs. If a mapping is used, they keys will often correspond to an event id.\n",
+    "\n",
+    "Conceptually the DataArray looks like this:\n",
+    "\n",
+    "<img src=\"../../images/data_array2.png\" width=\"350\" height=\"350\" align=\"left\"/>\n",
+    "<br clear=\"all\">\n",
+    "\n",
+    "Each `DataArray` instance created by ObsPlus has three dimensions:\n",
+    "\n",
+    "1. __stream_id__: The keys used in the dictionary or an integer starting at 0.\n",
+    "\n",
+    "2. __seed_id__: The seed id (ie network.station.location.channel) of each trace.\n",
+    "\n",
+    "3. __time__: Floating point values beginning at zero and incrementing by the sampling period.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/home/isti_ew/anaconda3/lib/python3.7/site-packages/dask/config.py:168: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.\n",
+      "  data = yaml.load(f.read()) or {}\n",
+      "/home/isti_ew/anaconda3/lib/python3.7/site-packages/distributed/config.py:20: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.\n",
+      "  defaults = yaml.load(f)\n"
+     ]
+    }
+   ],
+   "source": [
+    "import obspy\n",
+    "import obsplus\n",
+    "from obsplus import obspy_to_array"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [],
+   "source": [
+    "st = obspy.read()\n",
+    "# create data array from a trace\n",
+    "from_trace = obsplus.obspy_to_array(st[0])\n",
+    "# create data array from stream\n",
+    "from_stream = obsplus.obspy_to_array(st)\n",
+    "# create a data array from a list of streams\n",
+    "st_list = [st.copy() for _ in range(3)]\n",
+    "from_list = obsplus.obspy_to_array(st_list)\n",
+    "# create data array from a dict of streams\n",
+    "st_dict = {f'event{x}': st.copy() for x in range(3)}\n",
+    "from_dict = obsplus.obspy_to_array(st_dict)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "('stream_id', 'seed_id', 'time')\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(from_trace.dims)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "pycharm": {}
+   },
+   "source": [
+    "The data array created from a single trace will only have a size of one in the stream_id and seed_id columns, and the time dimension will be as long as the trace."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(1, 1, 3000)\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(from_trace.shape)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "pycharm": {}
+   },
+   "source": [
+    "The dataarray created from a dict of streams, however, will be larger:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(3, 3, 3000)\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(from_dict.shape)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "pycharm": {}
+   },
+   "source": [
+    "The xarray `str` representation is fairly large, but very descriptive:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<xarray.DataArray (stream_id: 3, seed_id: 3, time: 3000)>\n",
+      "array([[[ 0.      , -0.014434, ...,  0.435445,  0.197664],\n",
+      "        [ 0.      ,  0.006044, ...,  0.492601,  0.254383],\n",
+      "        [ 0.      ,  0.006946, ...,  0.981962,  0.441969]],\n",
+      "\n",
+      "       [[ 0.      , -0.014434, ...,  0.435445,  0.197664],\n",
+      "        [ 0.      ,  0.006044, ...,  0.492601,  0.254383],\n",
+      "        [ 0.      ,  0.006946, ...,  0.981962,  0.441969]],\n",
+      "\n",
+      "       [[ 0.      , -0.014434, ...,  0.435445,  0.197664],\n",
+      "        [ 0.      ,  0.006044, ...,  0.492601,  0.254383],\n",
+      "        [ 0.      ,  0.006946, ...,  0.981962,  0.441969]]])\n",
+      "Coordinates:\n",
+      "  * time       (time) float64 0.0 0.01 0.02 0.03 ... 29.96 29.97 29.98 29.99\n",
+      "  * seed_id    (seed_id) object 'BW.RJOB..EHE' 'BW.RJOB..EHN' 'BW.RJOB..EHZ'\n",
+      "  * stream_id  (stream_id) object 'event0' 'event1' 'event2'\n",
+      "    starttime  (seed_id, stream_id) float64 1.251e+09 1.251e+09 ... 1.251e+09\n",
+      "Attributes:\n",
+      "    sampling_rate:  100.0\n",
+      "    stats:          {'event0': {'BW.RJOB..EHE': Stats({'sampling_rate': 100.0...\n"
+     ]
+    }
+   ],
+   "source": [
+    "# print value for the seed_id dimension\n",
+    "print(from_dict)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "pycharm": {}
+   },
+   "source": [
+    "DataArrays can also be converted back to dictionaries of `Stream` objects. The transformation *should* be lossless:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{'event0': <obspy.core.stream.Stream object at 0x7f3086e0a278>, 'event1': <obspy.core.stream.Stream object at 0x7f3086dabd30>, 'event2': <obspy.core.stream.Stream object at 0x7f3086d3c208>}\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(from_dict.ops.to_stream())"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "pycharm": {}
+   },
+   "source": [
+    "## Advantages of the DataArray\n",
+    "\n",
+    "The DataArray has two potential advantages over the Stream representation:\n",
+    "\n",
+    "   1. Efficiency \n",
+    "    \n",
+    "   2. Organization\n",
+    "\n",
+    "### Efficiency\n",
+    "\n",
+    "There have been many efforts to improve efficiency of numpy/scipy functionality. Some of these, such as [Intel's MKL](https://software.intel.com/en-us/mkl) ship with scientific python distributions, like [Anaconda](https://www.anaconda.com/). These optimizations are great because you don't need to change anything about your code; it just runs faster.\n",
+    "\n",
+    "Some of these optimizations involve making better use of modern hardware, particularly processors with many cores. It is much better to let the well-tested low-level libraries handle parallelism rather than implementing messy multiprocessing/multithreading python code when possible. For example, let's compare the time required to calculating FFTs for each `Trace` in a large `Stream` vs doing it all at once on a `DataArray` created with ObsPlus, both of which should return the same result. The latter will be more efficient because it allows numpy to better plan optimization strategies, as well as avoids python loops."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "numpy version: 1.16.2\n",
+      "xarray version: 0.12.1\n"
+     ]
+    }
+   ],
+   "source": [
+    "import numpy as np\n",
+    "import xarray as xr\n",
+    "\n",
+    "print(f'numpy version: {np.__version__}')\n",
+    "print(f'xarray version: {xr.__version__}')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "200 Trace(s) in Stream:\n",
+      "\n",
+      "OP.000..HHZ | 1970-01-01T00:00:00.000000Z - 1970-01-01T00:00:59.990000Z | 100.0 Hz, 6000 samples\n",
+      "...\n",
+      "(198 other traces)\n",
+      "...\n",
+      "OP.199..HHZ | 1970-01-01T00:00:00.000000Z - 1970-01-01T00:00:59.990000Z | 100.0 Hz, 6000 samples\n",
+      "\n",
+      "[Use \"print(Stream.__str__(extended=True))\" to print all Traces]\n"
+     ]
+    }
+   ],
+   "source": [
+    "# create test streams with random data\n",
+    "import numpy as np\n",
+    "import obspy\n",
+    "\n",
+    "\n",
+    "num_stations = 200\n",
+    "sr = 100\n",
+    "data_length = sr * 60\n",
+    "\n",
+    "traces = []\n",
+    "for station in ('{x:03d}'.format(x=x) for x in range(num_stations)):\n",
+    "    data = np.random.rand(data_length)\n",
+    "    stats = dict(network='OP', station=station, location='', channel='HHZ',\n",
+    "                 sampling_rate=sr)\n",
+    "    traces.append(obspy.Trace(data=data, header=stats))\n",
+    "\n",
+    "st = obspy.Stream(traces=traces)\n",
+    "print(st)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [],
+   "source": [
+    "# convert to data array\n",
+    "dar = obspy_to_array(st)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "CPU times: user 408 ms, sys: 28 ms, total: 436 ms\n",
+      "Wall time: 21.7 ms\n"
+     ]
+    }
+   ],
+   "source": [
+    "%%time\n",
+    "# Time looping through traces and performing fft\n",
+    "out1 = np.array([np.fft.rfft(tr.data) for tr in st])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "CPU times: user 8 ms, sys: 24 ms, total: 32 ms\n",
+      "Wall time: 1.6 ms\n"
+     ]
+    }
+   ],
+   "source": [
+    "%%time\n",
+    "# Time performing fft in one-go on large numpy block\n",
+    "out2 = np.fft.rfft(dar.data, axis=-1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [],
+   "source": [
+    "# after flattening one dimension in out2, the results should be (nearly) the same\n",
+    "out1 = np.array([np.fft.rfft(tr.data) for tr in st])\n",
+    "out2 = np.fft.rfft(dar.data, axis=-1)\n",
+    "assert np.allclose(out1, out2[0])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "pycharm": {}
+   },
+   "source": [
+    "The xarray version is usually between 2 and 20 times faster, depending on the number of cores in your CPU and the python distribution you are using. However, this notebook may not show much of a difference if it was executed on the ReadTheDocs server. The best way to assess performance gains is to download and run this notebook yourself.\n",
+    "\n",
+    "Moreover xarray provides ways of easily working with dask for distributed computing. This would be a bit more difficult using `Stream`s. See [this](http://xarray.pydata.org/en/stable/dask.html) for more details. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "pycharm": {}
+   },
+   "source": [
+    "### Organization\n",
+    "\n",
+    "With the data organized in a 3D cube of sorts, it becomes fairly natural to slice and manipulate the data because xarray, like pandas, has intuitive and efficient indexing and sensible broadcasting. Here are a few examples of what you can do:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<xarray.DataArray (stream_id: 1, seed_id: 200, time: 1000)>\n",
+       "array([[[ 0.727655,  0.105375, ...,  0.526661,  0.195702],\n",
+       "        [ 0.821371,  0.935991, ...,  0.541077,  0.829434],\n",
+       "        ..., \n",
+       "        [ 0.629091,  0.651582, ...,  0.476686,  0.169022],\n",
+       "        [ 0.652107,  0.957319, ...,  0.357763,  0.380872]]])\n",
+       "Coordinates:\n",
+       "  * time       (time) float64 25.0 25.01 25.02 25.03 ... 34.96 34.97 34.98 34.99\n",
+       "  * seed_id    (seed_id) object 'OP.000..HHZ' 'OP.001..HHZ' ... 'OP.199..HHZ'\n",
+       "  * stream_id  (stream_id) int64 0\n",
+       "    starttime  (seed_id, stream_id) float64 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0\n",
+       "Attributes:\n",
+       "    sampling_rate:  100.0\n",
+       "    stats:          {0: {'OP.000..HHZ': Stats({'sampling_rate': 100.0, 'delta..."
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# get middle 10 seconds of data\n",
+    "time_mean = dar.time.mean()\n",
+    "duration = dar.time.max() - dar.time.min()\n",
+    "dar.sel(time=slice(time_mean - 5, time_mean + 5))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<xarray.DataArray (stream_id: 1, seed_id: 16, time: 6000)>\n",
+       "array([[[ 0.651023,  0.313035, ...,  0.627967,  0.6179  ],\n",
+       "        [ 0.623388,  0.571949, ...,  0.385792,  0.942906],\n",
+       "        ..., \n",
+       "        [ 0.247548,  0.307858, ...,  0.524457,  0.508647],\n",
+       "        [ 0.979012,  0.038161, ...,  0.417889,  0.552287]]])\n",
+       "Coordinates:\n",
+       "  * time       (time) float64 0.0 0.01 0.02 0.03 ... 59.96 59.97 59.98 59.99\n",
+       "  * seed_id    (seed_id) object 'OP.000..HHZ' 'OP.013..HHZ' ... 'OP.195..HHZ'\n",
+       "  * stream_id  (stream_id) int64 0\n",
+       "    starttime  (seed_id, stream_id) float64 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0\n",
+       "Attributes:\n",
+       "    sampling_rate:  100.0\n",
+       "    stats:          {0: {'OP.000..HHZ': Stats({'sampling_rate': 100.0, 'delta..."
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Trim seed_id (channels) to only include data from every 13th station\n",
+    "stations = list('OP.{x:03d}..HHZ'.format(x=x) for x in range(0, data_length, 13))\n",
+    "dar.where(dar.seed_id.isin(stations), drop=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<xarray.DataArray (stream_id: 1, seed_id: 200, time: 6000)>\n",
+       "array([[[ 0.158465, -0.179524, ...,  0.135408,  0.125342],\n",
+       "        [-0.153894, -0.190055, ...,  0.303974, -0.010989],\n",
+       "        ..., \n",
+       "        [-0.018814, -0.193618, ..., -0.219439,  0.219565],\n",
+       "        [ 0.327634,  0.442214, ..., -0.023079, -0.491398]]])\n",
+       "Coordinates:\n",
+       "  * time       (time) float64 0.0 0.01 0.02 0.03 ... 59.96 59.97 59.98 59.99\n",
+       "  * seed_id    (seed_id) object 'OP.000..HHZ' 'OP.001..HHZ' ... 'OP.199..HHZ'\n",
+       "  * stream_id  (stream_id) int64 0\n",
+       "    starttime  (seed_id, stream_id) float64 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# simple detrend using mean\n",
+    "dar - dar.mean(dim='time')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<xarray.DataArray (stream_id: 1, seed_id: 200, time: 5801)>\n",
+      "array([[[ 1.03006 ,  1.027321, ...,  0.98324 ,  0.973837],\n",
+      "        [ 0.955314,  0.934984, ...,  0.954917,  0.967918],\n",
+      "        ..., \n",
+      "        [ 0.977889,  0.982293, ...,  1.060404,  1.111352],\n",
+      "        [ 0.770689,  0.815686, ...,  1.02325 ,  1.027898]]])\n",
+      "Coordinates:\n",
+      "  * time       (time) float64 1.99 2.0 2.01 2.02 ... 59.96 59.97 59.98 59.99\n",
+      "  * seed_id    (seed_id) object 'OP.000..HHZ' 'OP.001..HHZ' ... 'OP.199..HHZ'\n",
+      "  * stream_id  (stream_id) int64 0\n",
+      "    starttime  (seed_id, stream_id) float64 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0\n"
+     ]
+    }
+   ],
+   "source": [
+    "# calculate rolling sta/lta on each channel\n",
+    "sta_samples = 25\n",
+    "lta_samples = 200\n",
+    "\n",
+    "sta = dar.rolling(time=sta_samples).mean()\n",
+    "lta = dar.rolling(time=lta_samples).mean()\n",
+    "\n",
+    "result = sta / lta\n",
+    "print(result.dropna(dim='time'))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "pycharm": {}
+   },
+   "source": [
+    "### Obsplus Accessor methods\n",
+    "Obsplus registers an [xarray accessor](http://xarray.pydata.org/en/stable/internals.html#extending-xarray) to add seismic specific functionality. These are accessed via the `ops` attribute which is available as long as obsplus is imported. Here is a brief tour of some of the methods:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [],
+   "source": [
+    "# build a data array from the crandall dataset\n",
+    "import obsplus\n",
+    "ds = obsplus.load_dataset('crandall')\n",
+    "# get catalog, inventory and fetcher\n",
+    "cat = ds.event_client.get_events()\n",
+    "inv = ds.station_client.get_stations(network='TA')\n",
+    "fetcher = ds.get_fetcher()\n",
+    "# init dict of {event_id: stream} and get catalog/inventory\n",
+    "st_dict = dict(fetcher.yield_event_waveforms(time_before=5, time_after=30))\n",
+    "# create datarray\n",
+    "dar = obsplus.obspy_to_array_dict(st_dict)[40]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "8 Event(s) in Catalog:\n",
+      "2007-08-07T02:14:24.080000Z | +39.463, -111.223 | 1.17 ml\n",
+      "2007-08-07T21:42:51.130000Z | +39.463, -111.220 | 1.88 ml\n",
+      "2007-08-07T03:44:18.470000Z | +39.462, -111.215 | 1.68 ml\n",
+      "2007-08-07T02:05:04.490000Z | +39.465, -111.225 | 2.44 ml\n",
+      "2007-08-07T07:13:05.760000Z | +39.461, -111.224 | 2.55 ml\n",
+      "2007-08-06T10:47:25.600000Z | +39.462, -111.232 | 1.92 ml\n",
+      "2007-08-06T08:48:40.010000Z | +39.464, -111.228 | 4.2 mb\n",
+      "2007-08-06T01:44:48.810000Z | +39.462, -111.238 | 2.32 ml\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(cat)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<xarray.DataArray 'seed_id' (seed_id: 12)>\n",
+      "array(['TA.O15A..BHZ', 'TA.O16A..BHZ', 'TA.O18A..BHZ', 'TA.P15A..BHZ',\n",
+      "       'TA.P16A..BHZ', 'TA.P17A..BHZ', 'TA.P18A..BHZ', 'TA.Q15A..BHZ',\n",
+      "       'TA.Q16A..BHZ', 'TA.Q18A..BHZ', 'TA.R16A..BHZ', 'TA.R17A..BHZ'], dtype=object)\n",
+      "Coordinates:\n",
+      "  * seed_id  (seed_id) object 'TA.O15A..BHZ' 'TA.O16A..BHZ' ... 'TA.R17A..BHZ'\n"
+     ]
+    }
+   ],
+   "source": [
+    "# select channels based on seed_ids (wildcards permitted)\n",
+    "filtered_dar = dar.ops.sel_sid('TA.*.*.BHZ')\n",
+    "\n",
+    "# filter check\n",
+    "assert len(filtered_dar.seed_id)\n",
+    "for seed_id in filtered_dar.seed_id.values:\n",
+    "    assert seed_id.endswith('BHZ')\n",
+    "    assert seed_id.startswith('TA')\n",
+    "\n",
+    "print(filtered_dar.seed_id)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{'stream_id': 8, 'seed_id': 36, 'frequency': 701}\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Calcule rffts (note the \"time\" dimension has changed to \"frequency\")\n",
+    "rfft = dar.ops.rfft()\n",
+    "# print dimensions and corresponding size\n",
+    "print(dict(zip(rfft.dims, rfft.shape)))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{'stream_id': 8, 'seed_id': 36, 'time': 1400}\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Calculate irffts\n",
+    "irfft = rfft.ops.irfft()\n",
+    "# print dimensions and corresponding size\n",
+    "print(dict(zip(irfft.dims, irfft.shape)))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "event_id: smi:local/248883 stream_size: 36\n",
+      "event_id: smi:local/248925 stream_size: 36\n",
+      "event_id: smi:local/248887 stream_size: 36\n",
+      "event_id: smi:local/248882 stream_size: 36\n",
+      "event_id: smi:local/248891 stream_size: 36\n",
+      "event_id: smi:local/248843 stream_size: 33\n",
+      "event_id: smi:local/248839 stream_size: 33\n",
+      "event_id: smi:local/248828 stream_size: 33\n"
+     ]
+    }
+   ],
+   "source": [
+    "# convert back into a dict of streams\n",
+    "st_dict = dar.ops.to_stream()\n",
+    "for event_id, st in st_dict.items():\n",
+    "    print(f'event_id: {event_id} stream_size: {len(st)}')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Coordinates:\n",
+      "  * seed_id      (seed_id) object 'TA.O15A..BHE' ... 'TA.R17A..BHZ'\n",
+      "  * time         (time) float64 0.0 0.025 0.05 0.075 ... 34.9 34.92 34.95 34.98\n",
+      "  * stream_id    (stream_id) object 'smi:local/248883' ... 'smi:local/248828'\n",
+      "    starttime    (seed_id, stream_id) float64 1.186e+09 1.187e+09 ... 1.186e+09\n",
+      "    origin_time  (stream_id) float64 1.186e+09 1.187e+09 ... 1.186e+09 1.186e+09\n",
+      "    p_time       (stream_id, seed_id) float64 nan nan nan ... nan nan 1.186e+09\n",
+      "    s_time       (stream_id, seed_id) float64 nan nan nan nan ... nan nan nan\n"
+     ]
+    }
+   ],
+   "source": [
+    "# attach event information\n",
+    "dar_with_events = dar.ops.attach_events(cat)\n",
+    "# note the extra coords that have now been attached\n",
+    "print(dar_with_events.coords)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<xarray.DataArray (stream_id: 8, seed_id: 36, time: 0)>\n",
+      "array([], shape=(8, 36, 0), dtype=float64)\n",
+      "Coordinates:\n",
+      "  * time         (time) float64 \n",
+      "    starttime    (stream_id, seed_id) float64 1.186e+09 1.186e+09 ... 1.186e+09\n",
+      "    origin_time  (stream_id, seed_id) float64 1.186e+09 1.186e+09 ... 1.186e+09\n",
+      "    p_time       (stream_id, seed_id) float64 nan nan nan ... nan nan 1.186e+09\n",
+      "    s_time       (stream_id, seed_id) float64 nan nan nan nan ... nan nan nan\n",
+      "    station      (stream_id, seed_id) object 'TA.O15A' 'TA.O15A' ... 'TA.R17A'\n",
+      "  * stream_id    (stream_id) object 'smi:local/248883' ... 'smi:local/248828'\n",
+      "  * seed_id      (seed_id) object 'TA.O15A..BHE' ... 'TA.R17A..BHZ'\n",
+      "Attributes:\n",
+      "    sampling_rate:  40.0\n",
+      "    stats:          {'smi:local/248883': {'TA.O15A..BHE': Stats({'sampling_ra...\n",
+      "    events:         8 Event(s) in Catalog:\\n2007-08-07T02:14:24.080000Z | +39...\n"
+     ]
+    }
+   ],
+   "source": [
+    "# trim all waveforms to the mean of the P times picked on the same station\n",
+    "# if no such P pick exists the channels will not be trimmed\n",
+    "out = dar_with_events.ops.trim('p_time', aggregate_by='station')\n",
+    "print(out)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "got channels: {'TA.O15A..BHE', 'TA.O15A..BHZ', 'TA.O15A..BHN'} in yielded data array\n",
+      "got channels: {'TA.O16A..BHN', 'TA.O16A..BHZ', 'TA.O16A..BHE'} in yielded data array\n",
+      "got channels: {'TA.O18A..BHZ', 'TA.O18A..BHE', 'TA.O18A..BHN'} in yielded data array\n",
+      "got channels: {'TA.P15A..BHE', 'TA.P15A..BHZ', 'TA.P15A..BHN'} in yielded data array\n",
+      "got channels: {'TA.P16A..BHN', 'TA.P16A..BHE', 'TA.P16A..BHZ'} in yielded data array\n",
+      "got channels: {'TA.P17A..BHZ', 'TA.P17A..BHE', 'TA.P17A..BHN'} in yielded data array\n",
+      "got channels: {'TA.P18A..BHN', 'TA.P18A..BHZ', 'TA.P18A..BHE'} in yielded data array\n",
+      "got channels: {'TA.Q15A..BHZ', 'TA.Q15A..BHN', 'TA.Q15A..BHE'} in yielded data array\n",
+      "got channels: {'TA.Q16A..BHE', 'TA.Q16A..BHN', 'TA.Q16A..BHZ'} in yielded data array\n",
+      "got channels: {'TA.Q18A..BHZ', 'TA.Q18A..BHN', 'TA.Q18A..BHE'} in yielded data array\n",
+      "got channels: {'TA.R16A..BHN', 'TA.R16A..BHZ', 'TA.R16A..BHE'} in yielded data array\n",
+      "got channels: {'TA.R17A..BHZ', 'TA.R17A..BHN', 'TA.R17A..BHE'} in yielded data array\n"
+     ]
+    }
+   ],
+   "source": [
+    "# iterate over slices of stations\n",
+    "for seed_dar in dar.ops.iter_seed('station'):\n",
+    "    print(f'got channels: {set(seed_dar.seed_id.values)} in yielded data array')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {
+    "pycharm": {}
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<xarray.DataArray (stream_id: 8, seed_id: 12, time: 1400)>\n",
+       "array([[[  1108.874655,   1119.473984, ...,   1069.598523,   1069.361024],\n",
+       "        [   769.578456,    812.843158, ...,    710.545565,    743.855497],\n",
+       "        ..., \n",
+       "        [   300.727451,    284.782373, ...,    282.782602,    285.19993 ],\n",
+       "        [  1152.751057,   1151.757353, ...,   1094.554247,   1096.695947]],\n",
+       "\n",
+       "       [[  1096.374024,   1092.910792, ...,   1129.82034 ,   1125.569189],\n",
+       "        [   888.015203,    824.355506, ...,    997.170497,    883.946831],\n",
+       "        ..., \n",
+       "        [   500.027999,    483.141801, ...,    235.129751,    320.170267],\n",
+       "        [  1168.363813,   1173.752955, ...,   1094.462882,   1103.527979]],\n",
+       "\n",
+       "       ..., \n",
+       "       [[   860.889656,    880.146011, ...,  20864.24475 ,  22174.801938],\n",
+       "        [   760.464989,    801.550373, ...,   2880.418199,   5440.460826],\n",
+       "        ..., \n",
+       "        [          nan,           nan, ...,           nan,           nan],\n",
+       "        [  1088.487023,   1090.746992, ...,   6817.83382 ,   7029.331903]],\n",
+       "\n",
+       "       [[  1072.754865,   1053.757088, ...,   1154.632409,   1180.935646],\n",
+       "        [   842.579967,    816.82189 , ...,    750.613749,    769.885706],\n",
+       "        ..., \n",
+       "        [          nan,           nan, ...,           nan,           nan],\n",
+       "        [  1130.455218,   1132.392158, ...,   1136.072181,   1130.280496]]])\n",
+       "Coordinates:\n",
+       "  * stream_id  (stream_id) object 'smi:local/248883' ... 'smi:local/248828'\n",
+       "  * time       (time) float64 0.0 0.025 0.05 0.075 ... 34.9 34.92 34.95 34.98\n",
+       "  * seed_id    (seed_id) object 'TA.O15A' 'TA.O16A' ... 'TA.R16A' 'TA.R17A'\n",
+       "Attributes:\n",
+       "    sampling_rate:  40.0\n",
+       "    stats:          {'smi:local/248883': {'TA.O15A..BHE': Stats({'sampling_ra...\n",
+       "    events:         8 Event(s) in Catalog:\\n2007-08-07T02:14:24.080000Z | +39..."
+      ]
+     },
+     "execution_count": 27,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# calculate the norm of the data recorded at each station\n",
+    "from numpy.linalg import norm\n",
+    "dar.ops.agg(np.linalg.norm, level='station')"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
