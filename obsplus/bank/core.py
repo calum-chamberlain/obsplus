@@ -46,6 +46,7 @@ class _Bank(ABC):
     _owns_lock = False
     _concurrent = False
     _index_lock = threading.RLock()  # lock for updating index thread
+    executor = None  # an executor for using parallelism
     # optional str defining the directory structure and file name schemes
     path_structure = None
     name_structure = None
@@ -55,6 +56,7 @@ class _Bank(ABC):
     # status bar attributes
     _bar_update_interval = 50  # number of files before updating bar
     _min_files_for_bar = 100  # min number of files before using bar enabled
+    _read_func: callable  # function for reading datatype
 
     @abstractmethod
     def read_index(self, **kwargs) -> pd.DataFrame:
@@ -258,3 +260,13 @@ class _Bank(ABC):
         else:
             msg = f"{bar} is not a valid input for get_progress_bar"
             raise ValueError(msg)
+
+    def _map(self, func, args):
+        """
+        Map the args to function, using executor if defined else performed
+        in serial.
+        """
+        if self.executor is not None:
+            return self.executor.map(func, args)
+        else:
+            return (func(x) for x in args)
