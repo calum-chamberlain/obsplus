@@ -8,17 +8,20 @@ import shutil
 import sys
 import tempfile
 import typing
+from concurrent.futures import ThreadPoolExecutor
+from collections import Counter
 from os.path import basename
 from os.path import join, dirname, abspath, exists
 from pathlib import Path
 
-import obspy
 import numpy as np
+import obspy
 import pytest
 
-import obsplus
 import obsplus.datasets.utils
 import obsplus.events.utils
+from obsplus.constants import CPU_COUNT
+from obsplus.testing import instrument_methods
 
 # ------------------------- define constants
 
@@ -179,6 +182,35 @@ class DataSet(typing.NamedTuple):
     station_csv = None
     waveform_path = None
     inventory_path = None
+
+
+@pytest.fixture(scope="class")
+def thread_executor():
+    """ return a thread pool """
+    with ThreadPoolExecutor(CPU_COUNT) as executor:
+        yield executor
+
+
+@pytest.fixture()
+def instrumented_thread_executor(thread_executor):
+    """
+    Return a thread pool executor which has been instrumented.
+
+    This allows the calls to each of the executors methods to be counted. A
+    Counter object is attached to the executor and each of the methods is
+    wrapped to count how many times it is called.
+
+
+    Parameters
+    ----------
+    thread_executor
+
+    Returns
+    -------
+
+    """
+    with instrument_methods(thread_executor):
+        yield thread_executor
 
 
 @pytest.fixture(scope="session")
