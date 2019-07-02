@@ -34,7 +34,6 @@ from obsplus.constants import (
     EVENT_DTYPES,
     get_events_parameters,
     bar_paramter_description,
-    CPU_COUNT,
 )
 from obsplus.exceptions import BankDoesNotExistError
 from obsplus.interfaces import ProgressBar
@@ -285,7 +284,7 @@ class EventBank(_Bank):
         """
         paths = self.bank_path + self.read_index(columns="path", **kwargs).path
         read_func = partial(_try_read_catalog, format=self.format)
-        kwargs = dict(chunksize=len(paths) // CPU_COUNT)
+        kwargs = dict(chunksize=len(paths) // self._max_workers)
         try:
             return reduce(add, self._map(read_func, paths.values, **kwargs))
         except TypeError:  # empty events
