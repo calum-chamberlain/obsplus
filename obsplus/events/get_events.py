@@ -4,6 +4,8 @@ Module for adding a get_events method to obspy events.
 
 import inspect
 
+from typing import Tuple
+
 import numpy as np
 import obspy
 import pandas as pd
@@ -11,23 +13,75 @@ from obspy.clients.fdsn import Client
 
 import obsplus
 
-UNSUPPORTED_PARAMS = {
-    "minradius",
-    "maxradius",
-    "latitude",
-    "longitude",
-    "magnitude_type",
-    "events",
-    "contributor",
-}
+CIRCULAR_PARAMS = {"latitude", "longitude", "minradius", "maxradius"}
+
+NONCIRCULAR_PARAMS = {"minlongitude", "maxlongitude", "minlatitude", "maxlatitude"}
+
+UNSUPPORTED_PARAMS = {"magnitude_type", "events", "contributor"}
 CLIENT_SUPPORTED = set(inspect.signature(Client.get_events).parameters)
 SUPPORTED_PARAMS = CLIENT_SUPPORTED - UNSUPPORTED_PARAMS
+
+
+def _sanitize_circular_search(**kwargs) -> Tuple[dict, dict]:
+    """
+    Check for clashes between circular-search and box-search kwargs.
+
+    returns
+    -------
+    Two separate dictionaries of the circular kwargs and everything else.
+    """
+    if CIRCULAR_PARAMS.intersection(kwargs):
+        if NONCIRCULAR_PARAMS.intersection(kwargs):
+            raise ValueError(
+                "{0} cannot be used with {1}".format(
+                    NONCIRCULAR_PARAMS.intersection(kwargs),
+                    CIRCULAR_PARAMS.intersection(kwargs),
+                )
+            )
+        if not {"latitude", "longitude"}.issubset(kwargs):
+            raise ValueError("Circular search requires both longitude and latitude")
+        # If neither minradius not maxradius they just want everything.
+        if "minradius" not in kwargs and "maxradius" not in kwargs:
+            _ = kwargs.pop("latitude", None)
+            _ = kwargs.pop("longitude", None)
+    # Split parameters that are supported on sql and those that are not.
+    circular_kwargs = {}
+    for key in CIRCULAR_PARAMS:
+        value = kwargs.pop(key, None)
+        if value:
+            circular_kwargs.update({key: value})
+    return circular_kwargs, kwargs
 
 
 def _get_ids(df, kwargs) -> set:
     """ return a set of event_ids that meet filter requirements """
     filt = np.ones(len(df)).astype(bool)
 
+    # To speed circular searches up apply an initial box filter
+    circular_kwargs, kwargs = _sanitize_circular_search(**kwargs)
+    if "maxradius" in circular_kwargs.keys():
+        # Make the approximated box a bit bigger to cope with flattening.
+        box = {
+            "minlatitude": circular_kwargs["latitude"]
+            - (1.2 * circular_kwargs["maxradius"]),
+            "maxlatitude": circular_kwargs["latitude"]
+            + (1.2 * circular_kwargs["maxradius"]),
+            "minlongitude": circular_kwargs["longitude"]
+            - (1.2 * circular_kwargs["maxradius"]),
+            "maxlongitude": circular_kwargs["longitude"]
+            + (1.2 * circular_kwargs["maxradius"]),
+        }
+        for key, value in box.items():
+            current_value = kwargs.get(key, None)
+            if current_value is None:
+                kwargs.update({key: value})
+            else:
+                if key.endswith("latitude"):
+                    diff = abs(circular_kwargs["latitude"] - current_value)
+                else:
+                    diff = abs(circular_kwargs["longitude"] - current_value)
+                if diff > circular_kwargs["maxradius"]:
+                    kwargs.update({key: value})
     for item, value in kwargs.items():
         if value is None:
             continue
@@ -42,8 +96,24 @@ def _get_ids(df, kwargs) -> set:
             filt &= df["updated"] > value
         if item == "eventid":
             filt &= df["event_id"] == str(value)
+    # Apply initial filter
+    # df = set(df.event_id[filt])
+    df = df[filt]
+    filt = np.ones(len(df)).astype(bool)
+    if circular_kwargs:
+        radius = obsplus.utils.calculate_distance(
+            latitude=circular_kwargs["latitude"],
+            longitude=circular_kwargs["longitude"],
+            df=df,
+            degrees=True,
+        )
+        if "minradius" in circular_kwargs:
+            filt &= radius > circular_kwargs["minradius"]
+        if "maxradius" in circular_kwargs:
+            filt &= radius < circular_kwargs["maxradius"]
+        df = df[filt]
     limit = kwargs.get("limit", len(df))
-    return set(df.event_id[filt][:limit])
+    return set(df.event_id[:limit])
 
 
 def get_events(cat: obspy.Catalog, **kwargs) -> obspy.Catalog:
